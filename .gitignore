@@ -1,0 +1,11 @@
+# Please do not modify this file unless there are changes the to the root of the repo.
+# gitignore settings for a specific folder should be inside the appropriate folder 
+
+# Ignores everything in the root directroy
+/*
+
+# Unigonres the ROS2 directory
+!/ROS2
+
+# Unignores the Arduino directory
+!/Arduino
