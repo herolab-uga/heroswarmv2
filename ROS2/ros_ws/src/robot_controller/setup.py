@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'network_controller'
+package_name = 'robot_controller'
 
 setup(
     name=package_name,
