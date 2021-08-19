@@ -15,6 +15,7 @@ from rclpy.node import Node
 from robot_msgs.msg import Enviornment, Light
 from sensor_msgs.msg import IMU
 from std_msgs.msg import Float64
+from nav_msgs.msg import Odometry
 
 
 class Controller(Node):
@@ -38,6 +39,25 @@ class Controller(Node):
         self.light_pub = self.create_publisher(Light,'light',2)
         self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
         self.prox_pub = self.create_publisher(Float64,"proximity",2)
+        self.out_pub = self.create_publisher(Odometry, "odom",2)
+        # self.tmr = self.create_timer(timer_period, self.timer_callback)
+        self.linear_x_velo = 0
+        self.linear_y_velo = 0
+        self.angular_z_velo = 0
+
+
+    def pub_odom(self):
+        # Creates the odom message
+        odom_msg = Odometry()
+
+        # Adds Twist data
+        odom_msg.twist.twist.linear.x = self.linear_x_velo
+        odom_msg.twist.twist.linear.y = self.linear_y_velo
+        odom_msg.twist.twist.linear.z = 0
+        
+        odom_msg.twist.twist.angular.x = 0
+        odom_msg.twist.twist.angular.y = 0
+        odom_msg.twist.twist.angular.z = self.angular_z_velo
         
     def read_twist(self,msg) -> None:
         # Reads ths twist message x linear velocity
@@ -48,6 +68,12 @@ class Controller(Node):
 
         # Reads the twist message z angular velocity
         z_angular = msg.angular.z
+
+        self.linearx_velo = x_velo
+
+        self.linear=y_velo = y_velo
+
+        self.angular_z_velo = z_angular
 
         # Logs the data
         self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
