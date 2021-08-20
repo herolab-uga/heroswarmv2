@@ -1,2 +1,2 @@
-Float64[] rgbw
-Float64 gesture
+float64[] rgbw
+float64 gesture
