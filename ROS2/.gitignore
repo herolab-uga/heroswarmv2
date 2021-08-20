@@ -4,14 +4,11 @@
 # Unignore the gitignore
 !/.gitignore
 
-# Unignore the parent directory
-!/ROS2/
-
 # Unignore the workspace
 !/ros_ws
 
 # # Ignore everything in the workspace
-# /ROS2/ros_ws/*
+/ros_ws/*
 
 # Unignore the src directroy
 !/ros_ws/src
