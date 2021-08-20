@@ -39,7 +39,7 @@ class Controller(Node):
         self.light_pub = self.create_publisher(Light,'light',2)
         self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
         self.prox_pub = self.create_publisher(Float64,"proximity",2)
-        self.out_pub = self.create_publisher(Odometry, "odom",2)
+        self.odom_pub = self.create_publisher(Odometry, "odom",2)
         # self.tmr = self.create_timer(timer_period, self.timer_callback)
         self.linear_x_velo = 0
         self.linear_y_velo = 0
@@ -50,14 +50,33 @@ class Controller(Node):
         # Creates the odom message
         odom_msg = Odometry()
 
+        data = self.bus.read_i2c_block_data(self.arduino, 0)
+
+       
+
+        odom_data = []
+
+        # Get odom data from arduino
+        for index in range(5):
+            bytes = bytearray()
+            for i in range(4):
+                bytes.append(data[4*index + i])
+            odom_data.append(struct.unpack('f', bytes)[0])
+
         # Adds Twist data
-        odom_msg.twist.twist.linear.x = self.linear_x_velo
-        odom_msg.twist.twist.linear.y = self.linear_y_velo
+        odom_msg.twist.twist.linear.x = data[3] * math.cos(data[2])
+        odom_msg.twist.twist.linear.y = data[3] * math.sin(data[2])
         odom_msg.twist.twist.linear.z = 0
         
         odom_msg.twist.twist.angular.x = 0
         odom_msg.twist.twist.angular.y = 0
-        odom_msg.twist.twist.angular.z = self.angular_z_velo
+        odom_msg.twist.twist.angular.z = data[4]
+
+        odom_msg.pose.pose.position.x = data[0]
+        odom_msg.pose.pose.position.y = data[1]
+        odom_msg.pose.pose.position.z = 0
+
+        odom_msg.pose.pose.orientation
         
     def read_twist(self,msg) -> None:
         # Reads ths twist message x linear velocity
