@@ -26,6 +26,8 @@ class Controller(Node):
         # Arduino Device Address
         self.arduino = 0x8
         # Init the i2c buss
+        self.light = False
+        self.enviornment = False
         self.bus = board.I2C()
         self.IMU = LSM6DS33(self.bus)
         self.magnetometer = adafruit_lis2mdl.LIS2MDL(self.bus)
@@ -36,8 +38,10 @@ class Controller(Node):
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(IMU,"imu",2)
         #self.mic_pub = self.create_publisher(Float64,"mic",2)
-        self.light_pub = self.create_publisher(Light,'light',2)
-        self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
+        if self.light:
+            self.light_pub = self.create_publisher(Light,'light',2)
+        if self.enviornment:
+            self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
         self.prox_pub = self.create_publisher(Float64,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
         # self.tmr = self.create_timer(timer_period, self.timer_callback)
