@@ -81,6 +81,8 @@ class Controller(Node):
         odom_msg.pose.pose.position.z = 0
 
         odom_msg.pose.pose.orientation
+
+        self.odom_pub.publish(odom_msg)
         
     def read_twist(self,msg) -> None:
         # Reads ths twist message x linear velocity
