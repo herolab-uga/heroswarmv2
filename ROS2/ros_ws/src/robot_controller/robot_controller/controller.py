@@ -6,7 +6,7 @@ import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import rclpy
-import smi2c
+import smbus
 import math
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
