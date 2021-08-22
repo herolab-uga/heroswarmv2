@@ -88,15 +88,15 @@ class Controller(Node):
         # Adds Twist data
         odom_msg.twist.twist.linear.x = data[3] * math.cos(data[2])
         odom_msg.twist.twist.linear.y = data[3] * math.sin(data[2])
-        odom_msg.twist.twist.linear.z = 0
+        odom_msg.twist.twist.linear.z = 0.0
         
-        odom_msg.twist.twist.angular.x = 0
-        odom_msg.twist.twist.angular.y = 0
+        odom_msg.twist.twist.angular.x = 0.0
+        odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = data[4]
 
         odom_msg.pose.pose.position.x = data[0]
         odom_msg.pose.pose.position.y = data[1]
-        odom_msg.pose.pose.position.z = 0
+        odom_msg.pose.pose.position.z = 0.0
 
         odom_msg.pose.pose.orientation
 
