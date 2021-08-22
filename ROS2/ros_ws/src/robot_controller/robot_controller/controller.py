@@ -13,7 +13,7 @@ from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
 from rclpy.node import Node
 from robot_msgs.msg import Enviornment, Light
-from sensor_msgs.msg import IMU
+from sensor_msgs.msg import Imu
 from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
 
