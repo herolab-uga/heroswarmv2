@@ -54,7 +54,7 @@ class Controller(Node):
         
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
-            self.enviorn_tmr = self.create_timer(.015, self.read_enviornment())
+            self.enviorn_tmr = self.create_timer(.015, self.read_enviornment)
 
         self.prox_pub = self.create_publisher(Int16,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
