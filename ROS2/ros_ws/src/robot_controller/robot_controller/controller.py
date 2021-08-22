@@ -30,13 +30,13 @@ class Controller(Node):
         self.enviornment = False
         self.bus = board.I2C()
         self.IMU = LSM6DS33(self.bus)
-        self.magnetometer = adafruit_lis2mdl.LIS2MDL(self.bus)
+        self.magnetometer = adafruit_lis3mdl.LIS2MDL(self.bus)
         self.light = APDS9960(self.bus)
         self.light.enable_gesture()
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.bus)
         self.humdity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
-        self.imu_pub = self.create_publisher(IMU,"imu",2)
+        self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Float64,"mic",2)
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
@@ -108,7 +108,7 @@ class Controller(Node):
 
     def read_imu(self) -> None:
         # Creates the IMU message
-        imu_msg = IMU()
+        imu_msg = Imu()
         
         # Read the sensor
         acc_x, acc_y, acc_z = self.IMU.acceleration
