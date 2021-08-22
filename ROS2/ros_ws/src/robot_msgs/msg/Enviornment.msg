@@ -1,4 +1,4 @@
-std_msgs/Int16 temp
-std_msgs/Int16 pressure
-std_msgs/Int16 humidity
-std_msgs/Int16 altitude
+int16 temp
+int16 pressure
+int16 humidity
+int16 altitude
