@@ -1,2 +1,2 @@
-int[] rgbw
-int gesture
+Int16[] rgbw
+Int16 gesture
