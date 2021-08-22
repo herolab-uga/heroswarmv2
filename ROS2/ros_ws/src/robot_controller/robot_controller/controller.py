@@ -50,7 +50,7 @@ class Controller(Node):
 
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
-            self.light_tmr = self.create_timer(.015, self.read_light())
+            self.light_tmr = self.create_timer(.015, self.read_light)
         
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
