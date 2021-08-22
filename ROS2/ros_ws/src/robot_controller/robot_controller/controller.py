@@ -43,7 +43,7 @@ class Controller(Node):
         self.light.enable_gesture = True
         self.light.enable_color = True
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-        self.humdity = adafruit_sht31d.SHT31D(self.i2c)
+        self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
