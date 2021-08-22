@@ -166,7 +166,7 @@ class Controller(Node):
         light_msg = Light()
 
         # Sets the current rgbw value array
-        light_msg.rgbw = self.light.color_data
+        light_msg.rgbw = set(self.light.color_data)
 
         # Sets the gesture type
         light_msg.gesture.data = self.light.gesture()
