@@ -1,2 +1,2 @@
-Int16[] rgbw
-Int16 gesture
+std_msgs/Int16[] rgbw
+std_msgs/Int16 gesture
