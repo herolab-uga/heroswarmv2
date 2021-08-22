@@ -59,6 +59,7 @@ class Controller(Node):
         self.linear_x_velo = 0
         self.linear_y_velo = 0
         self.angular_z_velo = 0
+        print("Done")
 
 
     def pub_odom(self):
@@ -230,8 +231,8 @@ class Controller(Node):
         
 
 
-def main(args):
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     controller = Controller()
     rclpy.spin(controller)
 
