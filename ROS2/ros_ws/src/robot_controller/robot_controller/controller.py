@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+
 import struct
 
 import adafruit_bmp280
@@ -20,7 +21,8 @@ from nav_msgs.msg import Odometry
 
 class Controller(Node):
 
-    def __init__(self) -> None:
+    def __init__(self):
+
         # Creates the control node
         super().__init__("robot_controller")
 
@@ -44,7 +46,7 @@ class Controller(Node):
         self.humdity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
-        #self.mic_pub = self.create_publisher(Int64,"mic",2)
+        #self.mic_pub = self.create_publisher(Int16,"mic",2)
 
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
@@ -59,7 +61,6 @@ class Controller(Node):
         self.linear_x_velo = 0
         self.linear_y_velo = 0
         self.angular_z_velo = 0
-        print("Done")
 
 
     def pub_odom(self):
@@ -226,9 +227,6 @@ class Controller(Node):
 
         # Writes the values to the i2c
         self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
-    
-    
-        
 
 
 def main(args=None):
