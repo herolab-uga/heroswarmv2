@@ -169,7 +169,7 @@ class Controller(Node):
         light_msg.rgbw = set(self.light.color_data)
 
         # Sets the gesture type
-        light_msg.gesture.data = self.light.gesture()
+        light_msg.gesture = self.light.gesture()
 
         # Publishes the message
         self.light_pub.publish(light_msg)
