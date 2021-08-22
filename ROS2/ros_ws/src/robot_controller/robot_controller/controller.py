@@ -216,7 +216,7 @@ class Controller(Node):
         byteList.append(0)  # fails to send last byte over I2C, hence this needs to be added 
 
         # Writes the values to the i2c
-        self.i2c.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
+        self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
     
     
         
