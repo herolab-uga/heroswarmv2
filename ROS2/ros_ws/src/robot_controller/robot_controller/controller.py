@@ -2,7 +2,7 @@
 import struct
 
 import adafruit_bmp280
-import adafruit_lis2mdl
+import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import rclpy
