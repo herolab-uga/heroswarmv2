@@ -75,8 +75,7 @@ void interpretData(float array[3]){
   //Case 3: ROS Twist
   //if( int(array[0]) == 2){
     // driveMode = true;
-    float velMag = hypot(array[0], array[1]);
-    linearVelocity = velMag;
+    linearVelocity = -array[0];
     angularVelocity = array[2];
     Serial.println("Case3: Set");
   //}

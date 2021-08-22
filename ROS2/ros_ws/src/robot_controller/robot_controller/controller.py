@@ -55,7 +55,7 @@ class Controller(Node):
 
         self.prox_pub = self.create_publisher(Int16,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
-        
+
         self.linear_x_velo = 0
         self.linear_y_velo = 0
         self.angular_z_velo = 0
@@ -230,8 +230,8 @@ class Controller(Node):
         
 
 
-def main(args=None):
-    rclpy.init(args=args)
+def main(args):
+    rclpy.init()
     controller = Controller()
     rclpy.spin(controller)
 
