@@ -47,7 +47,7 @@ class Controller(Node):
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
         self.prox_pub = self.create_publisher(Float64,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
-        # self.tmr = self.create_timer(timer_period, self.timer_callback)
+        self.light_tmr = self.create_timer(.015, self.read_light())
         self.linear_x_velo = 0
         self.linear_y_velo = 0
         self.angular_z_velo = 0
