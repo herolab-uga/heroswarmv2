@@ -6,7 +6,7 @@ import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import rclpy
-import smbus
+import smi2c
 import math
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
@@ -25,18 +25,19 @@ class Controller(Node):
         super().__init__("robot_controller")
         # Arduino Device Address
         self.arduino = 0x8
-        # Init the i2c buss
+        # Init the i2c bus
         self.light = False
         self.enviornment = False
-        self.bus = board.I2C()
-        self.IMU = LSM6DS33(self.bus)
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.bus)
-        self.light = APDS9960(self.bus)
+        self.i2c = board.I2C()
+        self.bus = smbus.SMBus(1)
+        self.IMU = LSM6DS33(self.i2c)
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        self.light = APDS9960(self.i2c)
         self.light.enable_proximity = True
         self.light.enable_gesture = True
         self.light.enable_color = True
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.bus)
-        self.humdity = adafruit_sht31d.SHT31D(self.bus)
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+        self.humdity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Float64,"mic",2)
@@ -56,7 +57,7 @@ class Controller(Node):
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = self.bus.read_i2c_block_data(self.arduino, 0)
+        data = self.i2c.read_i2c_block_data(self.arduino, 0)
 
        
 
@@ -214,8 +215,8 @@ class Controller(Node):
             byteList += list(struct.pack('f', value))
         byteList.append(0)  # fails to send last byte over I2C, hence this needs to be added 
 
-        # Writes the values to the bus
-        self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
+        # Writes the values to the i2c
+        self.i2c.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
     
     
         
