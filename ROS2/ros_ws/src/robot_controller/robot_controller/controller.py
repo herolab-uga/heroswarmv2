@@ -23,13 +23,17 @@ class Controller(Node):
     def __init__(self) -> None:
         # Creates the control node
         super().__init__("robot_controller")
+
         # Arduino Device Address
         self.arduino = 0x8
+
+        # Init smbus
+        self.bus = smbus.SMBus(1)
+
         # Init the i2c bus
-        self.light = False
+        self.light = True
         self.enviornment = False
         self.i2c = board.I2C()
-        self.bus = smbus.SMBus(1)
         self.IMU = LSM6DS33(self.i2c)
         self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
         self.light = APDS9960(self.i2c)
@@ -41,10 +45,12 @@ class Controller(Node):
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Int64,"mic",2)
+
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
+
         self.prox_pub = self.create_publisher(Int16,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
         self.light_tmr = self.create_timer(.015, self.read_light())
