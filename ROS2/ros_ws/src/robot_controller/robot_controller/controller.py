@@ -72,7 +72,7 @@ class Controller(Node):
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = self.i2c.read_i2c_block_data(self.arduino, 0)
+        data = self.bus.read_i2c_block_data(self.arduino, 0)
 
        
 
