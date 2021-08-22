@@ -30,7 +30,7 @@ class Controller(Node):
         self.enviornment = False
         self.bus = board.I2C()
         self.IMU = LSM6DS33(self.bus)
-        self.magnetometer = adafruit_lis3mdl.LIS2MDL(self.bus)
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.bus)
         self.light = APDS9960(self.bus)
         self.light.enable_gesture()
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.bus)
