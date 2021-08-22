@@ -14,7 +14,7 @@ from geometry_msgs.msg import Quaternion, Twist, Vector3
 from rclpy.node import Node
 from robot_msgs.msg import Enviornment, Light
 from sensor_msgs.msg import Imu
-from std_msgs.msg import Float64
+from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
 
 
@@ -40,12 +40,12 @@ class Controller(Node):
         self.humdity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
-        #self.mic_pub = self.create_publisher(Float64,"mic",2)
+        #self.mic_pub = self.create_publisher(Int64,"mic",2)
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
-        self.prox_pub = self.create_publisher(Float64,"proximity",2)
+        self.prox_pub = self.create_publisher(Int16,"proximity",2)
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
         self.light_tmr = self.create_timer(.015, self.read_light())
         self.linear_x_velo = 0
@@ -152,7 +152,7 @@ class Controller(Node):
 
     # def read_mic(self) -> None:
     #     # Creates the mic message
-    #     mic_msg = Float64
+    #     mic_msg = Int16()
 
     #     # Sets the meassage data value
     #     mic_msg.data = None
@@ -195,7 +195,7 @@ class Controller(Node):
 
     def read_proximity(self) -> None:
         # Creates the proximity message
-        proximity_msg = Float64()
+        proximity_msg = Int16()
         
         # Sets the proximity value
         proximity_msg.data = self.light.proximity
