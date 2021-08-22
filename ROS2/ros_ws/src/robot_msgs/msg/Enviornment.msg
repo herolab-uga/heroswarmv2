@@ -1,4 +1,4 @@
-float64 temp
-float64 pressure
-float64 humidity
-float64 altitude
+int temp
+int pressure
+int humidity
+int altitude
