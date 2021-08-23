@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Swarmbot.h>
 #include <Wire.h>
-#include <String.h>
+// #include <String.h>
 SwarmBot steve; 
 imu IMU;
 
@@ -48,7 +48,8 @@ void sendEvent(){
   odometryData[2] = steve.getHeading();
   odometryData[3] = steve.getLinearVel();
   odometryData[4] = steve.getAngularVel();
-
+  Serial.print("Get X: ");
+  Serial.println(odometryData[0]);
   Wire.write((byte*)odometryData, sizeof(odometryData));
   //Serial.println(steve.getX(),8);
 }
@@ -75,7 +76,7 @@ void interpretData(float array[3]){
   //Case 3: ROS Twist
   //if( int(array[0]) == 2){
     // driveMode = true;
-    linearVelocity = -array[0];
+    linearVelocity = array[0];
     angularVelocity = array[2];
     Serial.println("Case3: Set");
   //}
