@@ -74,16 +74,14 @@ class Controller(Node):
 
         data = self.bus.read_i2c_block_data(self.arduino, 0)
 
-       
-
         odom_data = [0.0,0.0,0.0,0.0,0.0]
 
-        # # Get odom data from arduino
-        # for index in range(5):
-        #     bytes = bytearray()
-        #     for i in range(4):
-        #         bytes.append(data[4*index + i])
-        #     odom_data[index] = struct.unpack('f', bytes)[0]
+        # Get odom data from arduino
+        for index in range(5):
+            bytes = bytearray()
+            for i in range(4):
+                bytes.append(data[4*index + i])
+            odom_data[index] = struct.unpack('f', bytes)[0]
 
         # Adds Twist data
         odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
