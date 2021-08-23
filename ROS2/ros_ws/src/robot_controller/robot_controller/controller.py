@@ -47,21 +47,21 @@ class Controller(Node):
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,1)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
-        #self.enviorn_tmr = self.create_timer(.015, self.read_enviornment)
+        #self.enviorn_tmr = self.create_timer(.030, self.read_enviornment)
 
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
-            self.light_tmr = self.create_timer(.015, self.read_light)
+            self.light_tmr = self.create_timer(.030, self.read_light)
         
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
-            self.enviorn_tmr = self.create_timer(.015, self.read_enviornment)
+            self.enviorn_tmr = self.create_timer(.030, self.read_enviornment)
 
         self.prox_pub = self.create_publisher(Int16,"proximity",2)
-        self.enviorn_tmr = self.create_timer(.015, self.read_proximity)
+        self.enviorn_tmr = self.create_timer(.030, self.read_proximity)
 
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
-        self.enviorn_tmr = self.create_timer(.015, self.pub_odom)
+        self.enviorn_tmr = self.create_timer(.030, self.pub_odom)
 
         self.linear_x_velo = 0
         self.linear_y_velo = 0
