@@ -76,7 +76,7 @@ class Controller(Node):
 
        
 
-        odom_data = [0,0,0,0,0]
+        odom_data = [0.0,0.0,0.0,0.0,0.0]
 
         # # Get odom data from arduino
         # for index in range(5):
