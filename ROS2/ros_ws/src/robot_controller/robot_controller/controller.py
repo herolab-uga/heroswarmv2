@@ -47,21 +47,20 @@ class Controller(Node):
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,1)
         self.imu_pub = self.create_publisher(Imu,"imu",2)
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
-        #self.enviorn_tmr = self.create_timer(.030, self.read_enviornment)
 
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
-            self.light_tmr = self.create_timer(.030, self.read_light)
+            self.light_tmr = self.create_timer(1.0, self.read_light)
         
         if self.enviornment:
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
-            self.enviorn_tmr = self.create_timer(.030, self.read_enviornment)
+            self.enviorn_tmr = self.create_timer(1.0, self.read_enviornment)
 
         self.prox_pub = self.create_publisher(Int16,"proximity",2)
-        self.enviorn_tmr = self.create_timer(.030, self.read_proximity)
+        self.prox_tmr = self.create_timer(.030, self.read_proximity)
 
         self.odom_pub = self.create_publisher(Odometry, "odom",2)
-        self.enviorn_tmr = self.create_timer(.030, self.pub_odom)
+        self.odom_tmr = self.create_timer(.015, self.pub_odom)
 
         self.linear_x_velo = 0
         self.linear_y_velo = 0
@@ -119,6 +118,15 @@ class Controller(Node):
         # Logs the data
         self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
+        if x_velo is self.linearx_velo:
+            return
+
+        if y_velo is self.lineary:
+            return
+
+        if z_angular is self.angular_z_velo:
+            return
+
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
