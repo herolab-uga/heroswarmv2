@@ -27,7 +27,7 @@ class Controller(Node):
         super().__init__("robot_controller")
 
         # Arduino Device Address
-        self.arduino = 0x8
+        self.arduino = 0x08
 
         # Init smbus
         self.bus = smbus.SMBus(1)
