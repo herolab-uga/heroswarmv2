@@ -49,7 +49,7 @@ class Controller(Node):
         
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
 
-        if self.ime:
+        if self.imu:
             self.imu_pub = self.create_publisher(Imu,"imu",2)
             self.imu_tmr = self.create_timer(1.0, self.read_imu)
 
