@@ -234,6 +234,7 @@ class Controller(Node):
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self,values) -> None:
+        print("Running")
         byteList = []
 
         # Converts the values to bytes 
