@@ -33,8 +33,9 @@ class Controller(Node):
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = True
-        self.enviornment = True
+        self.light = False
+        self.enviornment = False
+        self.imu = False
         self.i2c = board.I2C()
         self.IMU = LSM6DS33(self.i2c)
         self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
@@ -45,8 +46,12 @@ class Controller(Node):
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,1)
-        self.imu_pub = self.create_publisher(Imu,"imu",2)
+        
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
+
+        if self.ime:
+            self.imu_pub = self.create_publisher(Imu,"imu",2)
+            self.imu_tmr = self.create_timer(1.0, self.read_imu)
 
         if self.light:
             self.light_pub = self.create_publisher(Light,'light',2)
