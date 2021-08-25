@@ -37,12 +37,9 @@ class Controller(Node):
         self.enviornment = False
         self.imu = False
         self.i2c = board.I2C()
-        self.IMU = LSM6DS33(self.i2c)
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-        self.light = APDS9960(self.i2c)
-        self.light.enable_proximity = True
-        self.light.enable_gesture = True
-        self.light.enable_color = True
+        
+        
+        
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,1)
@@ -50,22 +47,28 @@ class Controller(Node):
         #self.mic_pub = self.create_publisher(Int16,"mic",2)
 
         if self.imu:
+            self.IMU = LSM6DS33(self.i2c)
+            self.odom_pub = self.create_publisher(Odometry, "odom",2)
+            self.odom_tmr = self.create_timer(.015, self.pub_odom)
             self.imu_pub = self.create_publisher(Imu,"imu",2)
             self.imu_tmr = self.create_timer(1.0, self.read_imu)
 
         if self.light:
+            self.light = APDS9960(self.i2c)
+            self.light.enable_proximity = True
+            self.light.enable_gesture = True
+            self.light.enable_color = True
+            self.prox_pub = self.create_publisher(Int16,"proximity",2)
+            self.prox_tmr = self.create_timer(.030, self.read_proximity)
             self.light_pub = self.create_publisher(Light,'light',2)
             self.light_tmr = self.create_timer(1.0, self.read_light)
         
         if self.enviornment:
+            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+            self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
             self.enviorn_tmr = self.create_timer(1.0, self.read_enviornment)
-
-        self.prox_pub = self.create_publisher(Int16,"proximity",2)
-        self.prox_tmr = self.create_timer(.030, self.read_proximity)
-
-        self.odom_pub = self.create_publisher(Odometry, "odom",2)
-        self.odom_tmr = self.create_timer(.015, self.pub_odom)
 
         self.linear_x_velo = 0
         self.linear_y_velo = 0
