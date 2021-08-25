@@ -73,6 +73,7 @@ class Controller(Node):
         self.linear_x_velo = 0
         self.linear_y_velo = 0
         self.angular_z_velo = 0
+        print("Ready")
 
 
     def pub_odom(self):
