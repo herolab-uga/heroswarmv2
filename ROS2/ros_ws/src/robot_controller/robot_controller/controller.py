@@ -136,7 +136,7 @@ class Controller(Node):
         if z_angular is self.angular_z_velo:
             return
 
-        print("Here 1")
+        self.get_logger().info("Here 1")
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
@@ -239,7 +239,7 @@ class Controller(Node):
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self,values):
-        print("HERE")
+        self.get_logger().info("Here 2")
         byteList = []
 
         # Converts the values to bytes 
