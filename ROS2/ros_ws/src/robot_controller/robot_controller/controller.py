@@ -33,9 +33,9 @@ class Controller(Node):
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = False
-        self.enviornment = False
-        self.imu = False
+        self.light = True
+        self.enviornment = True
+        self.imu = True
         self.i2c = board.I2C()
         
         
