@@ -143,9 +143,9 @@ class Controller(Node):
 
 
         # Sets the orientation parameters
-        imu_msg.orientation.x = 0
-        imu_msg.orientation.y = 0
-        imu_msg.orientation.z = 0
+        imu_msg.orientation.x = 0.0
+        imu_msg.orientation.y = 0.0
+        imu_msg.orientation.z = 0.0
 
         # Sets the angular velocity parameters
         imu_msg.angular_velocity.x = gyro_x
