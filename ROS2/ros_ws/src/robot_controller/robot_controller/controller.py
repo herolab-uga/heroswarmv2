@@ -70,9 +70,9 @@ class Controller(Node):
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",2)
             self.enviorn_tmr = self.create_timer(1.0, self.read_enviornment)
 
-        self.linear_x_velo = 0
-        self.linear_y_velo = 0
-        self.angular_z_velo = 0
+        self.linear_x_velo = None
+        self.linear_y_velo = None
+        self.angular_z_velo = None
         print("Ready")
 
 
@@ -127,16 +127,9 @@ class Controller(Node):
         # Logs the data
         self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
-        if x_velo is self.linearx_velo:
+        if x_velo is self.linearx_velo and y_velo is self.linear_y_velo is z_angular is self.angular_z_velo:
             return
 
-        if y_velo is self.lineary:
-            return
-
-        if z_angular is self.angular_z_velo:
-            return
-
-        self.get_logger().info("Here 1")
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
@@ -239,7 +232,6 @@ class Controller(Node):
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self,values):
-        self.get_logger().info("Here 2")
         byteList = []
 
         # Converts the values to bytes 
