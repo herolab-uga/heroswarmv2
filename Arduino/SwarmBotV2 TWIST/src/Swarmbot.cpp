@@ -71,7 +71,7 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     angularVelocityIMU =  0;
 
     //Linear Velocity PID Constants
-    lKp = 20;
+    lKp = 15;
     lKi = 0;
     lKd = 0;
     linearIntegral = 0;
@@ -79,9 +79,9 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     linearLastError = 0;
 
     //Angular Velocity PID Constants
-    aVKp = 10; //0.06
+    aVKp = 8; //0.06
     aVKi = 0.00; //0.001
-    aVKd = 0.1;
+    aVKd = 0.0;
     aVFF = 155; //165
     angleVelIntegral = 0;
     angleVelDerivative = 0;
@@ -98,7 +98,7 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     leftMotorLastSpeed = 0;
 
     //RightMotor
-    rmKp = .25;
+    rmKp = 0.25;
     rmKi = 0.05; //0.05
     rmKd = 0.00;
     rmFF = 155;
@@ -161,6 +161,16 @@ float SwarmBot::getLinearVel(){
 
 float SwarmBot::getAngularVel(){
     return angularVelocityOdom;
+}
+
+void SwarmBot::setPIDSetpoint(float linear, float angular){
+    if (gearRatio == 50) {
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105);
+    } else {
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105);
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105);
+    }
 }
 
 
@@ -429,7 +439,6 @@ float SwarmBot::linearVelocityPID(float vel){
     return ((lKp * error) + (lKi * linearIntegral) + (lKd * linearDerivative));
 }
 void SwarmBot::setVelocity(float velocity, float omega){
-
     float linearOutput = linearVelocityPID(velocity);
     float angularOutput = angularVelocityPID(omega);
 
@@ -464,4 +473,3 @@ float SwarmBot::setAngVel(float omega){
         return 0;
     }
 }
-

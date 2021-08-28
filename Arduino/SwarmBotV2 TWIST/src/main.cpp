@@ -78,6 +78,7 @@ void interpretData(float array[3]){
     // driveMode = true;
     linearVelocity = array[0];
     angularVelocity = array[2];
+    steve.setPIDSetpoint(linearVelocity,angularVelocity);
     Serial.println("Case3: Set");
   //}
   //Case 4: PID TUNING

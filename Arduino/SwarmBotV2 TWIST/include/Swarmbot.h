@@ -141,6 +141,8 @@
             byte getRightIn1();
             byte getRightIn2();
             byte getMode();
+
+            void setPIDSetpoint(float,float);
             
             float getX();
             float getY();
