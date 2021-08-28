@@ -6,25 +6,23 @@ import adafruit_bmp280
 import adafruit_lis3mdl
 import adafruit_sht31d
 import board
-import rclpy
+import rospy
 import smbus
 import math
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
-from rclpy.node import Node
 from robot_msgs.msg import Enviornment, Light
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
 
 
-class Controller(Node):
+class Controller:
 
     def __init__(self):
 
-        # Creates the control node
-        super().__init__("robot_controller")
+        rospy.init_node("robot_controller",anonymous=True)
 
         # Arduino Device Address
         self.arduino = 0x08
@@ -43,41 +41,26 @@ class Controller(Node):
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
+        self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
         
-        #self.mic_pub = self.create_publisher(Int16,"mic",2)
+        #self.mic_pub = rospy.Publisher(Int16,"mic",2)
 
         if self.imu:
-            self.IMU = LSM6DS33(self.i2c)
-            self.odom_pub = self.create_publisher(Odometry, "odom",5)
-            self.odom_tmr = self.create_timer(.015, self.pub_odom)
-            self.imu_pub = self.create_publisher(Imu,"imu",5)
-            self.imu_tmr = self.create_timer(1.0, self.read_imu)
+            self.read_imu()
 
         if self.light:
-            self.light = APDS9960(self.i2c)
-            self.light.enable_proximity = True
-            self.light.enable_gesture = True
-            self.light.enable_color = True
-            self.prox_pub = self.create_publisher(Int16,"proximity",5)
-            self.prox_tmr = self.create_timer(.030, self.read_proximity)
-            self.light_pub = self.create_publisher(Light,'light',5)
-            self.light_tmr = self.create_timer(1.0, self.read_light)
+            self.read_light()
         
         if self.enviornment:
-            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-            self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-            self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",5)
-            self.enviorn_tmr = self.create_timer(1.0, self.read_enviornment)
+            self.read_enviornment()
         
         if self.proximity:
-            self.proximity_pub = self.create_publisher(Int16,"proximity",5)
-            self.proximity_tmr = self.create_timer(1.0, self.read_proximity)
+            self.read_proximity()
 
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
+
         print("Ready")
 
 
@@ -139,31 +122,38 @@ class Controller(Node):
         self.send_velocity([x_velo,y_velo,z_angular])
 
     def read_imu(self) -> None:
-        # Creates the IMU message
-        imu_msg = Imu()
-        
-        # Read the sensor
-        acc_x, acc_y, acc_z = self.IMU.acceleration
-        gyro_x, gyro_y, gyro_z = self.IMU.gyro
+        self.IMU = LSM6DS33(self.i2c)
+        self.odom_pub = rospy.Publisher(Odometry, "odom",5)
+        self.imu_pub = rospy.Publisher(Imu,"imu",5)
+        rospy.Rate(60)
+
+        while not rospy.is_shutdown():
+            
+            # Creates the IMU message
+            imu_msg = Imu()
+            
+            # Read the sensor
+            acc_x, acc_y, acc_z = self.IMU.acceleration
+            gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
 
-        # Sets the orientation parameters
-        imu_msg.orientation.x = 0.0
-        imu_msg.orientation.y = 0.0
-        imu_msg.orientation.z = 0.0
+            # Sets the orientation parameters
+            imu_msg.orientation.x = 0.0
+            imu_msg.orientation.y = 0.0
+            imu_msg.orientation.z = 0.0
 
-        # Sets the angular velocity parameters
-        imu_msg.angular_velocity.x = gyro_x
-        imu_msg.angular_velocity.y = gyro_y
-        imu_msg.angular_velocity.z = gyro_z
+            # Sets the angular velocity parameters
+            imu_msg.angular_velocity.x = gyro_x
+            imu_msg.angular_velocity.y = gyro_y
+            imu_msg.angular_velocity.z = gyro_z
 
-        # Sets the linear acceleration parameters
-        imu_msg.linear_acceleration.x = acc_x
-        imu_msg.linear_acceleration.y = acc_y
-        imu_msg.linear_acceleration.z = acc_z
+            # Sets the linear acceleration parameters
+            imu_msg.linear_acceleration.x = acc_x
+            imu_msg.linear_acceleration.y = acc_y
+            imu_msg.linear_acceleration.z = acc_z
 
-        # Publishes the message
-        self.imu_pub.publish(imu_msg)
+            # Publishes the message
+            self.imu_pub.publish(imu_msg)
     
     # Remove DC bias before computing RMS.
     def mean(self,values):
@@ -191,46 +181,74 @@ class Controller(Node):
 
     
     def read_light(self) -> None:
-        # Creates the light message
-        light_msg = Light()
+        self.light = APDS9960(self.i2c)
+        self.light.enable_proximity = True
+        self.light.enable_gesture = True
+        self.light.enable_color = True
+        self.prox_pub = rospy.Publisher(Int16,"proximity",5)
+        self.light_pub = rospy.Publisher(Light,'light',5)
+        rospy.Rate(10)
 
-        # Sets the current rgbw value array
-        light_msg.rgbw = set(self.light.color_data)
+        while not rospy.is_shutdown():
 
-        # Sets the gesture type
-        light_msg.gesture = self.light.gesture()
+            # Creates the light message
+            light_msg = Light()
 
-        # Publishes the message
-        self.light_pub.publish(light_msg)
+            # Sets the current rgbw value array
+            light_msg.rgbw = set(self.light.color_data)
+
+            # Sets the gesture type
+            light_msg.gesture = self.light.gesture()
+
+            # Publishes the message
+            self.light_pub.publish(light_msg)
 
     def read_enviornment(self) -> None:
-        # Creates the enviornment message
-        enviorn_msg = Enviornment()
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+        self.humidity = adafruit_sht31d.SHT31D(self.i2c)
+        self.enviornment_pub = rospy.Publisher(Enviornment,"enviornment",5)
 
-        # Sets the temperature
-        enviorn_msg.temp = self.bmp.temperature
+        rospy.Rate(10)
 
-        # Sets the pressure 
-        enviorn_msg.pressure = self.bmp.pressure
+        while not rospy.is_shutdown:
+            # Creates the enviornment message
+            enviorn_msg = Enviornment()
 
-        # Sets the humidity
-        enviorn_msg.humidity = self.humidity.relative_humidity
+            # Sets the temperature
+            enviorn_msg.temp = self.bmp.temperature
 
-        # Sets the altitude
-        enviorn_msg.altitude = self.bmp.altitude
+            # Sets the pressure 
+            enviorn_msg.pressure = self.bmp.pressure
 
-        # Publishes the message
-        self.enviornment_pub.publish(enviorn_msg)
+            # Sets the humidity
+            enviorn_msg.humidity = self.humidity.relative_humidity
+
+            # Sets the altitude
+            enviorn_msg.altitude = self.bmp.altitude
+
+            # Publishes the message
+            self.enviornment_pub.publish(enviorn_msg)
 
     def read_proximity(self) -> None:
-        # Creates the proximity message
-        proximity_msg = Int16()
-        
-        # Sets the proximity value
-        proximity_msg.data = self.light.proximity
+        if self.light == None:
+            self.light = APDS9960(self.i2c)
+            self.light.enable_proximity = True
+            self.light.enable_gesture = True
+            self.light.enable_color = True
+            
+        self.proximity = rospy.Publisher(Int16, "proximity",10)
+        rospy.Rate(30)
 
-        # Publishes the message
-        self.prox_pub.publish(proximity_msg)
+        while not rospy.is_shutdown:
+            # Creates the proximity message
+            proximity_msg = Int16()
+            
+            # Sets the proximity value
+            proximity_msg.data = self.light.proximity
+
+            # Publishes the message
+            self.prox_pub.publish(proximity_msg)
 
         
 
@@ -249,7 +267,5 @@ class Controller(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
     controller = Controller()
-    rclpy.spin(controller)
 
