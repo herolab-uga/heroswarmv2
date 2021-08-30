@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import math
 import struct
 
 import adafruit_bmp280
@@ -8,15 +9,16 @@ import adafruit_sht31d
 import board
 import rclpy
 import smbus
-import math
+from tf.transformations import quaternion_from_euler
+import geometry_msgs
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
+from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from robot_msgs.msg import Enviornment, Light
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16
-from nav_msgs.msg import Odometry
 
 
 class Controller(Node):
@@ -38,8 +40,6 @@ class Controller(Node):
         self.imu = True
         self.proximity = True
         self.i2c = board.I2C()
-        
-        
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -109,7 +109,7 @@ class Controller(Node):
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.orientation
+        odom_msg.pose.pose.orientation = quaternion_from_euler(0, 0, odom_data[2])
 
         self.odom_pub.publish(odom_msg)
         
