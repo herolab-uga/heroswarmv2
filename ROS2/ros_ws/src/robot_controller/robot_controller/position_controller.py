@@ -6,7 +6,7 @@ import struct
 import geometry_msgs
 import rclpy
 import numpy as np
-from geometry_msgs.msg import Quaternion, Twist, Vector3
+from geometry_msgs.msg import Quaternion, Twist, Vector3, Point
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
@@ -14,9 +14,10 @@ from sensor_msgs.msg import Imu
 
 class PositionController(Node):
     def __init__(self):
-        super().__init__("Position Controller")
+        super().__init__("Position_Controller")
         self.odom_sub = self.create_subscription(Odometry,"odom",self.read_pos)
         self.twist_pub = self.create_publisher(Twist, "cmd_vel",5)
+        self.point_sub = self.create_subscription(Point,"mote_to",5)
         self.position = {}
         self.v_max = .25
         self.omega_max = .5
@@ -36,7 +37,6 @@ class PositionController(Node):
                 twist_msg.angular.z = 0
                 self.twist_pub.publish(twist_msg)
 
-    
     def rpy_from_quaternion(quaternion):
         x = quaternion.x
         y = quaternion.y
@@ -55,15 +55,22 @@ class PositionController(Node):
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
-    def move_to_point(self,x,y):
+    def move_to_point(self,msg):
+        x = msg.x
+        y = msg.y
         self.target_pos[0] = x
         self.target_pos[1] = y
         delta_x = x - self.position["x"]
         delta_y = y - self.position["y"]
         theta = self.rpy_from_quaternion(self.position["orientation"][2])
-        v = self.v_max (delta_x*np.cos(theta) + delta_y*np.sin(theta))
-        omega = (2*self.omega_max)/math.pi(np.arctan2(-delta_x*np.sin(theta) + delta_y*np.cos(theta), v))
+        v = self.v_max*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
+        omega = self.omega_max*(2*self.omega_max)/math.pi(np.arctan2(-delta_x*np.sin(theta) + delta_y*np.cos(theta), v))
         twist_msg = Twist()
         twist_msg.linear.x = v
         twist_msg.angular.z=omega
         self.twist_pub.publish(twist_msg) 
+
+def main(args=None):
+    rclpy.init(args=args)
+    controller = PositionController()
+    rclpy.spin(controller)
