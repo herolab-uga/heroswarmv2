@@ -110,6 +110,8 @@ class Controller(Node):
         odom_msg.pose.pose.position.z = 0.0
 
         odom_msg.pose.pose.orientation = quaternion_from_euler(0, 0, odom_data[2])
+        
+        self.get_logger().info("Theta: {theta}".format(theta=odom_data[2]))
 
         self.odom_pub.publish(odom_msg)
         
@@ -130,7 +132,7 @@ class Controller(Node):
         self.angular_z_velo = z_angular
 
         # Logs the data
-        self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+        # self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
         if x_velo is self.linearx_velo and y_velo is self.linear_y_velo is z_angular is self.angular_z_velo:
             return
