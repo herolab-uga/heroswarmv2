@@ -121,7 +121,12 @@ class Controller(Node):
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.orientation = self.quaternion_from_rpy(0, 0, odom_data[2])
+        quaternion = self.quaternion_from_rpy(0, 0, odom_data[2])
+
+        odom_msg.pose.pose.orientation.x = quaternion[0]
+        odom_msg.pose.pose.orientation.x = quaternion[1]
+        odom_msg.pose.pose.orientation.x = quaternion[2]
+        odom_msg.pose.pose.orientation.w = quaternion[3]
         
         self.get_logger().info("Theta: {theta}".format(theta=odom_data[2]))
 
