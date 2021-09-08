@@ -2,7 +2,7 @@
 
 import math
 import struct
-import np
+import numpy as np
 
 import adafruit_bmp280
 import adafruit_lis3mdl
