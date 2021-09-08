@@ -2,6 +2,7 @@
 
 import math
 import struct
+import np
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -108,6 +109,7 @@ class Controller(Node):
                 bytes.append(data[4*index + i])
             odom_data[index] = struct.unpack('f', bytes)[0]
 
+        odom_data[2] = np.radians(odom_data[2])
         # Adds Twist data
         odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
         odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
