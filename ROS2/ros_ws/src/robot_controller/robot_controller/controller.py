@@ -9,8 +9,6 @@ import adafruit_sht31d
 import board
 import rclpy
 import smbus
-from tf.transformations import quaternion_from_euler
-import geometry_msgs
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
@@ -79,7 +77,21 @@ class Controller(Node):
         self.linear_y_velo = None
         self.angular_z_velo = None
         print("Ready")
+    
+    def quaternion_from_rpy(roll, pitch, yaw):
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
 
+        q = [0] * 4
+        q[0] = sr * cp * cy - cr * sp * sy
+        q[1] = cr * sp * cy + sr * cp * sy
+        q[2] = cr * cp * sy - sr * sp * cy
+        q[3] = cr * cp * cy + sr * sp * sy
+        return q
 
     def pub_odom(self):
         # Creates the odom message
@@ -109,7 +121,7 @@ class Controller(Node):
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.orientation = quaternion_from_euler(0, 0, odom_data[2])
+        odom_msg.pose.pose.orientation = self.quaternion_from_rpy(0, 0, odom_data[2])
         
         self.get_logger().info("Theta: {theta}".format(theta=odom_data[2]))
 
