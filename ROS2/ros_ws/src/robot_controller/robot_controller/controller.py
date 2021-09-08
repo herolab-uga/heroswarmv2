@@ -78,7 +78,7 @@ class Controller(Node):
         self.angular_z_velo = None
         print("Ready")
     
-    def quaternion_from_rpy(roll, pitch, yaw):
+    def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
         sy = math.sin(yaw * 0.5)
         cp = math.cos(pitch * 0.5)
