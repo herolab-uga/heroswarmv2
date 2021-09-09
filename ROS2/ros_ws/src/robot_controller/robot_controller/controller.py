@@ -129,8 +129,6 @@ class Controller(Node):
         odom_msg.pose.pose.orientation.x = quaternion[1]
         odom_msg.pose.pose.orientation.x = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
-        
-        self.get_logger().info("Theta: {theta}".format(theta=odom_data[2]))
 
         self.odom_pub.publish(odom_msg)
         
