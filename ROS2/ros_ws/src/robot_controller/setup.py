@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             "controller = robot_controller.controller:main",
             "to-point = robot_controller.position_controller:main",
+            "print_odom = robot_controller.print_odom:main",
         ],
     },
 )
