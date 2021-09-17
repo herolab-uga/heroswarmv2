@@ -112,22 +112,22 @@ class Controller(Node):
         odom_data[2] = np.radians(odom_data[2])
         # Adds Twist data
         odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
-        odom_msg.twist.twist.linear.z = 0.0
+        odom_msg.twist.twist.linear.y = 0.0
+        odom_msg.twist.twist.linear.z = odom_data[3] * math.sin(odom_data[2])
         
         odom_msg.twist.twist.angular.x = 0.0
-        odom_msg.twist.twist.angular.y = 0.0
-        odom_msg.twist.twist.angular.z = odom_data[4]
+        odom_msg.twist.twist.angular.y = odom_data[4]
+        odom_msg.twist.twist.angular.z = 0.0
 
         odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = odom_data[1]
-        odom_msg.pose.pose.position.z = 0.0
+        odom_msg.pose.pose.position.y = 0.0
+        odom_msg.pose.pose.position.z = odom_data[1]
 
-        quaternion = self.quaternion_from_rpy(0, 0, odom_data[2])
+        quaternion = self.quaternion_from_rpy(0, self.heading,0)
 
         odom_msg.pose.pose.orientation.x = quaternion[0]
-        odom_msg.pose.pose.orientation.x = quaternion[1]
-        odom_msg.pose.pose.orientation.x = quaternion[2]
+        odom_msg.pose.pose.orientation.y = quaternion[1]
+        odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
 
         self.odom_pub.publish(odom_msg)
@@ -165,10 +165,11 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
         mag_x, mag_y, mag_z = self.magnetometer.magnetic
+        self.heading = np.atan2(mag_x, mag_z) * 180 / np.pi
 
         # Sets the orientation parameters
         imu_msg.orientation.x = 0.0
-        imu_msg.orientation.y = np.atan2(mag_x, mag_z) * 180 / np.pi
+        imu_msg.orientation.y = self.heading
         imu_msg.orientation.z = 0.0
 
         # Sets the angular velocity parameters
