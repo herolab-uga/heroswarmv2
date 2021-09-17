@@ -150,7 +150,7 @@ class Controller(Node):
         self.angular_z_velo = z_angular
 
         # Logs the data
-        # self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+        self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
         if x_velo is self.linearx_velo and y_velo is self.linear_y_velo is z_angular is self.angular_z_velo:
             return
