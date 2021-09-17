@@ -39,6 +39,7 @@ class Controller(Node):
         self.imu = True
         self.proximity = True
         self.i2c = board.I2C()
+        self.heading = 0
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -251,8 +252,7 @@ class Controller(Node):
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
-
-        
+ 
 
     # Sending an float to the arduino
     # Message format []
