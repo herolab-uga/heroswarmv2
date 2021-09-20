@@ -143,7 +143,7 @@ class Controller(Node):
         # Reads the twist message z angular velocity
         z_angular = msg.angular.z
 
-        self.linearx_velo = x_velo
+        self.linear_x_velo = x_velo
 
         self.linear=y_velo = y_velo
 
@@ -152,7 +152,7 @@ class Controller(Node):
         # Logs the data
         # self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
-        if x_velo is self.linearx_velo and y_velo is self.linear_y_velo is z_angular is self.angular_z_velo:
+        if x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
             return
 
         # Sends the velocity information to the feather board
@@ -166,7 +166,7 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
         mag_x, mag_y, mag_z = self.magnetometer.magnetic
-        self.heading = np.arctan2(mag_z, -mag_z) * 180 / np.pi
+        self.heading = np.arctan2(mag_z, -mag_x) * 180 / np.pi
 
         # Sets the orientation parameters
         imu_msg.orientation.x = 0.0
