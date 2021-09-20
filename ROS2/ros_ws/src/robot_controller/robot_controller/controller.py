@@ -39,6 +39,7 @@ class Controller(Node):
         self.imu = True
         self.proximity = True
         self.i2c = board.I2C()
+        self.heading = 0
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -48,6 +49,7 @@ class Controller(Node):
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
+            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.odom_pub = self.create_publisher(Odometry, "odom",5)
             self.odom_tmr = self.create_timer(.015, self.pub_odom)
             self.imu_pub = self.create_publisher(Imu,"imu",5)
@@ -64,7 +66,6 @@ class Controller(Node):
             self.light_tmr = self.create_timer(1.0, self.read_light)
         
         if self.enviornment:
-            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",5)
@@ -112,22 +113,22 @@ class Controller(Node):
         odom_data[2] = np.radians(odom_data[2])
         # Adds Twist data
         odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
-        odom_msg.twist.twist.linear.z = 0.0
+        odom_msg.twist.twist.linear.y = 0.0
+        odom_msg.twist.twist.linear.z = odom_data[3] * math.sin(odom_data[2])
         
         odom_msg.twist.twist.angular.x = 0.0
-        odom_msg.twist.twist.angular.y = 0.0
-        odom_msg.twist.twist.angular.z = odom_data[4]
+        odom_msg.twist.twist.angular.y = odom_data[4]
+        odom_msg.twist.twist.angular.z = 0.0
 
         odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = odom_data[1]
-        odom_msg.pose.pose.position.z = 0.0
+        odom_msg.pose.pose.position.y = 0.0
+        odom_msg.pose.pose.position.z = odom_data[1]
 
-        quaternion = self.quaternion_from_rpy(0, 0, odom_data[2])
+        quaternion = self.quaternion_from_rpy(0, self.heading,0)
 
         odom_msg.pose.pose.orientation.x = quaternion[0]
-        odom_msg.pose.pose.orientation.x = quaternion[1]
-        odom_msg.pose.pose.orientation.x = quaternion[2]
+        odom_msg.pose.pose.orientation.y = quaternion[1]
+        odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
 
         self.odom_pub.publish(odom_msg)
@@ -164,11 +165,12 @@ class Controller(Node):
         # Read the sensor
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
-
+        mag_x, mag_y, mag_z = self.magnetometer.magnetic
+        self.heading = np.arctan2(mag_z, -mag_z) * 180 / np.pi
 
         # Sets the orientation parameters
         imu_msg.orientation.x = 0.0
-        imu_msg.orientation.y = 0.0
+        imu_msg.orientation.y = self.heading
         imu_msg.orientation.z = 0.0
 
         # Sets the angular velocity parameters
@@ -250,8 +252,7 @@ class Controller(Node):
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
-
-        
+ 
 
     # Sending an float to the arduino
     # Message format []
