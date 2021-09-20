@@ -1,14 +1,14 @@
 # Ignore everything
-/*
+*
 
 # Unignore the gitignore
-!/.gitignore
+!.gitignore
 
 # Unignore the workspace
-!/ros_ws
+!ros_ws
 
 # # Ignore everything in the workspace
-/ros_ws/*
+ros_ws/*
 
 # Unignore the src directroy
-!/ros_ws/src
+!ros_ws/src
