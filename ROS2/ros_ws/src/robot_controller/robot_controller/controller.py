@@ -166,6 +166,9 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
         mag_x, mag_y, mag_z = self.magnetometer.magnetic
+        print(mag_x)
+        print(mag_y)
+        print(mag_z)
         self.heading = np.arctan2(mag_z, -mag_x) * 180 / np.pi
 
         # Sets the orientation parameters
