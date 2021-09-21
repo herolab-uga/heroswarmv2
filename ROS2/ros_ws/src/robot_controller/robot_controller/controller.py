@@ -63,7 +63,7 @@ class Controller(Node):
             self.prox_pub = self.create_publisher(Int16,"proximity",5)
             self.prox_tmr = self.create_timer(.030, self.read_proximity)
             self.light_pub = self.create_publisher(Light,'light',5)
-            self.light_tmr = self.create_timer(1.0, self.read_light)
+            self.light_tmr = self.create_timer(0.03, self.read_light)
         
         if self.enviornment:
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
