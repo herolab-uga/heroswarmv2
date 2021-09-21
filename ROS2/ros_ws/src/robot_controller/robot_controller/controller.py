@@ -169,7 +169,7 @@ class Controller(Node):
         print("Mag_x: ",mag_x)
         print("Mag_y: ",mag_y)
         print("Mag_z: ",mag_z)
-        self.heading = np.arctan2(mag_z, -mag_x)
+        self.heading = np.arctan2(mag_z,mag_x)
         print(self.heading)
 
         # Sets the orientation parameters
