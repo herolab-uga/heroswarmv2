@@ -63,7 +63,7 @@ class Controller(Node):
             self.prox_pub = self.create_publisher(Int16,"proximity",5)
             self.prox_tmr = self.create_timer(.030, self.read_proximity)
             self.light_pub = self.create_publisher(Light,'light',5)
-            self.light_tmr = self.create_timer(1.0, self.read_light)
+            self.light_tmr = self.create_timer(0.03, self.read_light)
         
         if self.enviornment:
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
@@ -166,7 +166,11 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
         mag_x, mag_y, mag_z = self.magnetometer.magnetic
-        self.heading = np.arctan2(mag_z, -mag_x) * 180 / np.pi
+        print("Mag_x: ",mag_x)
+        print("Mag_y: ",mag_y)
+        print("Mag_z: ",mag_z)
+        self.heading = np.arctan2(mag_z,mag_x)
+        print(self.heading)
 
         # Sets the orientation parameters
         imu_msg.orientation.x = 0.0
