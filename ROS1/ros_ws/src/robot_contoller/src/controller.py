@@ -1,21 +1,22 @@
 #! /usr/bin/python3
 
+import math
 import struct
 
 import adafruit_bmp280
 import adafruit_lis3mdl
 import adafruit_sht31d
 import board
+import numpy as np
 import rospy
 import smbus
-import math
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
-from robot_msgs.msg import Environment, Light
+from nav_msgs.msg import Odometry
+from robot_msgs.msg import Environment, Light, Robot_pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16
-from nav_msgs.msg import Odometry
 
 
 class Controller:
@@ -36,14 +37,17 @@ class Controller:
         self.imu = True
         self.proximity = True
         self.i2c = board.I2C()
-        
-        
+        self.id = 3
+        self.x = None
+        self.z = None
+        self.heading = None
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
         self.odom_pub = rospy.Publisher(Odometry, "odom",5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
+        self.pos_sub = rospy.Subscriber("Positions",Robot_pos, self.get_pos)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
@@ -76,6 +80,31 @@ class Controller:
 
         print("Ready")
 
+    def rpy_from_quaternion(quaternion):
+        x = quaternion.x
+        y = quaternion.y
+        z = quaternion.z
+        w = quaternion.w
+
+        sinr_cosp = 2 * (w * x + y * z)
+        cosr_cosp = 1 - 2 * (x * x + y * y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        sinp = 2 * (w * y - z * x)
+        pitch = np.arcsin(sinp)
+
+        siny_cosp = 2 * (w * z + x * y)
+        cosy_cosp = 1 - 2 * (y * y + z * z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+        return roll, pitch, yaw
+
+    def get_pos(self,msg):
+        for robot in msg:
+            if robot.child_frame_id == self.id:
+                self.x = msg.pose.pose.position.x
+                self.y = msg.pose.pose.position.y
+                self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
+                break
 
     def pub_odom(self):
         # Creates the odom message
