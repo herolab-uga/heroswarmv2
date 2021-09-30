@@ -277,4 +277,7 @@ class Controller:
 
 def main(args=None):
     controller = Controller()
+    print("Running")
+    while not rospy.is_shutdown():
+        continue
 
