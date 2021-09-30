@@ -275,7 +275,7 @@ class Controller:
         self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
 
 
-def main(args=None):
+if __name__ == '__main__':
     controller = Controller()
     print("Running")
     while not rospy.is_shutdown():
