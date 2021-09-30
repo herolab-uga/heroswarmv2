@@ -163,7 +163,7 @@ class Controller:
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
-    def read_imu(self) -> None:
+    def read_imu(self,timer) -> None:
         
         # Creates the IMU message
         imu_msg = Imu()
@@ -216,7 +216,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     
-    def read_light(self) -> None:
+    def read_light(self,timer) -> None:
 
         # Creates the light message
         light_msg = Light()
@@ -230,7 +230,7 @@ class Controller:
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def read_environment(self) -> None:
+    def read_environment(self,timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
 
@@ -249,7 +249,7 @@ class Controller:
         # Publishes the message
         self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self) -> None:
+    def read_proximity(self,timer) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
         
