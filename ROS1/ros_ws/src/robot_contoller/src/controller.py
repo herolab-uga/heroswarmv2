@@ -45,13 +45,13 @@ class Controller:
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
-        self.odom_pub = rospy.Publisher(Odometry, "odom",5)
+        self.odom_pub = rospy.Publisher("odom",Odometry,5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
         self.pos_sub = rospy.Subscriber("Positions",Robot_pos, self.get_pos)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
-            self.imu_pub = rospy.Publisher(Imu,"imu",5)
+            self.imu_pub = rospy.Publisher("imu",Imu,5)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30),self.read_imu)
 
         if self.light:
@@ -59,20 +59,20 @@ class Controller:
             self.light.enable_proximity = True
             self.light.enable_gesture = True
             self.light.enable_color = True
-            self.prox_pub = rospy.Publisher(Int16,"proximity",5)
-            self.light_pub = rospy.Publisher(Light,'light',5)
+
+            self.light_pub = rospy.Publisher('light',Light,5)
             self.light_timer = rospy.Timer(rospy.Duration(1/20),self.read_light)
             
         if self.environment:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-            self.environment_pub = rospy.Publisher(Environment,"environment",5)
+            self.environment_pub = rospy.Publisher("environment",Environment,5)
             self.environment_timer = rospy.Timer(rospy.Duration(1/20),self.read_environment)
         
         if self.proximity:
-             self.proximity = rospy.Publisher(Int16, "proximity",10)
-             self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
+            self.prox_pub = rospy.Publisher(Int16,"proximity",5)
+            self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
 
         self.linear_x_velo = None
         self.linear_y_velo = None
