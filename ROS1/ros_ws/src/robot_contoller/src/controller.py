@@ -47,7 +47,7 @@ class Controller:
         self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
         self.odom_pub = rospy.Publisher("odom",Odometry,5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
-        self.pos_sub = rospy.Subscriber("Positions",Robot_pos, self.get_pos)
+        self.pos_sub = rospy.Subscriber("Positions",Robot_Pos, self.get_pos)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
@@ -106,7 +106,7 @@ class Controller:
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
                 break
 
-    def pub_odom(self):
+    def pub_odom(self,timer):
         # Creates the odom message
         odom_msg = Odometry()
 
