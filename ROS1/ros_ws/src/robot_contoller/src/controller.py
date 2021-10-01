@@ -137,7 +137,7 @@ class Controller:
 
         self.odom_pub.publish(odom_msg)
         
-    def read_twist(self,msg) -> None:
+    def read_twist(self,msg, event=None) -> None:
         # Reads ths twist message x linear velocity
         x_velo = msg.linear.x
         
