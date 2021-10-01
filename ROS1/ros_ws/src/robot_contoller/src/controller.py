@@ -32,10 +32,10 @@ class Controller:
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = True
-        self.environment = True
-        self.imu = True
-        self.proximity = True
+        self.light = False
+        self.environment = False
+        self.imu = False
+        self.proximity = False
         self.i2c = board.I2C()
         self.id = 3
         self.x = None
