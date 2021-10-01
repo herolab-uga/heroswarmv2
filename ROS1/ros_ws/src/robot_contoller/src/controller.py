@@ -75,8 +75,8 @@ class Controller:
             self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
 
         self.linear_x_velo = None
-        self.linear_y_velo = None
-        self.angular_z_velo = None
+        self.linear_z_velo = None
+        self.angular_y_velo = None
 
         print("Ready")
 
@@ -143,25 +143,25 @@ class Controller:
         x_velo = msg.linear.x
         
         # Reads the twist message y linear velocity
-        y_velo = msg.linear.y
+        z_velo = msg.linear.y
 
         # Reads the twist message z angular velocity
-        z_angular = msg.angular.z
+        y_angular = msg.angular.z
 
         self.linear_x_velo = x_velo
 
-        self.linear_y_velo = y_velo
+        self.linear_z_velo = z_velo
 
-        self.angular_z_velo = z_angular
+        self.angular_y_velo = y_angular
 
         # Logs the data
-        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=z_velo,z=y_angular))
         
-        if x_velo is self.linear_x_velo and y_velo is self.linear_y_velo is z_angular is self.angular_z_velo:
+        if x_velo == self.linear_x_velo and z_velo == self.linear_z_velo and y_angular == self.angular_y_velo:
             return
 
         # Sends the velocity information to the feather board
-        self.send_velocity([x_velo,y_velo,z_angular])
+        self.send_velocity([x_velo,z_velo,y_angular])
 
     def read_imu(self,event=None) -> None:
         
