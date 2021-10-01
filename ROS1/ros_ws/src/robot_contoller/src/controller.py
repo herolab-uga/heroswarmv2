@@ -41,6 +41,9 @@ class Controller:
         self.x = None
         self.z = None
         self.heading = None
+        self.linear_x_velo = None
+        self.linear_z_velo = None
+        self.angular_y_velo = None
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -73,10 +76,6 @@ class Controller:
         if self.proximity:
             self.prox_pub = rospy.Publisher(Int16,"proximity",queue_size=5)
             self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
-
-        self.linear_x_velo = None
-        self.linear_z_velo = None
-        self.angular_y_velo = None
 
         print("Ready")
 
