@@ -98,7 +98,7 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
-    def get_pos(self,msg):
+    def get_pos(self,msg,event=None):
         for robot in msg.robot_pos:
             if robot.child_frame_id == self.id:
                 self.x = msg.pose.pose.position.x
@@ -106,7 +106,7 @@ class Controller:
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
                 break
 
-    def pub_odom(self,timer):
+    def pub_odom(self,timer,event=None):
         # Creates the odom message
         odom_msg = Odometry()
 
@@ -138,7 +138,7 @@ class Controller:
 
         self.odom_pub.publish(odom_msg)
         
-    def read_twist(self,msg) -> None:
+    def read_twist(self,msg,event=None) -> None:
         # Reads ths twist message x linear velocity
         x_velo = msg.linear.x
         
@@ -163,7 +163,7 @@ class Controller:
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
-    def read_imu(self,timer) -> None:
+    def read_imu(self,event=None) -> None:
         
         # Creates the IMU message
         imu_msg = Imu()
@@ -216,7 +216,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     
-    def read_light(self,timer) -> None:
+    def read_light(self,event=None) -> None:
 
         # Creates the light message
         light_msg = Light()
@@ -230,7 +230,7 @@ class Controller:
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def read_environment(self,timer) -> None:
+    def read_environment(self,event=None) -> None:
         # Creates the environment message
         environ_msg = Environment()
 
