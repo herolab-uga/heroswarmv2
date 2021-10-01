@@ -148,6 +148,9 @@ class Controller:
         # Reads the twist message z angular velocity
         y_angular = msg.angular.z
 
+        if x_velo == self.linear_x_velo and z_velo == self.linear_z_velo and y_angular == self.angular_y_velo:
+            return
+
         self.linear_x_velo = x_velo
 
         self.linear_z_velo = z_velo
@@ -156,9 +159,6 @@ class Controller:
 
         # Logs the data
         rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=z_velo,z=y_angular))
-        
-        if x_velo == self.linear_x_velo and z_velo == self.linear_z_velo and y_angular == self.angular_y_velo:
-            return
 
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,z_velo,y_angular])
