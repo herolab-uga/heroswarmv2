@@ -14,7 +14,7 @@ from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_pos
+from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16
 
@@ -44,14 +44,14 @@ class Controller:
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
-        self.odom_pub = rospy.Publisher(Odometry, "odom",5)
+        self.twist_sub = rospy.Subscriber("/cmd_vel",Twist, self.read_twist,10)
+        self.odom_pub = rospy.Publisher("odom",Odometry,queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
-        self.pos_sub = rospy.Subscriber("Positions",Robot_pos, self.get_pos)
+        self.pos_sub = rospy.Subscriber("Positions",Robot_Pos, self.get_pos)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
-            self.imu_pub = rospy.Publisher(Imu,"imu",5)
+            self.imu_pub = rospy.Publisher("imu",Imu,queue_size=5)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30),self.read_imu)
 
         if self.light:
@@ -59,20 +59,20 @@ class Controller:
             self.light.enable_proximity = True
             self.light.enable_gesture = True
             self.light.enable_color = True
-            self.prox_pub = rospy.Publisher(Int16,"proximity",5)
-            self.light_pub = rospy.Publisher(Light,'light',5)
+
+            self.light_pub = rospy.Publisher('light',Light,queue_size=5)
             self.light_timer = rospy.Timer(rospy.Duration(1/20),self.read_light)
             
         if self.environment:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-            self.environment_pub = rospy.Publisher(Environment,"environment",5)
+            self.environment_pub = rospy.Publisher("environment",Environment,queue_size=5)
             self.environment_timer = rospy.Timer(rospy.Duration(1/20),self.read_environment)
         
         if self.proximity:
-             self.proximity = rospy.Publisher(Int16, "proximity",10)
-             self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
+            self.prox_pub = rospy.Publisher(Int16,"proximity",queue_size=5)
+            self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
 
         self.linear_x_velo = None
         self.linear_y_velo = None
@@ -106,7 +106,7 @@ class Controller:
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
                 break
 
-    def pub_odom(self):
+    def pub_odom(self,timer):
         # Creates the odom message
         odom_msg = Odometry()
 
@@ -163,7 +163,7 @@ class Controller:
         # Sends the velocity information to the feather board
         self.send_velocity([x_velo,y_velo,z_angular])
 
-    def read_imu(self) -> None:
+    def read_imu(self,timer) -> None:
         
         # Creates the IMU message
         imu_msg = Imu()
@@ -216,7 +216,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     
-    def read_light(self) -> None:
+    def read_light(self,timer) -> None:
 
         # Creates the light message
         light_msg = Light()
@@ -230,7 +230,7 @@ class Controller:
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def read_environment(self) -> None:
+    def read_environment(self,timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
 
@@ -249,7 +249,7 @@ class Controller:
         # Publishes the message
         self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self) -> None:
+    def read_proximity(self,timer) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
         
@@ -275,6 +275,9 @@ class Controller:
         self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
 
 
-def main(args=None):
+if __name__ == '__main__':
     controller = Controller()
+    print("Running")
+    while not rospy.is_shutdown():
+        continue
 
