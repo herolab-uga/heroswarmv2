@@ -42,8 +42,8 @@ class Controller:
         self.z = None
         self.heading = None
         self.linear_x_velo = None
-        self.linear_z_velo = None
-        self.angular_y_velo = None
+        self.linear_y_velo = None
+        self.angular_z_velo = None
         
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -137,30 +137,30 @@ class Controller:
 
         self.odom_pub.publish(odom_msg)
         
-    def read_twist(self,msg,event=None) -> None:
+    def read_twist(self,msg) -> None:
         # Reads ths twist message x linear velocity
         x_velo = msg.linear.x
         
         # Reads the twist message y linear velocity
-        z_velo = msg.linear.y
+        y_velo = msg.linear.y
 
         # Reads the twist message z angular velocity
-        y_angular = msg.angular.z
-
-        if x_velo == self.linear_x_velo and z_velo == self.linear_z_velo and y_angular == self.angular_y_velo:
-            return
+        z_angular = msg.angular.z
 
         self.linear_x_velo = x_velo
 
-        self.linear_z_velo = z_velo
+        self.linear=y_velo = y_velo
 
-        self.angular_y_velo = y_angular
+        self.angular_z_velo = z_angular
 
         # Logs the data
-        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=z_velo,z=y_angular))
+        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+        
+        if x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
+            return
 
         # Sends the velocity information to the feather board
-        self.send_velocity([x_velo,z_velo,y_angular])
+        self.send_velocity([x_velo,y_velo,z_angular])
 
     def read_imu(self,event=None) -> None:
         
