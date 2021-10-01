@@ -272,7 +272,7 @@ class Controller:
 
         # Writes the values to the i2c
         self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
-        print("Sent")
+        print(values)
 
 
 if __name__ == '__main__':
