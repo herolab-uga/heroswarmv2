@@ -99,7 +99,7 @@ class Controller:
         return roll, pitch, yaw
 
     def get_pos(self,msg):
-        for robot in msg:
+        for robot in msg.robot_pos:
             if robot.child_frame_id == self.id:
                 self.x = msg.pose.pose.position.x
                 self.y = msg.pose.pose.position.y
