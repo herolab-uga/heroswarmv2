@@ -15,7 +15,7 @@ from std_msgs.msg import Int16
 class PrintOdom(Node):
     def __init__(self):
         super().__init__("robot_controller")
-        self.odom_sub = self.create_subscription(Odometry, "/swarmsteve/odom",self.read_odom,5)
+        self.odom_sub = self.create_subscription(Odometry, "/swarmjeff/odom",self.read_odom,5)
 
     def rpy_from_quaternion(self,quaternion):
         x = quaternion.x

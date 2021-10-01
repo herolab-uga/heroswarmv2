@@ -1,7 +1,5 @@
 #include <Swarmbot.h>
 
-
-
 SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte leftPWR, byte leftGND, byte rightIN1, byte rightIN2, byte rightA, byte rightB, byte rightPWR, byte rightGND, byte mode, int CPP, int ratio, float wheelDiameterM, float wheelBaseM){
     //Motor Driver and Encoder Definitions
     leftMotorIN1 = leftIN1;
@@ -147,12 +145,24 @@ float SwarmBot::getX(){
     return X;
 }
 
+void SwarmBot::setX(float x){
+    this -> X = x;
+}
+
 float SwarmBot::getY(){
     return Y;
 }
 
+void SwarmBot::setY(float y){
+    this -> Y = y;
+}
+
 float SwarmBot::getHeading(){
     return thetaDegOdom;
+}
+
+void SwarmBot::setHeading(float heading){
+    this->thetaDegOdom = heading;
 }
 
 float SwarmBot::getLinearVel(){

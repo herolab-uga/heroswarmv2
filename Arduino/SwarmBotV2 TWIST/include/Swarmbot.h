@@ -3,14 +3,12 @@
 #define SWARMBOT_H
     #include <Arduino.h>
     #include <IMU.h>
-    #include <DRV8835MotorShield.h>
     #include <Adafruit_Sensor.h>
     #include <Adafruit_APDS9960.h>
 
     extern imu IMU;
 
     extern Adafruit_APDS9960 apds9960;
-    extern DRV8835MotorShield motors;
     class SwarmBot{
         //Motor Driver and Encoder Definitions 
         byte leftMotorIN1;
@@ -145,8 +143,11 @@
             void setPIDSetpoint(float,float);
             
             float getX();
+            void setX(float);
             float getY();
+            void setY(float);
             float getHeading();
+            void setHeading(float);
             float getLinearVel();
             float getAngularVel();
 

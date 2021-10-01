@@ -120,7 +120,6 @@ class CameraServer():
 
                         cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
 
-                        overlay = dimg1
                         positions.robot_pos.append(Odometry())
                         positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
@@ -147,9 +146,11 @@ class CameraServer():
                 
                 if len(detections) == 0 and positions.robot_pos == None:
                     overlay = frame
+                else:
+                    overlay = dimg1
                 
-                # cv2.imshow(self.window, overlay)
-                # cv2.waitKey(1)
+                cv2.imshow(self.window, overlay)
+                cv2.waitKey(1)
 
 
 
