@@ -103,7 +103,8 @@ class Controller:
                 self.x = msg.pose.pose.position.x
                 self.y = msg.pose.pose.position.y
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
-                break
+            break
+        rospy.loginfo("X: {x} Y: {y} Theta: {z}".format(x=self.x,y=self.y,z=self.heading))
 
     def pub_odom(self,timer,event=None):
         # Creates the odom message
