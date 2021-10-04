@@ -99,7 +99,7 @@ class Controller:
 
     def get_pos(self,msg,event=None):
         for robot in msg.robot_pos:
-            if robot.child_frame_id == self.id:
+            if robot.child_frame_id == str(self.id):
                 self.x = msg.pose.pose.position.x
                 self.y = msg.pose.pose.position.y
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
