@@ -79,7 +79,7 @@ class Controller:
 
         print("Ready")
 
-    def rpy_from_quaternion(quaternion):
+    def rpy_from_quaternion(self,quaternion):
         x = quaternion.x
         y = quaternion.y
         z = quaternion.z
