@@ -37,7 +37,7 @@ class Controller:
         self.imu = False
         self.proximity = False
         self.i2c = board.I2C()
-        self.id = 3
+        self.id = 18
         self.x = None
         self.y = None
         self.heading = None
