@@ -100,9 +100,9 @@ class Controller:
     def get_pos(self,msg):
         for robot in msg.robot_pos:
             if robot.child_frame_id == str(self.id):
-                self.x = msg.pose.pose.position.x
-                self.y = msg.pose.pose.position.y
-                self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
+                self.x = robot.pose.pose.position.x
+                self.y = robot.pose.pose.position.y
+                self.heading = self.rpy_from_quaternion(robot.pose.orientation)[0]
                 break
         rospy.loginfo("X: {x} Y: {y} Theta: {z}".format(x=self.x,y=self.y,z=self.heading))
 
