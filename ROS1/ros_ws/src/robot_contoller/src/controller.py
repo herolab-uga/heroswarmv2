@@ -104,7 +104,7 @@ class Controller:
                 self.z = robot.pose.pose.position.z
                 self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                 break
-        rospy.loginfo("X: {x} Z: {y} Theta: {z}".format(x=self.x,z=self.z,theta=self.heading))
+        rospy.loginfo("X: {x} Z: {y} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
 
     def pub_odom(self,timer,event=None):
         # Creates the odom message
