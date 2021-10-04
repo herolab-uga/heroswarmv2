@@ -102,7 +102,7 @@ class Controller:
             if robot.child_frame_id == str(self.id):
                 self.x = robot.pose.pose.position.x
                 self.y = robot.pose.pose.position.y
-                self.heading = self.rpy_from_quaternion(robot.pose.orientation)[0]
+                self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)[0]
                 break
         rospy.loginfo("X: {x} Y: {y} Theta: {z}".format(x=self.x,y=self.y,z=self.heading))
 
