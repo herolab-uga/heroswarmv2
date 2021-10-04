@@ -97,13 +97,13 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
-    def get_pos(self,msg,event=None):
+    def get_pos(self,msg):
         for robot in msg.robot_pos:
             if robot.child_frame_id == str(self.id):
                 self.x = msg.pose.pose.position.x
                 self.y = msg.pose.pose.position.y
                 self.heading = self.rpy_from_quaternion(msg.pose.orientation)[0]
-            break
+                break
         rospy.loginfo("X: {x} Y: {y} Theta: {z}".format(x=self.x,y=self.y,z=self.heading))
 
     def pub_odom(self,timer,event=None):
