@@ -6,6 +6,7 @@ import struct
 import threading
 import time
 from argparse import ArgumentParser
+from multiprocessing import Process,Queue
 
 import apriltag
 import cv2
@@ -24,7 +25,7 @@ class CameraServer():
         self.ref_x = None
         self.ref_y = None
         self.orig = None
-        rotation_matrix = []
+        self.rotation_matrix = []
         self.transform_matrix = []
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
@@ -32,25 +33,18 @@ class CameraServer():
         self.x_distance = 95
         self.y_distance = 67.5
 
-        self.window = "Overlay1"
+        self.image_queue = Queue(2)
 
-        cv2.namedWindow(self.window)
+        # self.window = "Overlay1"
+
+        # cv2.namedWindow(self.window)
 
         rospy.init_node("camera_server",anonymous=True)
 
         self.parser = ArgumentParser(description='test apriltag Python bindings')
         self.parser.add_argument('device_or_movie', metavar='INPUT', nargs='?', default=0, help='Movie to load or integer ID of camera device')
-        orient = 0.0
         apriltag.add_arguments(self.parser)
         self.options = self.parser.parse_args()
-
-        try:
-            self.cap = cv2.VideoCapture(0)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-
-        except ValueError:
-            self.cap = cv2.VideoCapture(self.options.device_or_movie)
         
         self.detector = apriltag.Detector(
             self.options,
@@ -63,62 +57,79 @@ class CameraServer():
         self.lineType               = 1
 
         self.pos_pub = rospy.Publisher("Positions",Robot_Pos,queue_size=10)
-        self.get_positions()
+
+    def read_frame(self):
+        try:
+            capture = cv2.VideoCapture(-1)
+            W, H = 4096, 2160
+            capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
+            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
+            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+            capture.set(cv2.CAP_PROP_FPS, 30)
+        except ValueError:
+            self.cap = cv2.VideoCapture(self.options.device_or_movie)
+
+        while True:
+            process_start = time.time()
+            _, frame = capture.read()
+            self.image_queue.put(frame)
+            print("Process: ",time.time() - process_start)
 
     def get_positions(self):
         while True:
-            overlay = None
-            success, frame = self.cap.read()
-            if success:
+            if not self.image_queue.empty():
+                print("Running")
+                frame = self.image_queue.get()
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 detections, dimg = self.detector.detect(gray, return_image = True)
-                head_dir = np.array([0,0])
-                num_detections = len(detections)
+                # head_dir = np.array([0,0])
+                # num_detections = len(detections)
                 
                 dimg1 = dimg
 
                 positions = Robot_Pos()
                 # positions.robot_pos = []
-
-                try:
-                    # Gets the x and y positions.robot_pos of the reference tags
-                    self.ref_x = detections[self.reference_tags[1]].center
-                    self.ref_y = detections[self.reference_tags[2]].center
-                    self.orig = detections[self.reference_tags[0]].center
-                except IndexError:
-                    return
-
-                self.transform_matrix.append(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0]))
-                self.transform_matrix.append(np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))
-
-                # Creates the rotation matrix
-                self.rotation_matrix = np.array([[0, 1], [-1, 0]])
                 
-                for (i, detection) in enumerate(detections):
-                    dimg1 = self.draw(frame, detection.corners)
+                if self.transform_matrix == None:
+                    try:
+                        # Gets the x and y positions.robot_pos of the reference tags
+                        self.ref_x = detections[self.reference_tags[1]].center
+                        self.ref_y = detections[self.reference_tags[2]].center
+                        self.orig = detections[self.reference_tags[0]].center
+                    except IndexError:
+                        continue
+
+                    self.transform_matrix.append(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0]))
+                    self.transform_matrix.append(np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))
+
+                    # Creates the rotation matrix
+                    self.rotation_matrix = np.array([[0, 1], [-1, 0]])
+                
+                for detection in detections:
+                    # dimg1 = self.draw(frame, detection.corners)
                     center = detection.center
                     
                     # Gets the center of the tag in inches and rotated accordingly
 
                     center_transform = self.transform(center)
 
-                    posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
+                    # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
 
                     if not detection.tag_id in self.reference_tags:
 
                         # Gets the forward direction
                         (forward_dir, angle) = self.heading_dir(detection.corners, center)
 
-                        forward_dir_transform = self.transform(forward_dir)
+                        # forward_dir_transform = self.transform(forward_dir)
 
                         # Draws the arrows
 
-                        dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
+                        # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
 
-                        center_txt = center.ravel().astype(int).astype(str)
-                        cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
+                        # center_txt = center.ravel().astype(int).astype(str)
+                        # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
 
-                        cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
+                        # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
 
                         positions.robot_pos.append(Odometry())
                         positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
@@ -144,13 +155,9 @@ class CameraServer():
                         
                 self.pos_pub.publish(positions)
                 
-                if len(detections) == 0 and positions.robot_pos == None:
-                    overlay = frame
-                else:
-                    overlay = dimg1
                 
-                cv2.imshow(self.window, overlay)
-                cv2.waitKey(1)
+                # cv2.imshow(self.window, overlay)
+                # cv2.waitKey(1)
 
 
 
@@ -214,10 +221,10 @@ class CameraServer():
     # Uses the rotation matrix above to rotate points
 
     def rotate(self, matrix):
-        global ref_x
-        global ref_y
-        global orig
-        global rotation_matrix
+        self.ref_x
+        self.ref_y
+        self.orig
+        self.rotation_matrix
         return np.flip(np.matmul(matrix, self.rotation_matrix))
 
 
@@ -225,7 +232,6 @@ class CameraServer():
         corner1 = corners[0].ravel()
         corner2 = corners[1].ravel()
         midPt = (corner1 + corner2) / 2
-        distance = math.sqrt(abs(midPt[0]) ** 2 + abs(midPt[1]) ** 2)
         cMidPt = center - midPt
         theta = math.degrees(math.atan2(cMidPt[1], cMidPt[0]))
         cMidPt[0] = cMidPt[0] + 50 * math.cos(math.radians(theta))
@@ -236,5 +242,10 @@ class CameraServer():
 if __name__ == '__main__':
         try:
             server = CameraServer()
+            camera_process = Process(target=server.read_frame,args=())
+            camera_process.daemon = True
+            camera_process.start()
+            time.sleep(3)
+            server.get_positions()
         except rospy.ROSInterruptException:
             pass
