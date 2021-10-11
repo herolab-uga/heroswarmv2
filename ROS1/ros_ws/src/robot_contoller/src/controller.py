@@ -97,6 +97,18 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
+    def send_wheel_speed(self,right,left):
+        byteList = []
+
+        # Converts the values to bytes 
+        byteList.append(1)
+        byteList += list(struct.pack('f', right))
+        byteList += list(struct.pack('f', left))
+        byteList.append(0)  # fails to send last byte over I2C, hence this needs to be added 
+
+        # Writes the values to the i2c
+        self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
+
     def get_pos(self,msg):
         for robot in msg.robot_pos:
             if robot.child_frame_id == str(self.id):
