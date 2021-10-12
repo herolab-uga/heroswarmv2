@@ -10,7 +10,7 @@ class Gesture():
         apds.enable_gesture = True
         apds.enable_proximity = True
         while True:
-            print(apds.proximity())
+            print(apds.proximity)
             self.gesture_controls(apds)
 
     def gesture_controls(self, apds):
