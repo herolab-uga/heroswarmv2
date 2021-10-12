@@ -12,7 +12,6 @@ class Gesture():
             self.gesture_controls(apds)
 
     def gesture_controls(self, apds):
-        print("running!")
         gesture = apds.gesture()
         if gesture == 1:
              print("up")
