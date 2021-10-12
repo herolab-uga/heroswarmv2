@@ -8,8 +8,9 @@ class Gesture():
         i2c = board.I2C()
         apds = APDS9960(i2c)
         apds.enable_gesture = True
+        apds.enable_proximity = True
         while True:
-            # print("Running")
+            print(apds.proximity())
             self.gesture_controls(apds)
 
     def gesture_controls(self, apds):
