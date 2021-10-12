@@ -15,11 +15,11 @@ class Gesture():
         gesture = apds.gesture()
         if gesture == 1:
              print("up")
-        if gesture == 2:
+        elif gesture == 2:
             print("down")
-        if gesture == 3:
+        elif gesture == 3:
             print("left")
-        if gesture == 4:
+        elif gesture == 4:
             print("right")
 
 if __name__ == "__main__": 
