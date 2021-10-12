@@ -15,9 +15,9 @@ class Gesture():
 
     def gesture_controls(self, apds):
         # print("12345")
-        gesture = apds.gesture()
+        gesture = apds.gesture
         while gesture == 0:
-            gesture = apds.gesture()
+            gesture = apds.gesture
         print('Saw gesture: {0}'.format(gesture))
         # if gesture == 1:
         #      print("up")
