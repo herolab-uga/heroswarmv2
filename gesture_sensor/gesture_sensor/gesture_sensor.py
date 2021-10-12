@@ -9,11 +9,10 @@ class Gesture():
         apds = APDS9960(i2c)
         apds.enable_gesture = True
         while True:
-            print("Running")
             self.gesture_controls(apds)
 
     def gesture_controls(self, apds):
-
+        print("running!")
         gesture = apds.gesture()
         if gesture == 1:
              print("up")
@@ -24,5 +23,5 @@ class Gesture():
         if gesture == 4:
             print("right")
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     gesture = Gesture()  
