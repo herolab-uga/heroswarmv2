@@ -178,8 +178,8 @@ void SwarmBot::setPIDSetpoint(float linear, float angular){
         rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
         leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105) * 1.1;
     } else {
-        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105);
-        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105);
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105)*1.1;
     }
 }
 
