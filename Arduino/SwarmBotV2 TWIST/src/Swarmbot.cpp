@@ -174,15 +174,16 @@ float SwarmBot::getAngularVel(){
 }
 
 void SwarmBot::setPIDSetpoint(float linear, float angular){
-    if (gearRatio == 50) {
-        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
-        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105) * 1.1;
-    } else {
-        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
-        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105)*1.1;
-    }
-}
 
+    double mag_right = abs(linear + (angular * .5));
+    int direction_right = (linear + (angular * .5)) / mag_right;
+
+    double mag_left = abs(linear - (angular * .5));
+    int direction_left = (linear - (angular * .5)) / mag_left;
+
+    rightMotorLastSpeed = (mag_right < maxSpeed ? mag_right : maxSpeed) * direction_right * .9;
+    leftMotorLastSpeed = (mag_left < maxSpeed ? mag_left : maxSpeed) * direction_left;
+}
 
 void SwarmBot::tunePID(float p, float i, float d){
     lKp = p;
@@ -194,6 +195,7 @@ void SwarmBot::tunePID(float p, float i, float d){
 }
 
 void SwarmBot::initializePorts(){
+    maxSpeed = gearRatio == 100 ? .25 : .12;
   digitalWrite(leftEncoderPWR, HIGH);
   digitalWrite(leftEncoderGND, LOW);
   pinMode(leftEncoderGND, OUTPUT);
@@ -449,14 +451,18 @@ float SwarmBot::linearVelocityPID(float vel){
     return ((lKp * error) + (lKi * linearIntegral) + (lKd * linearDerivative));
 }
 void SwarmBot::setVelocity(float velocity, float omega){
+
+    velocity = velocity > maxSpeed ? maxSpeed : velocity;
+
     float linearOutput = linearVelocityPID(velocity);
     float angularOutput = angularVelocityPID(omega);
 
     float leftMotorOut = leftMotorLastSpeed +  linearOutput - angularOutput;
     float rightMotorOut = rightMotorLastSpeed + linearOutput + angularOutput;
+
     leftMotorLastSpeed = leftMotorOut;
     rightMotorLastSpeed = rightMotorOut;
-    setMotorSpeed(leftMotorOut, rightMotorOut);
+    setMotorSpeed(leftMotorOut, rightMotorOut * .98);
 }
 
 void SwarmBot::callibrateOdometery(float inputArray[3]){ 
