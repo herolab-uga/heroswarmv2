@@ -165,11 +165,10 @@ class Controller:
         self.linear=y_velo = y_velo
 
         self.angular_z_velo = z_angular
-
-        # Logs the data
-        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
         if not x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
+            # Logs the data
+            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
             # Sends the velocity information to the feather board
             self.send_velocity([x_velo,y_velo,z_angular])
 
