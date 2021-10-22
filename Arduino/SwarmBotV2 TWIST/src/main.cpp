@@ -10,6 +10,7 @@ bool serialFlag = false;
 bool driveMode = true;
 float targetX, targetY, linearVelocity, angularVelocity;
 float inputArray[3];
+float scaleFactor = 0;
 //float odometryData[5];
 
 void leftInterrupt(){
@@ -78,7 +79,8 @@ void interpretData(float array[3]){
     // driveMode = true;
     linearVelocity = array[0];
     angularVelocity = array[2];
-    steve.setPIDSetpoint(linearVelocity,angularVelocity);
+    scaleFactor = (sqrt(pow(linearVelocity, 2) + pow(angularVelocity,2)) - steve.getMaxSpeed())/steve.getMaxSpeed(); 
+    steve.setPIDSetpoint(linearVelocity * scaleFactor,angularVelocity * scaleFactor);
     Serial.println("Case3: Set");
   //}
   //Case 4: PID TUNING

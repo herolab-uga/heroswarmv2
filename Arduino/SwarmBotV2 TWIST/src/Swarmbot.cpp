@@ -173,6 +173,10 @@ float SwarmBot::getAngularVel(){
     return angularVelocityOdom;
 }
 
+float SwarmBot::getMaxSpeed(){
+    return maxSpeed;
+}
+
 void SwarmBot::setPIDSetpoint(float linear, float angular){
 
     double mag_right = abs(linear + (angular * .5));
@@ -181,8 +185,8 @@ void SwarmBot::setPIDSetpoint(float linear, float angular){
     double mag_left = abs(linear - (angular * .5));
     int direction_left = (linear - (angular * .5)) / mag_left;
 
-    rightMotorLastSpeed = (mag_right < maxSpeed ? mag_right : maxSpeed) * direction_right * .9;
-    leftMotorLastSpeed = (mag_left < maxSpeed ? mag_left : maxSpeed) * direction_left;
+    rightMotorLastSpeed = ((mag_right < maxSpeed ? mag_right : maxSpeed) * direction_right * 100) / maxSpeed;
+    leftMotorLastSpeed = ((mag_left < maxSpeed ? mag_left : maxSpeed) * direction_left * 100) / maxSpeed;
 }
 
 void SwarmBot::tunePID(float p, float i, float d){
@@ -452,17 +456,17 @@ float SwarmBot::linearVelocityPID(float vel){
 }
 void SwarmBot::setVelocity(float velocity, float omega){
 
-    velocity = velocity > maxSpeed ? maxSpeed : velocity;
+    velocity = sqrt(pow(velocity,2) + pow(omega,2)) > maxSpeed ? maxSpeed * .85 : velocity;
 
     float linearOutput = linearVelocityPID(velocity);
-    float angularOutput = angularVelocityPID(omega);
-
+    // float angularOutput = angularVelocityPID(omega);
+    float angularOutput = 0;
     float leftMotorOut = leftMotorLastSpeed +  linearOutput - angularOutput;
     float rightMotorOut = rightMotorLastSpeed + linearOutput + angularOutput;
 
     leftMotorLastSpeed = leftMotorOut;
     rightMotorLastSpeed = rightMotorOut;
-    setMotorSpeed(leftMotorOut, rightMotorOut * .98);
+    setMotorSpeed(leftMotorOut, rightMotorOut);
 }
 
 void SwarmBot::callibrateOdometery(float inputArray[3]){ 
