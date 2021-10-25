@@ -68,18 +68,18 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     angularVelocityOdom = 0;
     angularVelocityIMU =  0;
 
-    //Linear Velocity PID Constants
-    lKp = 15.0;
-    lKi = 0.0;
-    lKd = 0.0;
+       //Linear Velocity PID Constants
+    lKp = 20;
+    lKi = 0;
+    lKd = 0;
     linearIntegral = 0;
     linearDerivative = 0;
     linearLastError = 0;
 
     //Angular Velocity PID Constants
-    aVKp = 8; //0.06
+    aVKp = 10; //0.06
     aVKi = 0.00; //0.001
-    aVKd = 0.25;
+    aVKd = 0.1;
     aVFF = 155; //165
     angleVelIntegral = 0;
     angleVelDerivative = 0;
@@ -89,7 +89,7 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     lmKp = 0.25;
     lmKi = 0.05;
     lmKd = 0.00;
-    lmFF = 155;
+    lmFF = 156.5;
     leftMotorIntegral = 0;
     leftMotorDerivative = 0;
     leftMotorLastError =0;
