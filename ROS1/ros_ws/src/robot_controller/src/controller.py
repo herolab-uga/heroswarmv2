@@ -45,10 +45,10 @@ class Controller:
         self.linear_y_velo = None
         self.angular_z_velo = None
         
-        self.pos_sub = rospy.Subscriber("Positions",Robot_Pos, self.get_pos)
+        self.pos_sub = rospy.Subscriber("/Positions",Robot_Pos, self.get_pos)
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = rospy.Subscriber("/cmd_vel",Twist, self.read_twist,10)
+        self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
         self.odom_pub = rospy.Publisher("odom",Odometry,queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
 
