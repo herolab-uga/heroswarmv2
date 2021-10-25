@@ -62,6 +62,7 @@
         float rightDeltaRevolutions;
 
         double lastTime;
+        double maxSpeed;
 
         float X;
         float Y;
@@ -150,6 +151,7 @@
             void setHeading(float);
             float getLinearVel();
             float getAngularVel();
+            float getMaxSpeed();
 
             void tunePID(float p, float i, float d);
             //Base Motor Control

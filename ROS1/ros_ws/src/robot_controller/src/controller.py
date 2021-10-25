@@ -45,10 +45,10 @@ class Controller:
         self.linear_y_velo = None
         self.angular_z_velo = None
         
-        self.pos_sub = rospy.Subscriber("Positions",Robot_Pos, self.get_pos)
+        self.pos_sub = rospy.Subscriber("/Positions",Robot_Pos, self.get_pos)
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = rospy.Subscriber("/cmd_vel",Twist, self.read_twist,10)
+        self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
         self.odom_pub = rospy.Publisher("odom",Odometry,queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15),self.pub_odom)
 
@@ -165,15 +165,12 @@ class Controller:
         self.linear=y_velo = y_velo
 
         self.angular_z_velo = z_angular
-
-        # Logs the data
-        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
         
-        if x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
-            return
-
-        # Sends the velocity information to the feather board
-        self.send_velocity([x_velo,y_velo,z_angular])
+        if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
+            # Logs the data
+            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+            # Sends the velocity information to the feather board
+            self.send_velocity([x_velo,y_velo,z_angular])
 
     def read_imu(self,event=None) -> None:
         
