@@ -25,8 +25,8 @@ class CameraServer():
         self.ref_x = None
         self.ref_y = None
         self.orig = None
-        self.rotation_matrix = []
-        self.transform_matrix = []
+        self.rotation_matrix = None
+        self.transform_matrix = None
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
 
@@ -96,14 +96,17 @@ class CameraServer():
                         self.ref_x = detections[self.reference_tags[1]].center
                         self.ref_y = detections[self.reference_tags[2]].center
                         self.orig = detections[self.reference_tags[0]].center
+
+                        self.transform_matrix = [(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0])),
+                                                    (np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))]
+
+                        # Creates the rotation matrix
+                        self.rotation_matrix = np.array([[0, 1], [-1, 0]])
                     except IndexError:
                         continue
 
-                    self.transform_matrix.append(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0]))
-                    self.transform_matrix.append(np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))
 
-                    # Creates the rotation matrix
-                    self.rotation_matrix = np.array([[0, 1], [-1, 0]])
+                    
                 
                 for detection in detections:
                     # dimg1 = self.draw(frame, detection.corners)
@@ -245,7 +248,6 @@ if __name__ == '__main__':
             camera_process = Process(target=server.read_frame,args=())
             camera_process.daemon = True
             camera_process.start()
-            time.sleep(3)
             server.get_positions()
         except rospy.ROSInterruptException:
             pass
