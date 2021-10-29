@@ -56,7 +56,7 @@ class CameraServer():
         self.fontColor              = (0,0,255)
         self.lineType               = 1
 
-        self.pos_pub = rospy.Publisher("Positions",Robot_Pos,queue_size=10)
+        self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=10)
 
     def read_frame(self):
         try:
