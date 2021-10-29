@@ -45,7 +45,7 @@ class Controller:
         self.linear_y_velo = None
         self.angular_z_velo = None
         
-        self.pos_sub = rospy.Subscriber("/Positions",Robot_Pos, self.get_pos)
+        self.pos_sub = rospy.Subscriber("/positions",Robot_Pos, self.get_pos)
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber("cmd_vel",Twist, self.read_twist,10)
@@ -77,6 +77,8 @@ class Controller:
             self.prox_pub = rospy.Publisher(Int16,"proximity",queue_size=5)
             self.proximity_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
 
+        
+
         print("Ready")
 
     def rpy_from_quaternion(self,quaternion):
@@ -96,18 +98,6 @@ class Controller:
         cosy_cosp = 1 - 2 * (y * y + z * z)
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
-
-    def send_wheel_speed(self,right,left):
-        byteList = []
-
-        # Converts the values to bytes 
-        byteList.append(1)
-        byteList += list(struct.pack('f', right))
-        byteList += list(struct.pack('f', left))
-        byteList.append(0)  # fails to send last byte over I2C, hence this needs to be added 
-
-        # Writes the values to the i2c
-        self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
 
     def get_pos(self,msg):
         for robot in msg.robot_pos:
@@ -152,25 +142,28 @@ class Controller:
         
     def read_twist(self,msg, event=None) -> None:
         # Reads ths twist message x linear velocity
-        x_velo = msg.linear.x
+        x_velo = msg.linear.x if msg.linear.x <= .10 else .10
         
         # Reads the twist message y linear velocity
         y_velo = msg.linear.y
 
         # Reads the twist message z angular velocity
-        z_angular = msg.angular.z
+        z_angular = msg.angular.z if msg.angular.z <= .30 else .30
 
-        self.linear_x_velo = x_velo
 
-        self.linear=y_velo = y_velo
-
-        self.angular_z_velo = z_angular
-        
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
             # Logs the data
             rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
             # Sends the velocity information to the feather board
             self.send_velocity([x_velo,y_velo,z_angular])
+
+            self.linear_x_velo = x_velo
+
+            self.linear=y_velo = y_velo
+
+            self.angular_z_velo = z_angular
+        
+        
 
     def read_imu(self,event=None) -> None:
         
