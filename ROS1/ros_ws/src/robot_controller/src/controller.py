@@ -142,15 +142,17 @@ class Controller:
         
     def read_twist(self,msg, event=None) -> None:
         # Reads ths twist message x linear velocity
-        direction_lin = msg.linear.x/ abs(msg.linear.x)
-        x_velo = direction_lin * (msg.linear.x if abs(msg.linear).x <= .10 else .10)
-        
+        if not msg.linear.x == 0:
+            direction_lin = msg.linear.x/ abs(msg.linear.x)
+            x_velo = direction_lin * (msg.linear.x if abs(msg.linear).x <= .10 else .10)
+            
         # Reads the twist message y linear velocity
         y_velo = msg.linear.y
 
         # Reads the twist message z angular velocity
-        direction_ang = msg.angular.z / abs(msg.angular.z)
-        z_angular = direction_ang* (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
+        if not msg.angular.z == 0:
+            direction_ang = msg.angular.z / abs(msg.angular.z)
+            z_angular = direction_ang* (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
 
 
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
