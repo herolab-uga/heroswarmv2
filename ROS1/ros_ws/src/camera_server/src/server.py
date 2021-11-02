@@ -119,7 +119,6 @@ class CameraServer():
                     # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
 
                     if not detection.tag_id in self.reference_tags:
-
                         # Gets the forward direction
                         (forward_dir, angle) = self.heading_dir(detection.corners, center)
 
@@ -157,8 +156,8 @@ class CameraServer():
                             positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
                         
                 self.pos_pub.publish(positions)
-                
-                
+                         
+
                 # cv2.imshow(self.window, overlay)
                 # cv2.waitKey(1)
 
