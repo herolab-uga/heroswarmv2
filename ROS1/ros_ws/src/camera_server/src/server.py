@@ -16,7 +16,7 @@ import rospy
 from geometry_msgs.msg import Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos
-
+import json
 
 class CameraServer():
 
@@ -58,6 +58,9 @@ class CameraServer():
 
         self.pos_pub = rospy.Publisher("Positions",Robot_Pos,queue_size=10)
 
+        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/include/robots.json") as file:
+            robot_dictionary = json.load(file)
+
     def read_frame(self):
         try:
             capture = cv2.VideoCapture(-1)
@@ -87,6 +90,8 @@ class CameraServer():
                 
                 dimg1 = dimg
 
+
+
                 positions = Robot_Pos()
                 # positions.robot_pos = []
                 
@@ -104,10 +109,9 @@ class CameraServer():
                         self.rotation_matrix = np.array([[0, 1], [-1, 0]])
                     except IndexError:
                         continue
-
-
                     
-                
+                active_list = []
+
                 for detection in detections:
                     # dimg1 = self.draw(frame, detection.corners)
                     center = detection.center
@@ -138,6 +142,8 @@ class CameraServer():
                         positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                         if not detection.tag_id in self.reference_tags:
+
+                            active_list.append(detection.tag_id)
                             
                             positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                             positions.robot_pos[-1].pose.pose.position.y = 0 
