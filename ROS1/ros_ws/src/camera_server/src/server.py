@@ -76,12 +76,12 @@ class CameraServer():
             process_start = time.time()
             _, frame = capture.read()
             self.image_queue.put(frame)
-            print("Process: ",time.time() - process_start)
+            # print("Process: ",time.time() - process_start)
 
     def get_positions(self):
         while True:
             if not self.image_queue.empty():
-                print("Running")
+                #print("Running")
                 frame = self.image_queue.get()
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 detections, dimg = self.detector.detect(gray, return_image = True)
@@ -162,6 +162,8 @@ class CameraServer():
                             positions.robot_pos[-1].pose.pose.position.y = 0 
                             positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
                         
+                print(active_list)
+
                 self.pos_pub.publish(positions)
                 
                 
