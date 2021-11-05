@@ -276,11 +276,11 @@ class CameraServer():
         self.lineType               = 1
 
         self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=10)
-        self.topics = {"cmd_vel":Twist}
+
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/include/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.topics = {"cmd_vel":Twist,"positions":Odometry}
+        self.topics = {"cmd_vel":Twist,"position":Odometry}
         self.active_dict = {}
         self.thread_dict = {}
         self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)

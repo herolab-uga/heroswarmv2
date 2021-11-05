@@ -39,16 +39,21 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
-    def get_pos(self, msg):
-        for robot in msg.robot_pos:
-            if robot.child_frame_id == str(self.id):
-                self.x = robot.pose.pose.position.x
-                self.z = robot.pose.pose.position.z
-                self.heading = self.rpy_from_quaternion(
-                    robot.pose.pose.self.heading)
-                break
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(
-            x=self.x, z=self.z, theta=self.heading))
+    def get_pos_global(self,msg):
+            for robot in msg.robot_pos:
+                if robot.child_frame_id == str(self.id):
+                    self.x = robot.pose.pose.position.x
+                    self.z = robot.pose.pose.position.z
+                    self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
+                    break
+            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
+
+    def get_pos(self,msg):
+        self.x = msg.pose.pose.position.x
+        self.z = msg.pose.pose.position.z
+        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)
+        
+        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
 
     def pub_odom(self, timer, event=None):
         # Creates the odom message
@@ -263,6 +268,7 @@ class Controller:
         self.environment = False
         self.imu = False
         self.proximity = False
+        self.global_pos = False
         self.i2c = board.I2C()
         self.id = 18
         self.x = None
@@ -272,7 +278,11 @@ class Controller:
         self.linear_y_velo = None
         self.angular_z_velo = None
 
-        self.pos_sub = rospy.Subscriber("/positions", Robot_Pos, self.get_pos)
+        if self.global_pos:
+            self.pos_sub = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
+        else:
+            self.pos_sub = rospy.Subscriber("position", Odometry, self.get_pos)
+
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber(
