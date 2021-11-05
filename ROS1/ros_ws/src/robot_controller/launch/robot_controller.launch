@@ -1,3 +1,3 @@
 <launch>
-  <node ns="swarmbilly" name="controller" pkg="robot_controller" type="controller.py"/>
+  <node ns="$(env ROS_HOSTNAME)" name="controller" pkg="robot_controller" type="controller.py"/>
 </launch>
