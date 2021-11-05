@@ -2,6 +2,7 @@
 from __future__ import division, print_function
 
 import math
+import queue
 import struct
 import threading
 import time
@@ -20,47 +21,6 @@ import json
 
 class CameraServer():
 
-    def __init__(self):
-
-        self.ref_x = None
-        self.ref_y = None
-        self.orig = None
-        self.rotation_matrix = None
-        self.transform_matrix = None
-
-        self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
-
-        self.x_distance = 95
-        self.y_distance = 67.5
-
-        self.image_queue = Queue(2)
-
-        # self.window = "Overlay1"
-
-        # cv2.namedWindow(self.window)
-
-        rospy.init_node("camera_server",anonymous=True)
-
-        self.parser = ArgumentParser(description='test apriltag Python bindings')
-        self.parser.add_argument('device_or_movie', metavar='INPUT', nargs='?', default=0, help='Movie to load or integer ID of camera device')
-        apriltag.add_arguments(self.parser)
-        self.options = self.parser.parse_args()
-        
-        self.detector = apriltag.Detector(
-            self.options,
-            searchpath=apriltag._get_demo_searchpath()
-        )
-
-        self.font = cv2.FONT_HERSHEY_SIMPLEX
-        self.fontScale              = 0.3
-        self.fontColor              = (0,0,255)
-        self.lineType               = 1
-
-        self.pos_pub = rospy.Publisher("Positions",Robot_Pos,queue_size=10)
-
-        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/include/robots.json") as file:
-            robot_dictionary = json.load(file)
-
     def read_frame(self):
         try:
             capture = cv2.VideoCapture(-1)
@@ -78,6 +38,35 @@ class CameraServer():
             self.image_queue.put(frame)
             # print("Process: ",time.time() - process_start)
 
+    def get_pos(self,robot_id):
+        for robot in self.positions.robot_pos:
+            if robot.child_frame_id == str(robot_id):
+                return robot
+
+    def controller(self,robot_id,robot_hostname,stop_event):
+        pubs = {}
+        for topic in self.topics:
+            pubs[topic] = rospy.Publisher("/"+robot_hostname+"/"+topic,self.topics[topic],queue_size=5)
+        while not stop_event.is_set():
+            pubs["position"].publish(self.get_pos(robot_id))
+            continue
+        for pub in pubs:
+            pubs[pub].shutdown()
+
+    def connection_manager(self):
+        while True:
+            # print("Manager")
+            add = set(self.active_dict) - set(self.thread_dict)
+            for new_robot in add:
+                stop = threading.Event()
+                self.thread_dict[new_robot] = [threading.Thread(target=self.controller, args=(new_robot,self.active_dict[new_robot],stop),daemon=True),stop]
+                self.thread_dict[new_robot][0].start()
+            sub = set(self.thread_dict) - set(self.active_dict)
+            for missing_robot in sub:
+                self.thread_dict[missing_robot][1].set()
+                del self.thread_dict[missing_robot]
+            
+
     def get_positions(self):
         while True:
             if not self.image_queue.empty():
@@ -92,7 +81,7 @@ class CameraServer():
 
 
 
-                positions = Robot_Pos()
+                self.positions = Robot_Pos()
                 # positions.robot_pos = []
                 
                 if self.transform_matrix == None:
@@ -110,7 +99,7 @@ class CameraServer():
                     except IndexError:
                         continue
                     
-                active_list = []
+                self.active_dict = {}
 
                 for detection in detections:
                     # dimg1 = self.draw(frame, detection.corners)
@@ -138,33 +127,33 @@ class CameraServer():
 
                         # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
 
-                        positions.robot_pos.append(Odometry())
-                        positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+                        self.positions.robot_pos.append(Odometry())
+                        self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                         if not detection.tag_id in self.reference_tags:
 
-                            active_list.append(detection.tag_id)
+                            self.active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
                             
-                            positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            positions.robot_pos[-1].pose.pose.position.y = 0 
-                            positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
 
                             q = self.quaternion_from_rpy(0,0,np.radians(angle))
 
-                            positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                            positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                            positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                            positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                            self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                            self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                            self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                            self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
 
                         else:
 
-                            positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            positions.robot_pos[-1].pose.pose.position.y = 0 
-                            positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
                         
-                print(active_list)
+                # print(self.active_dict)
 
-                self.pos_pub.publish(positions)
+                # self.pos_pub.publish(self.positions)
                 
                 
                 # cv2.imshow(self.window, overlay)
@@ -249,6 +238,54 @@ class CameraServer():
         cMidPt[1] = cMidPt[1] + 50 * math.sin(math.radians(theta))
         newmidPt = cMidPt + center
         return (newmidPt, theta)
+
+
+    def __init__(self):
+
+        self.ref_x = None
+        self.ref_y = None
+        self.orig = None
+        self.rotation_matrix = None
+        self.transform_matrix = None
+
+        self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
+
+        self.x_distance = 95
+        self.y_distance = 67.5
+
+        self.image_queue = Queue(2)
+
+        # self.window = "Overlay1"
+
+        # cv2.namedWindow(self.window)
+
+        rospy.init_node("camera_server",anonymous=True)
+
+        self.parser = ArgumentParser(description='test apriltag Python bindings')
+        self.parser.add_argument('device_or_movie', metavar='INPUT', nargs='?', default=0, help='Movie to load or integer ID of camera device')
+        apriltag.add_arguments(self.parser)
+        self.options = self.parser.parse_args()
+        
+        self.detector = apriltag.Detector(
+            self.options,
+            searchpath=apriltag._get_demo_searchpath()
+        )
+
+        self.font = cv2.FONT_HERSHEY_SIMPLEX
+        self.fontScale              = 0.3
+        self.fontColor              = (0,0,255)
+        self.lineType               = 1
+
+        self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=10)
+        self.topics = {"cmd_vel":Twist}
+        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/include/robots.json") as file:
+            self.robot_dictionary = json.load(file)
+
+        self.topics = {"cmd_vel":Twist,"positions":Odometry}
+        self.active_dict = {}
+        self.thread_dict = {}
+        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
+        self.connection_manager_thread.start()
 
 if __name__ == '__main__':
         try:
