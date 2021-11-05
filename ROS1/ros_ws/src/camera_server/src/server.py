@@ -8,6 +8,7 @@ import threading
 import time
 from argparse import ArgumentParser
 from multiprocessing import Process,Queue
+from copy import deepcopy
 
 import apriltag
 import cv2
@@ -47,21 +48,23 @@ class CameraServer():
         pubs = {}
         for topic in self.topics:
             pubs[topic] = rospy.Publisher("/"+robot_hostname+"/"+topic,self.topics[topic],queue_size=5)
+
         while not stop_event.is_set():
-            pubs["position"].publish(self.get_pos(robot_id))
-            continue
-        for pub in pubs:
-            pubs[pub].shutdown()
+            msg = self.get_pos(robot_id)
+            if not msg == None:
+                pubs["position"].publish(msg)
 
     def connection_manager(self):
+        prev_active = []
         while True:
-            # print("Manager")
-            add = set(self.active_dict) - set(self.thread_dict)
+            active_dict = list(self.active_dict)
+            add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
                 stop = threading.Event()
                 self.thread_dict[new_robot] = [threading.Thread(target=self.controller, args=(new_robot,self.active_dict[new_robot],stop),daemon=True),stop]
                 self.thread_dict[new_robot][0].start()
-            sub = set(self.thread_dict) - set(self.active_dict)
+            sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
+            prev_active = active_dict
             for missing_robot in sub:
                 self.thread_dict[missing_robot][1].set()
                 del self.thread_dict[missing_robot]
@@ -82,7 +85,6 @@ class CameraServer():
 
 
                 self.positions = Robot_Pos()
-                # positions.robot_pos = []
                 
                 if self.transform_matrix == None:
                     try:
@@ -99,7 +101,7 @@ class CameraServer():
                     except IndexError:
                         continue
                     
-                self.active_dict = {}
+                active_dict = {}
 
                 for detection in detections:
                     # dimg1 = self.draw(frame, detection.corners)
@@ -114,7 +116,7 @@ class CameraServer():
                     if not detection.tag_id in self.reference_tags:
                         # Gets the forward direction
                         (forward_dir, angle) = self.heading_dir(detection.corners, center)
-
+                        # print(detection.tag_id)
                         # forward_dir_transform = self.transform(forward_dir)
 
                         # Draws the arrows
@@ -131,7 +133,7 @@ class CameraServer():
 
                         if not detection.tag_id in self.reference_tags:
 
-                            self.active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                            active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
                             
                             self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                             self.positions.robot_pos[-1].pose.pose.position.y = 0 
@@ -149,7 +151,8 @@ class CameraServer():
                             self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                             self.positions.robot_pos[-1].pose.pose.position.y = 0 
                             self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
-                        
+                
+                self.active_dict = active_dict
                 # print(self.active_dict)
 
                 # self.pos_pub.publish(self.positions)
