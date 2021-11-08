@@ -83,7 +83,7 @@ class Controller:
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.self.heading
+        odom_msg.pose.pose.heading
 
         self.odom_pub.publish(odom_msg)
 
