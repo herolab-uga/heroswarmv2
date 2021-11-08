@@ -9,6 +9,7 @@ import time
 from argparse import ArgumentParser
 from multiprocessing import Process,Queue
 from copy import deepcopy
+import Controller
 
 import apriltag
 import cv2
@@ -19,6 +20,7 @@ from geometry_msgs.msg import Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos
 import json
+
 
 class CameraServer():
 
@@ -60,14 +62,15 @@ class CameraServer():
             active_dict = list(self.active_dict)
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
-                stop = threading.Event()
-                self.thread_dict[new_robot] = [threading.Thread(target=self.controller, args=(new_robot,self.active_dict[new_robot],stop),daemon=True),stop]
-                self.thread_dict[new_robot][0].start()
+                self.thread_dict[new_robot] = Controller(new_robot, 
+                                                            self.robot_dictionary[new_robot], 
+                                                            self.positions,
+                                                            self.position_lock)
             sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
             for missing_robot in sub:
                 self.thread_dict[missing_robot][1].set()
-                del self.thread_dict[missing_robot]
+                self.thread_dict[missing_robot].halt_pos_pub()
             
 
     def get_positions(self):
@@ -102,57 +105,57 @@ class CameraServer():
                         continue
                     
                 active_dict = {}
+                with self.position_lock:
+                    for detection in detections:
+                        # dimg1 = self.draw(frame, detection.corners)
+                        center = detection.center
+                        
+                        # Gets the center of the tag in inches and rotated accordingly
 
-                for detection in detections:
-                    # dimg1 = self.draw(frame, detection.corners)
-                    center = detection.center
-                    
-                    # Gets the center of the tag in inches and rotated accordingly
+                        center_transform = self.transform(center)
 
-                    center_transform = self.transform(center)
-
-                    # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
-
-                    if not detection.tag_id in self.reference_tags:
-                        # Gets the forward direction
-                        (forward_dir, angle) = self.heading_dir(detection.corners, center)
-                        # print(detection.tag_id)
-                        # forward_dir_transform = self.transform(forward_dir)
-
-                        # Draws the arrows
-
-                        # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
-
-                        # center_txt = center.ravel().astype(int).astype(str)
-                        # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
-
-                        # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
-
-                        self.positions.robot_pos.append(Odometry())
-                        self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+                        # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
 
                         if not detection.tag_id in self.reference_tags:
+                            # Gets the forward direction
+                            (forward_dir, angle) = self.heading_dir(detection.corners, center)
+                            # print(detection.tag_id)
+                            # forward_dir_transform = self.transform(forward_dir)
 
-                            active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                            
-                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            # Draws the arrows
 
-                            q = self.quaternion_from_rpy(0,0,np.radians(angle))
+                            # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
 
-                            self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                            self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                            self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                            self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                            # center_txt = center.ravel().astype(int).astype(str)
+                            # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
 
-                        else:
+                            # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
 
-                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
-                
-                self.active_dict = active_dict
+                            self.positions.robot_pos.append(Odometry())
+                            self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+
+                            if not detection.tag_id in self.reference_tags:
+
+                                active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                                
+                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+
+                                q = self.quaternion_from_rpy(0,0,np.radians(angle))
+
+                                self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                                self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                                self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                                self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+
+                            else:
+
+                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                    
+                    self.active_dict = active_dict
                 # print(self.active_dict)
 
                 # self.pos_pub.publish(self.positions)
@@ -280,10 +283,11 @@ class CameraServer():
 
         self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=10)
 
-        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/include/robots.json") as file:
+        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.topics = {"cmd_vel":Twist,"position":Odometry}
+        self.positions = None
+        self.positions_lock = threading.Lock()
         self.active_dict = {}
         self.thread_dict = {}
         self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
