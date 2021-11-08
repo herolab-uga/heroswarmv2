@@ -234,22 +234,21 @@ class Controller:
 
         set_linear = 0
         set_angular = 0
+        
+        self.get_logger().info("X: {x} Y: {y}".format(x=self.x, y=self.y))
+        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
 
-        if not self.target_pos[0] == None and not self.target_pos[0] == None:
-            self.get_logger().info("X: {x} Y: {y}".format(x=self.x, y=self.y))
-            if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
+            delta_x = msg.x - self.x
+            delta_y = msg.y - self.y
+            theta = self.rpy_from_quaternion(self.heading)[0]
+            v = self.v_max*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
+            omega = self.omega_max * \
+                (2*np.arctan2(-np.sin(theta)*delta_x +
+                    np.cos(theta)*delta_y, v))/np.pi
+            set_linear = v
+            set_angular = omega
 
-                delta_x = msg.x - self.x
-                delta_y = msg.y - self.y
-                theta = self.rpy_from_quaternion(self.heading)[0]
-                v = self.v_max*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
-                omega = self.omega_max * \
-                    (2*np.arctan2(-np.sin(theta)*delta_x +
-                     np.cos(theta)*delta_y, v))/np.pi
-                set_linear = v
-                set_angular = omega
-
-            self.send_velocity([set_linear, 0, set_angular])
+        self.send_velocity([set_linear, 0, set_angular])
 
     def __init__(self):
 
@@ -277,9 +276,9 @@ class Controller:
         self.angular_z_velo = None
 
         if self.global_pos:
-            self.pos_sub = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
+            self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
         else:
-            self.pos_sub = rospy.Subscriber("position", Odometry, self.get_pos)
+            self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
 
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
