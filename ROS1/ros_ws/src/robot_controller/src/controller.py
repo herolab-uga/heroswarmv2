@@ -234,7 +234,7 @@ class Controller:
 
         set_linear = 0
         set_angular = 0
-        
+
         self.get_logger().info("X: {x} Y: {y}".format(x=self.x, y=self.y))
         if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
 
@@ -282,8 +282,7 @@ class Controller:
 
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = rospy.Subscriber(
-            "cmd_vel", Twist, self.read_twist, 10)
+        self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
         self.point_sub = rospy. Subscriber(
@@ -323,6 +322,5 @@ class Controller:
 
 if __name__ == '__main__':
     controller = Controller()
-    print("Running")
     while not rospy.is_shutdown():
         continue
