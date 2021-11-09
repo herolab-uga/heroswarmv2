@@ -91,8 +91,7 @@ class Controller:
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = direction_lin * \
-                (msg.linear.x if abs(msg.linear.x) <= .10 else .10)
+            x_velo = direction_lin * (msg.linear.x if abs(msg.linear.x) <= .10 else .10)
         else:
             x_velo = 0
 
@@ -102,8 +101,7 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * \
-                (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
+            z_angular = direction_ang * (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
         else:
             z_angular = 0
 
@@ -113,6 +111,9 @@ class Controller:
                 x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
             self.send_velocity([x_velo, y_velo, z_angular])
+            self.linear_x_velo = x_velo
+            self.linear_y_velo = y_velo
+            self.angular_z_velo = z_angular
 
     def read_imu(self, event=None) -> None:
 
