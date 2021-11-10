@@ -145,7 +145,7 @@ class Controller(Node):
 
         
         
-        if not x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
+        if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
 
             # Sends the velocity information to the feather board
             self.send_velocity([x_velo,y_velo,z_angular])
