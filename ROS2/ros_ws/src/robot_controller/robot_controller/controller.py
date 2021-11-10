@@ -158,7 +158,6 @@ class Controller(Node):
             # Logs the data
             self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
             
-            return
 
 
     def read_imu(self) -> None:
@@ -169,11 +168,11 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
         mag_x, mag_y, mag_z = self.magnetometer.magnetic
-        print("Mag_x: ",mag_x)
-        print("Mag_y: ",mag_y)
-        print("Mag_z: ",mag_z)
+        # print("Mag_x: ",mag_x)
+        # print("Mag_y: ",mag_y)
+        # print("Mag_z: ",mag_z)
         self.heading = np.arctan2(mag_z,mag_x)
-        print(self.heading)
+        # print(self.heading)
 
         # Sets the orientation parameters
         imu_msg.orientation.x = 0.0
