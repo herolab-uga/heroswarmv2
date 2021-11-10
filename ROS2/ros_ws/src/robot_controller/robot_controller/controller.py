@@ -143,20 +143,23 @@ class Controller(Node):
         # Reads the twist message z angular velocity
         z_angular = msg.angular.z
 
-        self.linear_x_velo = x_velo
-
-        self.linear=y_velo = y_velo
-
-        self.angular_z_velo = z_angular
-
-        # Logs the data
-        self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+        
         
         if x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
+            # Sends the velocity information to the feather board
+            self.send_velocity([x_velo,y_velo,z_angular])
+
+            self.linear_x_velo = x_velo
+
+            self.linear=y_velo = y_velo
+
+            self.angular_z_velo = z_angular
+
+            # Logs the data
+            self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
+            
             return
 
-        # Sends the velocity information to the feather board
-        self.send_velocity([x_velo,y_velo,z_angular])
 
     def read_imu(self) -> None:
         # Creates the IMU message
