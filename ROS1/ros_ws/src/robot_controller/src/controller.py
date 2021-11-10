@@ -89,9 +89,7 @@ class Controller:
 
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
-        z_angular = 0
-        with self.velo_lock:
-            self.last_call["time"] = time.time()
+        z_angular = 0            
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
@@ -116,16 +114,17 @@ class Controller:
             # Sends the velocity information to the feather board
             with self.velo_lock:
                 self.send_velocity([x_velo, y_velo, z_angular])
+                self.last_call["time"] = time.time()
                 self.linear_x_velo = x_velo
                 self.linear_y_velo = y_velo
                 self.angular_z_velo = z_angular
     
     def auto_stop(self):
         while True:
+            with self.velo_lock:
                 if self.last_call["time"] == None:
                     continue
                 elif time.time() - self.last_call["time"] > .300:
-                    with self.velo_lock:
                         self.send_velocity([0, 0, 0])
                         self.linear_x_velo = 0
                         self.linear_y_velo = 0
