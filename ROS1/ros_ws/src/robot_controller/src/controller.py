@@ -90,7 +90,6 @@ class Controller:
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
         z_angular = 0
-        self.last_call = time.time()
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
@@ -114,6 +113,7 @@ class Controller:
                 x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
             with self.velo_lock:
+                self.last_call = time.time()
                 self.send_velocity([x_velo, y_velo, z_angular])
                 self.linear_x_velo = x_velo
                 self.linear_y_velo = y_velo
@@ -121,15 +121,15 @@ class Controller:
     
     def auto_stop(self):
         while True:
-            if self.last_call == None:
-                continue
-            elif time.time() - self.last_call > .003:
-                with self.velo_lock:
-                    self.send_velocity([0, 0, 0])
-                    self.linear_x_velo = 0
-                    self.linear_y_velo = 0
-                    self.angular_z_velo = 0
-    
+            with self.velo_lock:
+                if self.last_call == None:
+                    continue
+                elif time.time() - self.last_call > .003:
+                        self.send_velocity([0, 0, 0])
+                        self.linear_x_velo = 0
+                        self.linear_y_velo = 0
+                        self.angular_z_velo = 0
+        
             
 
 
@@ -304,7 +304,8 @@ class Controller:
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
         self.velo_lock = threading.Lock()
-        self.stop_thread = threading.Thread()
+        self.stop_thread = threading.Thread(self.auto_stop,args=(),daemon=True)
+        self.stop_thread.start()
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
