@@ -134,7 +134,6 @@ class Controller(Node):
         self.odom_pub.publish(odom_msg)
         
     def read_twist(self,msg) -> None:
-        print("Test")
         # Reads ths twist message x linear velocity
         x_velo = msg.linear.x
         
@@ -147,6 +146,7 @@ class Controller(Node):
         
         
         if x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo:
+            print("Test")
             # Sends the velocity information to the feather board
             self.send_velocity([x_velo,y_velo,z_angular])
 
