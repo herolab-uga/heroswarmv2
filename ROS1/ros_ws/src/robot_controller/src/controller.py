@@ -304,7 +304,7 @@ class Controller:
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
         self.velo_lock = threading.Lock()
-        self.stop_thread = threading.Thread(self.auto_stop,args=(),daemon=True)
+        self.stop_thread = threading.Thread(target=self.auto_stop,args=(),daemon=True)
         self.stop_thread.start()
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
