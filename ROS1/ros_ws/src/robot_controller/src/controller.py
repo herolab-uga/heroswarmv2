@@ -90,6 +90,7 @@ class Controller:
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
         z_angular = 0
+        self.last_call["time"] = time.time()
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
@@ -113,7 +114,6 @@ class Controller:
                 x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
             with self.velo_lock:
-                self.last_call = time.time()
                 self.send_velocity([x_velo, y_velo, z_angular])
                 self.linear_x_velo = x_velo
                 self.linear_y_velo = y_velo
@@ -121,10 +121,10 @@ class Controller:
     
     def auto_stop(self):
         while True:
-            with self.velo_lock:
-                if self.last_call == None:
+                if self.last_call["time"] == None:
                     continue
-                elif time.time() - self.last_call > .003:
+                elif time.time() - self.last_call["time"] > .300:
+                    with self.velo_lock:
                         self.send_velocity([0, 0, 0])
                         self.linear_x_velo = 0
                         self.linear_y_velo = 0
@@ -293,7 +293,7 @@ class Controller:
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        self.last_call = None
+        self.last_call = {"time":None}
 
         if self.global_pos:
             self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
