@@ -90,7 +90,8 @@ class Controller:
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
         z_angular = 0
-        self.last_call["time"] = time.time()
+        with self.velo_lock:
+            self.last_call["time"] = time.time()
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
