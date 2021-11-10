@@ -113,16 +113,16 @@ class Controller(Node):
         odom_data[2] = np.radians(odom_data[2])
         # Adds Twist data
         odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = 0.0
-        odom_msg.twist.twist.linear.z = odom_data[3] * math.sin(odom_data[2])
+        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
+        odom_msg.twist.twist.linear.z = 0.0
         
         odom_msg.twist.twist.angular.x = 0.0
-        odom_msg.twist.twist.angular.y = odom_data[4]
-        odom_msg.twist.twist.angular.z = 0.0
+        odom_msg.twist.twist.angular.y = 0.0
+        odom_msg.twist.twist.angular.z = odom_data[4]
 
         odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = 0.0
-        odom_msg.pose.pose.position.z = odom_data[1]
+        odom_msg.pose.pose.position.y = odom_data[1]
+        odom_msg.pose.pose.position.z = 0.0
 
         quaternion = self.quaternion_from_rpy(0, self.heading,0)
 
