@@ -123,7 +123,7 @@ class Controller:
         while True:
                 if self.last_call["time"] == None:
                     continue
-                elif time.time() - self.last_call["time"] > .300:
+                elif time.time() - self.last_call["time"] > .500:
                     with self.velo_lock:
                         self.send_velocity([0, 0, 0])
                         self.linear_x_velo = 0
