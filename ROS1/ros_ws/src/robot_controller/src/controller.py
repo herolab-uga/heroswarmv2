@@ -109,17 +109,15 @@ class Controller:
         else:
             z_angular = 0
 
-        if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
-            # Logs the data
-            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=y_velo, z=z_angular))
-            # Sends the velocity information to the feather board
-            with self.velo_lock:
-                self.last_call["time"] = time.time()
-                self.send_velocity([x_velo, y_velo, z_angular])
-                self.linear_x_velo = x_velo
-                self.linear_y_velo = y_velo
-                self.angular_z_velo = z_angular
+        # Logs the data
+        rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo, y=y_velo, z=z_angular))
+        # Sends the velocity information to the feather board
+        with self.velo_lock:
+            self.last_call["time"] = time.time()
+            self.send_velocity([x_velo, y_velo, z_angular])
+            self.linear_x_velo = x_velo
+            self.linear_y_velo = y_velo
+            self.angular_z_velo = z_angular
     
     def auto_stop(self):
         while True:
@@ -131,8 +129,6 @@ class Controller:
                         self.linear_y_velo = 0
                         self.angular_z_velo = 0
         
-            
-
 
     def read_imu(self, event=None) -> None:
 
@@ -230,25 +226,26 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self, values):
-        byteList = []
+        if not (values[0] == self.linear_x_velo and values[1] == self.linear_y_velo and [values[0]] == self.angular_z_velo):
+            byteList = []
 
-        # Converts the values to bytes
-        for value in values:
-            byteList += list(struct.pack('f', value))
-        # fails to send last byte over I2C, hence this needs to be added
-        byteList.append(0)
+            # Converts the values to bytes
+            for value in values:
+                byteList += list(struct.pack('f', value))
+            # fails to send last byte over I2C, hence this needs to be added
+            byteList.append(0)
 
-        # Writes the values to the i2c
-        self.bus.write_i2c_block_data(
-            self.arduino, byteList[0], byteList[1:12])
+            # Writes the values to the i2c
+            self.bus.write_i2c_block_data(
+                self.arduino, byteList[0], byteList[1:12])
 
-        self.linear_x_velo = values[0]
+            self.linear_x_velo = values[0]
 
-        self.linear = values[1]
+            self.linear = values[1]
 
-        self.angular_z_velo = values[2]
+            self.angular_z_velo = values[2]
 
-        print(values)
+            print(values)
 
     def move_to_point(self, msg):
 
