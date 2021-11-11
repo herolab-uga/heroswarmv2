@@ -118,7 +118,7 @@ class Controller:
                 self.send_velocity([x_velo, y_velo, z_angular])
                 self.linear_x_velo = x_velo
                 self.linear_y_velo = y_velo
-            self.angular_z_velo = z_angular
+                self.angular_z_velo = z_angular
     
     def auto_stop(self):
         while True:
