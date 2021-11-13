@@ -95,7 +95,7 @@ class Controller:
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = direction_lin * (msg.linear.x if abs(msg.linear.x) <= .20 else .20)
+            x_velo = direction_lin * (msg.linear.x if abs(msg.linear.x) <= .1 else .1)
         else:
             x_velo = 0
 
