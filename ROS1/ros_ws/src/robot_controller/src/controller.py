@@ -95,7 +95,7 @@ class Controller:
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = direction_lin * (msg.linear.x if abs(msg.linear.x) <= .1 else .1)
+            x_velo = direction_lin * (abs(msg.linear).x if abs(msg.linear.x) <= .10 else .10)
         else:
             x_velo = 0
 
@@ -105,7 +105,7 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= .30 else .30)
         else:
             z_angular = 0
         
