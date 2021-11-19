@@ -85,7 +85,7 @@ class Controller:
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.angle.z = odom_data[2]
+        odom_msg.pose.pose.orientation.z = odom_data[2]
 
         self.odom_pub.publish(odom_msg)
 
