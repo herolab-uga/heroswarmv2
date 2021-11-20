@@ -132,6 +132,7 @@ class Controller:
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
                     self.angular_z_velo = 0
+            time.sleep(.1)
 
     def read_imu(self, event=None) -> None:
 
