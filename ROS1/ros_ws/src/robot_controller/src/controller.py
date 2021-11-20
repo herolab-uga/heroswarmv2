@@ -117,22 +117,23 @@ class Controller:
             # Sends the velocity information to the feather board
             with self.velo_lock:
                 self.last_call["time"] = time.time()
-                self.send_velocity([x_velo, y_velo, z_angular])
-                self.linear_x_velo = x_velo
-                self.linear_y_velo = y_velo
-                self.angular_z_velo = z_angular
+            self.send_velocity([x_velo, y_velo, z_angular])
+            self.linear_x_velo = x_velo
+            self.linear_y_velo = y_velo
+            self.angular_z_velo = z_angular
     
     def auto_stop(self):
         while True:
             with self.velo_lock:
-                if self.last_call["time"] == None:
-                    continue
-                elif time.time() - self.last_call["time"] > 0.12:
-                    if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
-                        self.send_velocity([0, 0, 0])
-                        self.linear_x_velo = 0
-                        self.linear_y_velo = 0
-                        self.angular_z_velo = 0
+                lock = self.last_call["time"]
+            if lock == None:
+                continue
+            elif time.time() - lock > 0.12:
+                if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
+                    self.send_velocity([0, 0, 0])
+                    self.linear_x_velo = 0
+                    self.linear_y_velo = 0
+                    self.angular_z_velo = 0
 
     def read_imu(self, event=None) -> None:
 
