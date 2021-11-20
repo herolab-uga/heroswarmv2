@@ -124,6 +124,7 @@ class Controller:
     
     def auto_stop(self):
         while True:
+            with self.velo_lock:
                 if self.last_call["time"] == None:
                     continue
                 elif time.time() - self.last_call["time"] > 0.12:
