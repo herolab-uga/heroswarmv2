@@ -85,6 +85,8 @@ class Controller:
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
+        odom_msg.pose.pose.orientation.z = odom_data[2]
+
         self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
@@ -95,7 +97,7 @@ class Controller:
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = direction_lin * (msg.linear.x if abs(msg.linear.x) <= .10 else .10)
+            x_velo = direction_lin * (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
         else:
             x_velo = 0
 
@@ -105,34 +107,32 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * (msg.angular.z if abs(msg.angular.z) <= .30 else .30)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= .30 else .30)
         else:
             z_angular = 0
-
+        
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
             # Logs the data
-            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=y_velo, z=z_angular))
+            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
             with self.velo_lock:
                 self.last_call["time"] = time.time()
-                self.send_velocity([x_velo, y_velo, z_angular])
-                self.linear_x_velo = x_velo
-                self.linear_y_velo = y_velo
-                self.angular_z_velo = z_angular
+            self.send_velocity([x_velo, y_velo, z_angular])
+            self.linear_x_velo = x_velo
+            self.linear_y_velo = y_velo
+            self.angular_z_velo = z_angular
     
     def auto_stop(self):
         while True:
-                if self.last_call["time"] == None:
-                    continue
-                elif time.time() - self.last_call["time"] > .500:
-                        self.send_velocity([0, 0, 0])
-                        self.linear_x_velo = 0
-                        self.linear_y_velo = 0
-                        self.angular_z_velo = 0
-        
-            
-
+            if self.last_call["time"] == None:
+                continue
+            elif time.time() - self.last_call["time"] > 0.12:
+                if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
+                    self.send_velocity([0, 0, 0])
+                    self.linear_x_velo = 0
+                    self.linear_y_velo = 0
+                    self.angular_z_velo = 0
+            time.sleep(.1)
 
     def read_imu(self, event=None) -> None:
 

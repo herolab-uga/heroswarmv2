@@ -178,15 +178,13 @@ float SwarmBot::getMaxSpeed(){
 }
 
 void SwarmBot::setPIDSetpoint(float linear, float angular){
-
-    double mag_right = abs(linear + (angular * .5));
-    int direction_right = (linear + (angular * .5)) / mag_right;
-
-    double mag_left = abs(linear - (angular * .5));
-    int direction_left = (linear - (angular * .5)) / mag_left;
-
-    rightMotorLastSpeed = ((mag_right < maxSpeed ? mag_right : maxSpeed) * direction_right * 100) / maxSpeed;
-    leftMotorLastSpeed = ((mag_left < maxSpeed ? mag_left : maxSpeed) * direction_left * 100) / maxSpeed;
+    if (gearRatio == 50) {
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105) * 1.1;
+    } else {
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105);
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105);
+    }
 }
 
 void SwarmBot::tunePID(float p, float i, float d){
@@ -199,7 +197,6 @@ void SwarmBot::tunePID(float p, float i, float d){
 }
 
 void SwarmBot::initializePorts(){
-    maxSpeed = gearRatio == 100 ? .25 : .12;
   digitalWrite(leftEncoderPWR, HIGH);
   digitalWrite(leftEncoderGND, LOW);
   pinMode(leftEncoderGND, OUTPUT);
@@ -456,11 +453,8 @@ float SwarmBot::linearVelocityPID(float vel){
 }
 void SwarmBot::setVelocity(float velocity, float omega){
 
-    velocity = sqrt(pow(velocity,2) + pow(omega,2)) > maxSpeed ? maxSpeed * .85 : velocity;
-
     float linearOutput = linearVelocityPID(velocity);
-    // float angularOutput = angularVelocityPID(omega);
-    float angularOutput = 0;
+    float angularOutput = angularVelocityPID(omega);
     float leftMotorOut = leftMotorLastSpeed +  linearOutput - angularOutput;
     float rightMotorOut = rightMotorLastSpeed + linearOutput + angularOutput;
 
