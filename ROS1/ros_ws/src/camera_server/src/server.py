@@ -58,22 +58,31 @@ class CameraServer():
 
     def connection_manager(self):
         prev_active = []
+        count = 0
         while True:
             active_dict = list(self.active_dict)
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
-                self.thread_dict[new_robot] = Controller(new_robot, 
+                self.thread_dict[new_robot] = Controller.Controller(new_robot, 
                                                             self.robot_dictionary[new_robot], 
                                                             self.positions,
                                                             self.position_lock)
+                self.thread_dict[new_robot].move_to_point(*self.to_point[count])
+                count = count + 1
             sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
             for missing_robot in sub:
-                self.thread_dict[missing_robot][1].set()
-                self.thread_dict[missing_robot].halt_pos_pub()
+                try:
+                    self.thread_dict[missing_robot].halt_pos_pub()
+                    del missing_robot
+                except KeyError:
+                    print("Could not find controller for tag: {}".format(missing_robot))
+
             
 
     def get_positions(self):
+        prev_angle = 0
+        prev_time = time.time()
         while True:
             if not self.image_queue.empty():
                 #print("Running")
@@ -118,7 +127,15 @@ class CameraServer():
 
                         if not detection.tag_id in self.reference_tags:
                             # Gets the forward direction
-                            (forward_dir, angle) = self.heading_dir(detection.corners, center)
+                            angle = 0
+                            for i in range(0,100):
+                                (forward_dir, angle) = self.heading_dir(detection.corners, center)
+                                angle += angle
+                            angle = angle/100
+                            print("Change in angle: ", (angle-prev_angle)/(time.time() - prev_time))
+                            prev_time = time.time()
+                            prev_angle = angle
+                            time.sleep(.25)
                             # print(detection.tag_id)
                             # forward_dir_transform = self.transform(forward_dir)
 
@@ -135,8 +152,7 @@ class CameraServer():
                             self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                             if not detection.tag_id in self.reference_tags:
-
-                                active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                                
                                 
                                 self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                                 self.positions.robot_pos[-1].pose.pose.position.y = 0 
@@ -158,7 +174,7 @@ class CameraServer():
                     self.active_dict = active_dict
                 # print(self.active_dict)
 
-                # self.pos_pub.publish(self.positions)
+                self.pos_pub.publish(self.positions)
                 
                 
                 # cv2.imshow(self.window, overlay)
@@ -239,8 +255,8 @@ class CameraServer():
         midPt = (corner1 + corner2) / 2
         cMidPt = center - midPt
         theta = math.degrees(math.atan2(cMidPt[1], cMidPt[0]))
-        cMidPt[0] = cMidPt[0] + 50 * math.cos(math.radians(theta))
-        cMidPt[1] = cMidPt[1] + 50 * math.sin(math.radians(theta))
+        cMidPt[0] = cMidPt[0] + 50 * math.cos(theta)
+        cMidPt[1] = cMidPt[1] + 50 * math.sin(theta)
         newmidPt = cMidPt + center
         return (newmidPt, theta)
 
@@ -287,11 +303,12 @@ class CameraServer():
             self.robot_dictionary = json.load(file)
 
         self.positions = None
-        self.positions_lock = threading.Lock()
+        self.position_lock = threading.Lock()
         self.active_dict = {}
         self.thread_dict = {}
-        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
-        self.connection_manager_thread.start()
+        # self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
+        # self.connection_manager_thread.start()
+        self.to_point = [[47,22],[31,42],[59,3],[94,60],[14,9]]
 
 if __name__ == '__main__':
         try:
