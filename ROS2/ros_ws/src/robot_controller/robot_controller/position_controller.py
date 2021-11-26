@@ -37,8 +37,8 @@ class PositionController(Node):
 
     def __init__(self):
         super().__init__("Position_Controller")
-        self.odom_node = self.create_subscription(Odometry,"/swarmjeff/odom",self.read_pos,10)
-        self.twist_pub = self.create_publisher(Twist, "/swarmjeff/cmd_vel",5)
+        self.odom_node = self.create_subscription(Odometry,"/swarmtim/odom",self.read_pos,10)
+        self.twist_pub = self.create_publisher(Twist, "/swarmtim/cmd_vel",5)
         self.point_sub = self.create_subscription(Point,"move_to",self.move_to_point_topic,10)
         self.position = {}
         self.v_max = 0.5
@@ -80,7 +80,7 @@ class PositionController(Node):
 
         if not self.target_pos[0] == None and not self.target_pos[0] == None:
             self.get_logger().info("X: {x} Y: {y}".format(x=current_x, y=current_y))
-            if np.sqrt((x - current_x)**2 + (x - current_y)**2) < .05:
+            if np.sqrt((x - current_x)**2 + (x - current_y)**2) < .1:
                 self.target_pos[0] = None
                 self.target_pos[1] = None
                 twist_msg = Twist()
