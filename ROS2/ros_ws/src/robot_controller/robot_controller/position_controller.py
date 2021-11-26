@@ -16,15 +16,6 @@ class PositionController(Node):
 
     robots = [
         {
-            "name":"swarmsteve",
-            "odom_node":None,
-            "twist_node":None,
-            "x":None,
-            "y":None,
-            "target_x":None,
-            "target_y":None,
-        },
-        {
             "name":"swarmtim",
             "odom_node":None,
             "twist_node":None,
