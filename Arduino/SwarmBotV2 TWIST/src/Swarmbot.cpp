@@ -68,7 +68,7 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     angularVelocityOdom = 0;
     angularVelocityIMU =  0;
 
-       //Linear Velocity PID Constants
+    //Linear Velocity PID Constants
     lKp = 20;
     lKi = 0;
     lKd = 0;
@@ -77,9 +77,9 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     linearLastError = 0;
 
     //Angular Velocity PID Constants
-    aVKp = 10; //0.06
+    aVKp = 15; //0.06
     aVKi = 0.00; //0.001
-    aVKd = 0.1;
+    aVKd = 0.0;
     aVFF = 155; //165
     angleVelIntegral = 0;
     angleVelDerivative = 0;
@@ -89,17 +89,19 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
     lmKp = 0.25;
     lmKi = 0.05;
     lmKd = 0.00;
-    lmFF = 156.5;
+    lmFF = 155; //165 - everyone else
+    //lmFF = 155 // April
     leftMotorIntegral = 0;
     leftMotorDerivative = 0;
-    leftMotorLastError =0;
+    leftMotorLastError = 0;
     leftMotorLastSpeed = 0;
 
     //RightMotor
     rmKp = 0.25;
     rmKi = 0.05; //0.05
     rmKd = 0.00;
-    rmFF = 155;
+    rmFF = 155; //155 - everyone else
+    //rmFF = 167 // April
     rightMotorIntegral = 0;
     rightMotorDerivative = 0;
     rightMotorLastError = 0;
@@ -179,11 +181,11 @@ float SwarmBot::getMaxSpeed(){
 
 void SwarmBot::setPIDSetpoint(float linear, float angular){
     if (gearRatio == 50) {
-        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105)*1.1;
-        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105) * 1.1;
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(100);
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(100);
     } else {
-        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(105);
-        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(105);
+        rightMotorLastSpeed = ((linear + angular*wheelBase*.5)/0.29)*(100);
+        leftMotorLastSpeed = ((linear - angular*wheelBase*.5)/0.29)*(100);
     }
 }
 

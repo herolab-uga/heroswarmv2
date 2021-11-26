@@ -79,8 +79,7 @@ void interpretData(float array[3]){
     // driveMode = true;
     linearVelocity = array[0];
     angularVelocity = array[2];
-    scaleFactor = (sqrt(pow(linearVelocity, 2) + pow(angularVelocity,2)) - steve.getMaxSpeed())/steve.getMaxSpeed(); 
-    steve.setPIDSetpoint(linearVelocity * scaleFactor,angularVelocity * scaleFactor);
+    steve.setPIDSetpoint(linearVelocity,angularVelocity);
     Serial.println("Case3: Set");
   //}
   //Case 4: PID TUNING
