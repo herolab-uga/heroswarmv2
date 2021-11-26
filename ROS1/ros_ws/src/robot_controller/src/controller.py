@@ -256,18 +256,20 @@ class Controller:
         set_angular = 0
 
         rospy.loginfo("X: {x} Y: {y}".format(x=self.x, y=self.y))
-        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
+        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < 1):
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
             v = .1*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
-            omega = .3 * \
+            omega = .25 * \
                 (2*np.arctan2(-np.sin(self.heading)*delta_x +
                     np.cos(self.heading)*delta_y, v))/np.pi
             set_linear = v
             set_angular = omega
+            self.send_velocity([set_linear, 0, set_angular])
+        else:
+            self.send_velocity([0, 0, 0])
 
-        self.send_velocity([set_linear, 0, set_angular])
 
     def __init__(self):
 
