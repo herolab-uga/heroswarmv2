@@ -53,7 +53,7 @@ class Controller:
     def get_pos(self,msg):
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.z
-        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)
+        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)[0]
         
         rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
@@ -260,11 +260,10 @@ class Controller:
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
-            theta = self.rpy_from_quaternion(self.heading)[0]
-            v = self.v_max*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
+            v = self.v_max*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
             omega = self.omega_max * \
-                (2*np.arctan2(-np.sin(theta)*delta_x +
-                    np.cos(theta)*delta_y, v))/np.pi
+                (2*np.arctan2(-np.sin(self.heading)*delta_x +
+                    np.cos(self.heading)*delta_y, v))/np.pi
             set_linear = v
             set_angular = omega
 
