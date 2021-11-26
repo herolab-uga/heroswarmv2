@@ -45,17 +45,17 @@ class Controller:
             for robot in msg.robot_pos:
                 if robot.child_frame_id == str(self.id):
                     self.x = robot.pose.pose.position.x
-                    self.z = robot.pose.pose.position.z
+                    self.y = robot.pose.pose.position.z
                     self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                     break
-            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
+            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
     def get_pos(self,msg):
         self.x = msg.pose.pose.position.x
-        self.z = msg.pose.pose.position.z
+        self.y = msg.pose.pose.position.z
         self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)
         
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
+        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
     def pub_odom(self, timer, event=None):
         # Creates the odom message
@@ -289,7 +289,7 @@ class Controller:
         self.i2c = board.I2C()
         self.id = 18
         self.x = None
-        self.z = None
+        self.y = None
         self.heading = None
         self.linear_x_velo = None
         self.linear_y_velo = None
