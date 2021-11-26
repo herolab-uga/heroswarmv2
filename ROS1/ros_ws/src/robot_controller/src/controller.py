@@ -53,7 +53,7 @@ class Controller:
     def get_pos(self,msg):
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.z
-        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)[0]
+        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)
         
         rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
