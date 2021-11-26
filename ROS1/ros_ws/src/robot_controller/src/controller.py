@@ -255,7 +255,7 @@ class Controller:
         set_linear = 0
         set_angular = 0
 
-        self.get_logger().info("X: {x} Y: {y}".format(x=self.x, y=self.y))
+        rospy.loginfo("X: {x} Y: {y}".format(x=self.x, y=self.y))
         if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
 
             delta_x = msg.x - self.x
