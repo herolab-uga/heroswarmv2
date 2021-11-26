@@ -260,8 +260,8 @@ class Controller:
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
-            v = self.v_max*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
-            omega = self.omega_max * \
+            v = .1*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
+            omega = .3 * \
                 (2*np.arctan2(-np.sin(self.heading)*delta_x +
                     np.cos(self.heading)*delta_y, v))/np.pi
             set_linear = v
