@@ -255,24 +255,6 @@ class Controller:
 
         print(values)
 
-    def move_to_point(self, msg):
-        set_linear = 0
-        set_angular = 0
-
-        rospy.loginfo("X: {x} Y: {y}".format(x=self.x, y=self.y))
-        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
-
-            delta_x = msg.x - self.x
-            delta_y = msg.y - self.y
-            theta = self.heading
-            v = .09*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
-            omega = .025 * ((2 *.025) / math.pi * (np.arctan2(-delta_x*np.sin(theta) + delta_y*np.cos(theta), v)))
-            set_linear = v
-            set_angular = omega
-            self.send_velocity([set_linear, 0, set_angular])
-
-        self.send_velocity([0, 0, 0])
-
 
     def __init__(self):
 
@@ -300,10 +282,10 @@ class Controller:
         self.angular_z_velo = None
         self.last_call = {"time":None}
 
-        if self.global_pos:
-            self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
-        else:
-            self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
+        # if self.global_pos:
+        #     self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
+        # else:
+        #     self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
 
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
@@ -314,7 +296,6 @@ class Controller:
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
-        self.point_sub = rospy. Subscriber("to_point", Point, self.move_to_point)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
