@@ -265,10 +265,9 @@ class Controller:
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
-            v = .09*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
-            omega = .25 * \
-                (2*np.arctan2(-np.sin(self.heading)*delta_x +
-                    np.cos(self.heading)*delta_y, v))/np.pi
+            theta = self.heading
+            v = .09*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
+            omega = .025*(2*.025)/math.pi(np.arctan2(-delta_x*np.sin(theta) + delta_y*np.cos(theta), v))
             set_linear = v
             set_angular = omega
             self.send_velocity([set_linear, 0, set_angular])
