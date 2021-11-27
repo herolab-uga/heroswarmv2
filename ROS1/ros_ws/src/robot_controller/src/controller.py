@@ -101,9 +101,9 @@ class Controller:
         odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = odom_data[4]
 
-        odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = odom_data[1]
-        odom_msg.pose.pose.position.z = 0.0
+        # odom_msg.pose.pose.position.x = odom_data[0]
+        # odom_msg.pose.pose.position.y = odom_data[1]
+        # odom_msg.pose.pose.position.z = 0.0
 
         quaternion = self.quaternion_from_rpy(0,theta,0)
 
@@ -304,10 +304,10 @@ class Controller:
         self.angular_z_velo = None
         self.last_call = {"time":None}
 
-        # if self.global_pos:
-        #     self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
-        # else:
-        #     self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
+        if self.global_pos:
+            self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
+        else:
+            self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
 
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
