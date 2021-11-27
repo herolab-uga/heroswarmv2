@@ -101,9 +101,9 @@ class Controller:
         odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = odom_data[4]
 
-        # odom_msg.pose.pose.position.x = odom_data[0]
-        # odom_msg.pose.pose.position.y = odom_data[1]
-        # odom_msg.pose.pose.position.z = 0.0
+        odom_msg.pose.pose.position.x = self.x
+        odom_msg.pose.pose.position.y = self.y
+        odom_msg.pose.pose.position.z = 0.0
 
         quaternion = self.quaternion_from_rpy(0,theta,0)
 
