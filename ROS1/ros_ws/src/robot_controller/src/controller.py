@@ -105,7 +105,7 @@ class Controller:
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        quaternion = self.quaternion_from_rpy(0, self.heading,0)
+        quaternion = self.quaternion_from_rpy(0,theta,0)
 
         odom_msg.pose.pose.orientation.x = quaternion[0]
         odom_msg.pose.pose.orientation.y = quaternion[1]
