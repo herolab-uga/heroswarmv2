@@ -260,7 +260,7 @@ class Controller:
         set_angular = 0
 
         rospy.loginfo("X: {x} Y: {y}".format(x=self.x, y=self.y))
-        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < 1):
+        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
