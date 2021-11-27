@@ -46,7 +46,7 @@ class Controller:
                 if robot.child_frame_id == str(self.id):
                     self.x = robot.pose.pose.position.x
                     self.y = robot.pose.pose.position.z
-                    self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
+                    # self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                     break
             rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
@@ -86,6 +86,8 @@ class Controller:
         odom_msg.pose.pose.position.z = 0.0
 
         odom_msg.pose.pose.orientation.z = odom_data[2]
+
+        self.heading = odom_data[2]
 
         self.odom_pub.publish(odom_msg)
 
