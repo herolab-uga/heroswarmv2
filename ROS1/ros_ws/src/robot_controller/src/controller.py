@@ -23,6 +23,9 @@ from std_msgs.msg import Int16
 
 class Controller:
 
+    def __del__(self):
+        self.send_velocity([0, 0, 0])
+
     def rpy_from_quaternion(self, quaternion):
         x = quaternion.x
         y = quaternion.y
@@ -262,8 +265,8 @@ class Controller:
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
-            v = .06*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
-            omega = .15 * \
+            v = .09*(delta_x*np.cos(self.heading) + delta_y*np.sin(self.heading))
+            omega = .25 * \
                 (2*np.arctan2(-np.sin(self.heading)*delta_x +
                     np.cos(self.heading)*delta_y, v))/np.pi
             set_linear = v
