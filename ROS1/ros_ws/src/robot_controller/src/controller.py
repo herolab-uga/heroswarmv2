@@ -61,6 +61,7 @@ class Controller:
         rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
     def pub_odom(self, timer, event=None):
+        print("Running")
         # Creates the odom message
         odom_msg = Odometry()
 
