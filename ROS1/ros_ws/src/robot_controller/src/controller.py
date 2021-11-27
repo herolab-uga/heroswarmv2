@@ -44,6 +44,21 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
+    def quaternion_from_rpy(self,roll, pitch, yaw):
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+
+        q = [0] * 4
+        q[0] = sr * cp * cy - cr * sp * sy
+        q[1] = cr * sp * cy + sr * cp * sy
+        q[2] = cr * cp * sy - sr * sp * cy
+        q[3] = cr * cp * cy + sr * sp * sy
+        return q
+
     def get_pos_global(self,msg):
             for robot in msg.robot_pos:
                 if robot.child_frame_id == str(self.id):
@@ -77,8 +92,9 @@ class Controller:
             odom_data[index] = struct.unpack('f', bytes)[0]
 
         # Adds Twist data
-        odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
+        theta = np.deg2rad(odom_data[2])
+        odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(theta)
+        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(theta)
         odom_msg.twist.twist.linear.z = 0.0
 
         odom_msg.twist.twist.angular.x = 0.0
@@ -89,9 +105,9 @@ class Controller:
         odom_msg.pose.pose.position.y = odom_data[1]
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.orientation.z = odom_data[2]
+        odom_msg.pose.pose.orientation.z = self.quaternion_from_rpy(theta,0,0)
 
-        self.heading = odom_data[2]
+        self.heading = theta
 
         self.odom_pub.publish(odom_msg)
 
