@@ -64,7 +64,7 @@ class Controller:
                 if robot.child_frame_id == str(self.id):
                     self.x = robot.pose.pose.position.x
                     self.y = robot.pose.pose.position.z
-                    # self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
+                    self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                     break
             rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
@@ -316,7 +316,7 @@ class Controller:
         # self.stop_thread = threading.Thread(target=self.auto_stop,args=(),daemon=True)
         # self.stop_thread.start()
 
-        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
+        # self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
         self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
 
         if self.imu:
