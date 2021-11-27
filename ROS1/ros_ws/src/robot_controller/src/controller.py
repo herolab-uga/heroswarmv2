@@ -256,12 +256,11 @@ class Controller:
         print(values)
 
     def move_to_point(self, msg):
-        rate = rospy.Rate(25)
         set_linear = 0
         set_angular = 0
 
         rospy.loginfo("X: {x} Y: {y}".format(x=self.x, y=self.y))
-        while not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < 1):
+        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < 1):
 
             delta_x = msg.x - self.x
             delta_y = msg.y - self.y
@@ -271,7 +270,6 @@ class Controller:
             set_linear = v
             set_angular = omega
             self.send_velocity([set_linear, 0, set_angular])
-            rate.sleep()
 
         self.send_velocity([0, 0, 0])
 
