@@ -67,7 +67,7 @@ class CameraServer():
                                                             self.robot_dictionary[new_robot], 
                                                             self.positions,
                                                             self.position_lock)
-                self.thread_dict[new_robot].move_to_point(*self.to_point[count])
+                # self.thread_dict[new_robot].move_to_point(*self.to_point[count])
                 count = count + 1
             sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
@@ -81,8 +81,6 @@ class CameraServer():
             
 
     def get_positions(self):
-        prev_angle = 0
-        prev_time = time.time()
         while True:
             if not self.image_queue.empty():
                 #print("Running")
@@ -114,45 +112,38 @@ class CameraServer():
                         continue
                     
                 active_dict = {}
-                with self.position_lock:
-                    for detection in detections:
-                        # dimg1 = self.draw(frame, detection.corners)
-                        center = detection.center
-                        
-                        # Gets the center of the tag in inches and rotated accordingly
+                print(detections)
+                for detection in detections:
+                    # dimg1 = self.draw(frame, detection.corners)
+                    center = detection.center
+                    
+                    # Gets the center of the tag in inches and rotated accordingly
 
-                        center_transform = self.transform(center)
+                    center_transform = self.transform(center)
 
-                        # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
+                    # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
 
-                        if not detection.tag_id in self.reference_tags:
-                            # Gets the forward direction
-                            angle = 0
-                            for i in range(0,100):
-                                (forward_dir, angle) = self.heading_dir(detection.corners, center)
-                                angle += angle
-                            angle = angle/100
-                            print("Change in angle: ", (angle-prev_angle)/(time.time() - prev_time))
-                            prev_time = time.time()
-                            prev_angle = angle
-                            time.sleep(.25)
-                            # print(detection.tag_id)
-                            # forward_dir_transform = self.transform(forward_dir)
+                    if not detection.tag_id in self.reference_tags:
+                        # Gets the forward direction
+                        (forward_dir, angle) = self.heading_dir(detection.corners, center)
+                        # print(detection.tag_id)
+                        # forward_dir_transform = self.transform(forward_dir)
 
-                            # Draws the arrows
+                        # Draws the arrows
 
-                            # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
+                        # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
 
-                            # center_txt = center.ravel().astype(int).astype(str)
-                            # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
+                        # center_txt = center.ravel().astype(int).astype(str)
+                        # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
 
-                            # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
-
+                        # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
+                        with self.position_lock:
                             self.positions.robot_pos.append(Odometry())
                             self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                             if not detection.tag_id in self.reference_tags:
-                                
+
+                                active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
                                 
                                 self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                                 self.positions.robot_pos[-1].pose.pose.position.y = 0 
@@ -177,7 +168,7 @@ class CameraServer():
                 self.pos_pub.publish(self.positions)
                 
                 
-                # cv2.imshow(self.window, overlay)
+                # cv2.imshow("test", dimg1)
                 # cv2.waitKey(1)
 
 
@@ -271,8 +262,8 @@ class CameraServer():
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
 
-        self.x_distance = 95
-        self.y_distance = 67.5
+        self.x_distance = 2.413#95#2.413
+        self.y_distance = 1.7145# 67.5#1.7145
 
         self.image_queue = Queue(2)
 
@@ -306,8 +297,8 @@ class CameraServer():
         self.position_lock = threading.Lock()
         self.active_dict = {}
         self.thread_dict = {}
-        # self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
-        # self.connection_manager_thread.start()
+        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
+        self.connection_manager_thread.start()
         self.to_point = [[47,22],[31,42],[59,3],[94,60],[14,9]]
 
 if __name__ == '__main__':
