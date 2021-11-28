@@ -2,12 +2,11 @@
 from __future__ import division, print_function
 
 import math
-import queue
 import struct
-import threading
+from multiprocessing import Process, Queue
 import time
 from argparse import ArgumentParser
-from multiprocessing import Process,Queue
+import threading
 from copy import deepcopy
 import Controller
 
@@ -24,7 +23,7 @@ import json
 
 class CameraServer():
 
-    def read_frame(self):
+    def read_frame(self,image_queue):
         try:
             capture = cv2.VideoCapture(-1)
             W, H = 4096, 2160
@@ -36,10 +35,8 @@ class CameraServer():
             self.cap = cv2.VideoCapture(self.options.device_or_movie)
 
         while True:
-            process_start = time.time()
             _, frame = capture.read()
-            self.image_queue.put(frame)
-            # print("Process: ",time.time() - process_start)
+            image_queue.put(frame)
 
     def get_pos(self,robot_id):
         for robot in self.positions.robot_pos:
@@ -64,27 +61,25 @@ class CameraServer():
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
                 self.thread_dict[new_robot] = Controller.Controller(new_robot, 
-                                                            self.robot_dictionary[new_robot], 
-                                                            self.positions,
-                                                            self.position_lock)
+                                                            self.robot_dictionary[new_robot])
                 # self.thread_dict[new_robot].move_to_point(*self.to_point[count])
                 count = count + 1
-            sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
-            prev_active = active_dict
-            for missing_robot in sub:
-                try:
-                    self.thread_dict[missing_robot].halt_pos_pub()
-                    del missing_robot
-                except KeyError:
-                    print("Could not find controller for tag: {}".format(missing_robot))
+            # sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
+            # prev_active = active_dict
+            # for missing_robot in sub:
+            #     try:
+            #         self.thread_dict[missing_robot].halt_pos_pub()
+            #         del missing_robot
+            #     except KeyError:
+            #         print("Could not find controller for tag: {}".format(missing_robot))
 
             
 
-    def get_positions(self):
+    def get_positions(self,image_queue):
         while True:
-            if not self.image_queue.empty():
+            if not image_queue.empty():
                 #print("Running")
-                frame = self.image_queue.get()
+                frame = image_queue.get()
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 detections, dimg = self.detector.detect(gray, return_image = True)
                 # head_dir = np.array([0,0])
@@ -112,7 +107,7 @@ class CameraServer():
                         continue
                     
                 active_dict = {}
-                print(detections)
+                # print(detections)
                 for detection in detections:
                     # dimg1 = self.draw(frame, detection.corners)
                     center = detection.center
@@ -137,33 +132,31 @@ class CameraServer():
                         # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
 
                         # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
-                        with self.position_lock:
-                            self.positions.robot_pos.append(Odometry())
-                            self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+                        self.positions.robot_pos.append(Odometry())
+                        self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
-                            if not detection.tag_id in self.reference_tags:
+                        if not detection.tag_id in self.reference_tags:
 
-                                active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                                
-                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                            
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
 
-                                q = self.quaternion_from_rpy(0,0,np.radians(angle))
+                            q = self.quaternion_from_rpy(0,0,np.radians(angle))
 
-                                self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                                self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                                self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                                self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                            self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                            self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                            self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                            self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
 
-                            else:
+                        else:
 
-                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = 0 
+                            self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
                     
                     self.active_dict = active_dict
-                # print(self.active_dict)
 
                 self.pos_pub.publish(self.positions)
                 
@@ -265,8 +258,6 @@ class CameraServer():
         self.x_distance = 2.413#95#2.413
         self.y_distance = 1.7145# 67.5#1.7145
 
-        self.image_queue = Queue(2)
-
         # self.window = "Overlay1"
 
         # cv2.namedWindow(self.window)
@@ -288,25 +279,22 @@ class CameraServer():
         self.fontColor              = (0,0,255)
         self.lineType               = 1
 
-        self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=10)
+        self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=3)
 
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
-
-        self.positions = None
-        self.position_lock = threading.Lock()
-        self.active_dict = {}
-        self.thread_dict = {}
-        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=(),daemon=True)
-        self.connection_manager_thread.start()
-        self.to_point = [[47,22],[31,42],[59,3],[94,60],[14,9]]
+            self.positions = None
+            self.active_dict = {}
+            self.thread_dict = {}
+            self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=())
+            self.connection_manager_thread.start()
 
 if __name__ == '__main__':
         try:
             server = CameraServer()
-            camera_process = Process(target=server.read_frame,args=())
-            camera_process.daemon = True
+            image_queue = Queue()
+            camera_process = Process(target=server.read_frame,args=(image_queue,))
             camera_process.start()
-            server.get_positions()
+            server.get_positions(image_queue)
         except rospy.ROSInterruptException:
             pass
