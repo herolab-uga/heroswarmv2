@@ -103,9 +103,9 @@ class Controller():
         self.robot_name = robot_name
         self.positions = positions
         self.positions_lock = positions_lock
-        self.position_pub = rospy.Publisher("position",Odometry,queue_size=3)
-        self.move_to = rospy.Subscriber("to_point",Point,self.move_to_point_topic)
-        self.twist_pub = rospy.Publisher("cmd_vel",Twist, queue_size=5)
+        self.position_pub = rospy.Publisher("/" + robot_name + "position",Odometry,queue_size=3)
+        self.move_to = rospy.Subscriber("/" + robot_name + "to_point",Point,self.move_to_point_topic)
+        self.twist_pub = rospy.Publisher("/" + robot_name +"cmd_vel",Twist, queue_size=5)
         self.control_thread_event = threading.Event()
         self.control_thread = threading.Thread(
             target=self.update_position, args=(), daemon=True)
