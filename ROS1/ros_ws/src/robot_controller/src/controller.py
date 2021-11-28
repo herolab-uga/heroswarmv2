@@ -23,6 +23,9 @@ from std_msgs.msg import Int16
 
 class Controller:
 
+    def __del__(self):
+        self.send_velocity([0, 0, 0])
+
     def rpy_from_quaternion(self, quaternion):
         x = quaternion.x
         y = quaternion.y
@@ -41,23 +44,39 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
+    def quaternion_from_rpy(self,roll, pitch, yaw):
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+
+        q = [0] * 4
+        q[0] = sr * cp * cy - cr * sp * sy
+        q[1] = cr * sp * cy + sr * cp * sy
+        q[2] = cr * cp * sy - sr * sp * cy
+        q[3] = cr * cp * cy + sr * sp * sy
+        return q
+
     def get_pos_global(self,msg):
             for robot in msg.robot_pos:
                 if robot.child_frame_id == str(self.id):
                     self.x = robot.pose.pose.position.x
-                    self.z = robot.pose.pose.position.z
+                    self.y = robot.pose.pose.position.z
                     self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                     break
-            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
+            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
     def get_pos(self,msg):
         self.x = msg.pose.pose.position.x
-        self.z = msg.pose.pose.position.z
-        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)
+        self.y = msg.pose.pose.position.z
+        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
         
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.z,theta=self.heading))
+        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
 
     def pub_odom(self, timer, event=None):
+        print("Running")
         # Creates the odom message
         odom_msg = Odometry()
 
@@ -73,19 +92,27 @@ class Controller:
             odom_data[index] = struct.unpack('f', bytes)[0]
 
         # Adds Twist data
-        odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
+        theta = np.deg2rad(odom_data[2])
+        odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(theta)
+        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(theta)
         odom_msg.twist.twist.linear.z = 0.0
 
         odom_msg.twist.twist.angular.x = 0.0
         odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = odom_data[4]
 
-        odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = odom_data[1]
+        odom_msg.pose.pose.position.x = self.x
+        odom_msg.pose.pose.position.y = self.y
         odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.orientation.z = odom_data[2]
+        quaternion = self.quaternion_from_rpy(0,theta,0)
+
+        odom_msg.pose.pose.orientation.x = quaternion[0]
+        odom_msg.pose.pose.orientation.y = quaternion[1]
+        odom_msg.pose.pose.orientation.z = quaternion[2]
+        odom_msg.pose.pose.orientation.w = quaternion[3]
+
+        self.heading = theta
 
         self.odom_pub.publish(odom_msg)
 
@@ -250,25 +277,6 @@ class Controller:
 
         print(values)
 
-    def move_to_point(self, msg):
-
-        set_linear = 0
-        set_angular = 0
-
-        self.get_logger().info("X: {x} Y: {y}".format(x=self.x, y=self.y))
-        if not (np.sqrt((msg.x - self.x)**2 + (msg.x - self.y)**2) < .05):
-
-            delta_x = msg.x - self.x
-            delta_y = msg.y - self.y
-            theta = self.rpy_from_quaternion(self.heading)[0]
-            v = self.v_max*(delta_x*np.cos(theta) + delta_y*np.sin(theta))
-            omega = self.omega_max * \
-                (2*np.arctan2(-np.sin(theta)*delta_x +
-                    np.cos(theta)*delta_y, v))/np.pi
-            set_linear = v
-            set_angular = omega
-
-        self.send_velocity([set_linear, 0, set_angular])
 
     def __init__(self):
 
@@ -289,7 +297,7 @@ class Controller:
         self.i2c = board.I2C()
         self.id = 18
         self.x = None
-        self.z = None
+        self.y = None
         self.heading = None
         self.linear_x_velo = None
         self.linear_y_velo = None
@@ -309,8 +317,7 @@ class Controller:
         self.stop_thread.start()
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
-        self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
-        self.point_sub = rospy. Subscriber("to_point", Point, self.move_to_point)
+        # self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
 
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)

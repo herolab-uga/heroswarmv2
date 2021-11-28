@@ -71,7 +71,7 @@ class PositionController(Node):
 
         if not self.target_pos[0] == None and not self.target_pos[0] == None:
             self.get_logger().info("X: {x} Y: {y}".format(x=current_x, y=current_y))
-            if np.sqrt((x - current_x)**2 + (x - current_y)**2) < .05:
+            if np.sqrt((x - current_x)**2 + (x - current_y)**2) < .1:
                 self.target_pos[0] = None
                 self.target_pos[1] = None
                 twist_msg = Twist()
