@@ -66,7 +66,7 @@ class Controller:
                     self.y = robot.pose.pose.position.z
                     self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
                     break
-            rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
+            rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.x,z=self.y,theta=self.heading))
 
     def get_pos(self,msg):
         self.x = msg.pose.pose.position.x
