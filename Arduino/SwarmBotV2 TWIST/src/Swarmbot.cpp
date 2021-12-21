@@ -1,3 +1,33 @@
+
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@MichaelStarks
+rtlaryan /
+heroswarmv2
+Public
+forked from herolab-uga/heroswarmv2
+
+Code
+Pull requests
+Actions
+Projects
+Wiki
+Security
+
+    Insights
+
+heroswarmv2/Arduino/SwarmBotV2 TWIST/src/Swarmbot.cpp
+@rtlaryan
+rtlaryan Fix AngularVelocity post
+Latest commit a573b94 22 hours ago
+History
+2 contributors
+@MichaelStarks
+@rtlaryan
+491 lines (410 sloc) 13.7 KB
 #include <Swarmbot.h> 
 
 SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte leftPWR, byte leftGND, byte rightIN1, byte rightIN2, byte rightA, byte rightB, byte rightPWR, byte rightGND, byte mode, int CPP, int ratio, float wheelDiameterM, float wheelBaseM){
@@ -340,7 +370,7 @@ void SwarmBot::updateOdometery(){
 
 
     linearVelocity = sqrt(pow(velocityX, 2) + pow(velocityY,2)) * direction;
-    angularVelocityOdom = (dPhi/deltaTimeSeconds/360) * toDegrees;
+    angularVelocityOdom = (dPhi/deltaTimeSeconds);
 
     //Theta To Degrees
     thetaRadOdom = angleWrap(thetaRadOdom, true);
