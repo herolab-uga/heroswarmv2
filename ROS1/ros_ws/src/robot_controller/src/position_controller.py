@@ -94,17 +94,6 @@ class PositionController():
                 # Finds the angular velocity
                 omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
 
-                # # Caps the velocities at their max value
-                # if v < -self.v_max:
-                #     v = -self.v_max
-                # elif v > self.v_max:
-                #     v = self.v_max
-                
-                # if omega < -self.omega_max:
-                #     omega = -self.omega_max
-                # elif omega > self.omega_max:
-                #     omega = self.omega_max
-
                 twist_msg = Twist()
                 twist_msg.linear.x = v
                 twist_msg.angular.z = omega
