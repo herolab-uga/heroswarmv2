@@ -143,7 +143,7 @@ class CameraServer():
                             self.positions.robot_pos[-1].pose.pose.position.y = 0 
                             self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
 
-                            q = self.quaternion_from_rpy(0,0,np.radians(angle))
+                            q = self.quaternion_from_rpy(0,0,angle)
 
                             self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
                             self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
@@ -238,7 +238,7 @@ class CameraServer():
         corner2 = corners[1].ravel()
         midPt = (corner1 + corner2) / 2
         cMidPt = center - midPt
-        theta = math.degrees(math.atan2(cMidPt[1], cMidPt[0]))
+        theta = math.atan2(cMidPt[1], cMidPt[0])
         cMidPt[0] = cMidPt[0] + 50 * math.cos(theta)
         cMidPt[1] = cMidPt[1] + 50 * math.sin(theta)
         newmidPt = cMidPt + center
@@ -255,8 +255,8 @@ class CameraServer():
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
 
-        self.x_distance = 2.413#95#2.413
-        self.y_distance = 1.7145# 67.5#1.7145
+        self.x_distance = 1.6129 #95 #2.413
+        self.y_distance = 1.74625 #67.5 #1.7145
 
         # self.window = "Overlay1"
 
