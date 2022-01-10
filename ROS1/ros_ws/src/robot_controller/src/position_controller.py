@@ -24,7 +24,7 @@ class PositionController():
             "to_point", Point, self.move_to_point_topic)
         self.position = {}
         self.v_max = 0.1
-        self.omega_max = 1.0
+        self.omega_max = .75
         self.target_pos = [None, None]
 
     def read_pos(self, msg):
@@ -58,7 +58,7 @@ class PositionController():
         current_y = self.position["y"]
         orientation = self.position["orientation"]
         twist_pub = self.twist_pub
-        # rate = rospy.Rate(25)
+        theta = -self.rpy_from_quaternion(orientation)[2]
 
         if not self.target_pos[0] == None and not self.target_pos[0] == None:
             # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
@@ -73,23 +73,38 @@ class PositionController():
                 twist_pub.publish(twist_msg)
                 self.done = True
             else:
-                # print("X: {x}".format(x=current_x))
-                # print("Y: {y}".format(y=current_y))
+
+                # Gets the difference between the current position and desired position
                 delta_x = x - current_x
                 delta_y = y - current_y
-                time = math.sqrt((math.pow(delta_x,2) + math.pow(delta_y,2)) / math.pow(self.v_max,2))
-                x_velo = delta_x / time
-                y_velo = delta_y / time
-                quat = np.quaternion(orientation.x,orientation.y,orientation.z,orientation.w)
-                theta = quaternion.as_rotation_vector(quat)[2]
+                # Gets the time such that the robot would move to the point at v_max
+                t = math.sqrt(
+                    (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
+                # Gets the velocities
+                x_velo = delta_x / t
+                y_velo = delta_y / t
 
+                # Calculates the sine and cosine of the current theta
                 a = np.cos(theta)
                 b = np.sin(theta)
-                # print(self.rpy_from_quaternion(orientation))
-                
-                # print("Theta:theta)
+
+                # Finds the linear velocity
                 v = 1*(x_velo*a + y_velo*b)
-                omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo,v) / (np.pi/2)
+
+                # Finds the angular velocity
+                omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+
+                # # Caps the velocities at their max value
+                # if v < -self.v_max:
+                #     v = -self.v_max
+                # elif v > self.v_max:
+                #     v = self.v_max
+                
+                # if omega < -self.omega_max:
+                #     omega = -self.omega_max
+                # elif omega > self.omega_max:
+                #     omega = self.omega_max
+
                 twist_msg = Twist()
                 twist_msg.linear.x = v
                 twist_msg.angular.z = omega
