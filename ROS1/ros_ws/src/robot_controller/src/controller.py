@@ -134,7 +134,7 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= .30 else .30)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= 2.0 else 2.0)
         else:
             z_angular = 0
         
