@@ -21,7 +21,7 @@ class Controller():
             msg = self.get_pos(global_msg)
             self.position["x"] = -msg.pose.pose.position.x
             self.position["y"] = msg.pose.pose.position.z
-            print("X: ", self.position["x"])
+            # print("X: ", self.position["x"])
             # print("Y: ", self.position["y"])
             self.position["orientation"] = msg.pose.pose.orientation
             # print("Theta: ", self.position["orientation"])
@@ -97,16 +97,16 @@ class Controller():
         x = msg.x
         y = msg.y
         temp = mp.Process(target=self.move_to_point,args=(x,y))
-        mp.set_start_method('fork')
+        # mp.set_start_method('fork')
         temp.start()
 
     def __init__(self, robot_id, robot_name):
         self.robot_id = robot_id
         self.robot_name = robot_name
         self.position = {"x":None,"y":None,"orientation":None}
-        self.v_max = 0.1
-        self.omega_max = 0.25
-        self.global_pos = rospy.Subscriber("/positions",Robot_Pos,self.update_position)
+        self.v_max = 0.075
+        self.omega_max = 0.75
         self.position_pub = rospy.Publisher("/" + robot_name + "/position",Odometry,queue_size=3)
-        self.twist_pub = rospy.Publisher("/" + robot_name +"/cmd_vel",Twist, queue_size=5)
-        self.move_to = rospy.Subscriber("/" + robot_name + "/to_point",Point,self.move_to_point_topic)
+        self.global_pos = rospy.Subscriber("/positions",Robot_Pos,self.update_position)
+        self.twist_pub = rospy.Publisher("/" + robot_name +"/cmd_vel",Twist, queue_size=1)
+        # self.move_to = rospy.Subscriber("/" + robot_name + "/to_point",Point,self.move_to_point_topic)
