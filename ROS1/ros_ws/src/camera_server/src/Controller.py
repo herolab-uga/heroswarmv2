@@ -7,6 +7,7 @@ from std_msgs.msg import Int16
 import numpy as np
 import rospy
 from robot_msgs.msg import Robot_Pos
+import math
 
 
 class Controller():
@@ -58,17 +59,33 @@ class Controller():
 
         # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
         while not np.sqrt((x - self.position["x"])**2 + (y - self.position["y"])**2) < .05:
-            delta_x = x - self.position["x"]
-            delta_y = y - self.position["y"]
             
-            theta = self.rpy_from_quaternion(self.position["orientation"])[2]
-            
-            v = -(delta_x*np.cos(theta) + delta_y*np.sin(theta))
-            omega = .1 * (2*np.arctan2(-np.sin(theta)*delta_x + np.cos(theta)*delta_y,v))/np.pi
-            twist_msg = Twist()
-            twist_msg.linear.x = v
-            twist_msg.angular.z=omega
-            self.twist_pub.publish(twist_msg)
+            # Gets the difference between the current position and desired position
+                delta_x = x - self.position["x"]
+                delta_y = y - self.position["y"]
+                theta = -self.rpy_from_quaternion(self.position["orientation"])[2]
+                # Gets the time such that the robot would move to the point at v_max
+                t = math.sqrt(
+                    (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
+                # Gets the velocities
+                x_velo = delta_x / t
+                y_velo = delta_y / t
+
+                # Calculates the sine and cosine of the current theta
+                a = np.cos(theta)
+                b = np.sin(theta)
+
+                # Finds the linear velocity
+                v = 1*(x_velo*a + y_velo*b)
+
+                # Finds the angular velocity
+                omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+
+                twist_msg = Twist()
+                twist_msg.linear.x = v
+                twist_msg.angular.z = omega
+                self.twist_pub.publish(twist_msg)
+                
         print("Done")
         twist_msg = Twist()
         twist_msg.linear.x = 0.0
