@@ -9,7 +9,6 @@ import numpy as np
 from geometry_msgs.msg import Quaternion, Twist, Vector3, Point
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
-import quaternion
 
 
 class PositionController():
@@ -24,7 +23,7 @@ class PositionController():
             "to_point", Point, self.move_to_point_topic)
         self.position = {}
         self.v_max = 0.1
-        self.omega_max = .75
+        self.omega_max = 1.0
         self.target_pos = [None, None]
 
     def read_pos(self, msg):
