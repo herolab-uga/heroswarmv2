@@ -8,6 +8,7 @@ import numpy as np
 import rospy
 from robot_msgs.msg import Robot_Pos
 import math
+import threading
 
 
 class Controller():
@@ -22,9 +23,7 @@ class Controller():
             self.position["x"] = -msg.pose.pose.position.x
             self.position["y"] = msg.pose.pose.position.z
             print("X: ", self.position["x"])
-            # print("Y: ", self.position["y"])
             self.position["orientation"] = msg.pose.pose.orientation
-            # print("Theta: ", self.position["orientation"])
             self.position_pub.publish(msg)
 
             
@@ -100,13 +99,15 @@ class Controller():
         mp.set_start_method('fork')
         temp.start()
 
-    def __init__(self, robot_id, robot_name):
+    def __init__(self, robot_id, robot_name, positions, positions_lock):
         self.robot_id = robot_id
         self.robot_name = robot_name
-        self.position = {"x":None,"y":None,"orientation":None}
-        self.v_max = 0.1
-        self.omega_max = 0.25
-        self.global_pos = rospy.Subscriber("/positions",Robot_Pos,self.update_position)
-        self.position_pub = rospy.Publisher("/" + robot_name + "/position",Odometry,queue_size=3)
-        self.twist_pub = rospy.Publisher("/" + robot_name +"/cmd_vel",Twist, queue_size=5)
-        self.move_to = rospy.Subscriber("/" + robot_name + "/to_point",Point,self.move_to_point_topic)
+        self.positions = positions
+        self.positions_lock = positions_lock
+        # self.velocity_pub = rospy.Publisher("/"+robot_name+"/cmd_vel",Twist,queue_size=5)
+        self.position_pub = rospy.Publisher("/"+robot_name+"/position",Odometry,queue_size=3)
+        self.move_to = rospy.Publisher("/"+robot_name+"/to_point",Point,queue_size=3)
+        self.control_thread_event = threading.Event()
+        self.control_thread = threading.Thread(
+            target=self.update_position, args=(), daemon=True)
+        self.control_thread.start()
