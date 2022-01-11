@@ -61,7 +61,9 @@ class CameraServer():
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
                 self.thread_dict[new_robot] = Controller.Controller(new_robot, 
-                                                            self.robot_dictionary[new_robot])
+                                                            self.robot_dictionary[new_robot], 
+                                                            self.positions,
+                                                            self.position_lock)
                 # self.thread_dict[new_robot].move_to_point(*self.to_point[count])
                 count = count + 1
             # sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
