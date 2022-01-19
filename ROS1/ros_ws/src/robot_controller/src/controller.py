@@ -71,12 +71,11 @@ class Controller:
     def get_pos(self,msg):
         self.position["x"] = msg.pose.pose.position.x
         self.position["y"] = msg.pose.pose.position.z
-        self.position["orientation"] = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
+        self.position["orientation"] = self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
         
         # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
     def pub_odom(self, timer, event=None):
-        print("Running")
         # Creates the odom message
         odom_msg = Odometry()
 
@@ -274,8 +273,6 @@ class Controller:
         self.linear = values[1]
 
         self.angular_z_velo = values[2]
-
-        print(values)
 
     # Position controller
     def move_to_point(self,msg):
