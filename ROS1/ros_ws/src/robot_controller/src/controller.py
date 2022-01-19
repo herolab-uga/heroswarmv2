@@ -14,7 +14,7 @@ import rospy
 import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-from geometry_msgs.msg import Quaternion, Twist, Vector3, Point
+from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
@@ -62,18 +62,18 @@ class Controller:
     def get_pos_global(self,msg):
             for robot in msg.robot_pos:
                 if robot.child_frame_id == str(self.id):
-                    self.x = robot.pose.pose.position.x
-                    self.y = robot.pose.pose.position.z
-                    self.heading = self.rpy_from_quaternion(robot.pose.pose.orientation)
+                    self.position["x"] = robot.pose.pose.position.x
+                    self.position["y"] = robot.pose.pose.position.z
+                    self.position["orientation"] = -self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
                     break
-            rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.x,z=self.y,theta=self.heading))
+            rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
     def get_pos(self,msg):
-        self.x = msg.pose.pose.position.x
-        self.y = msg.pose.pose.position.z
-        self.heading = self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
+        self.position["x"] = msg.pose.pose.position.x
+        self.position["y"] = msg.pose.pose.position.z
+        self.position["orientation"] = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
         
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.x,z=self.y,theta=self.heading))
+        # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
     def pub_odom(self, timer, event=None):
         print("Running")
@@ -101,8 +101,8 @@ class Controller:
         odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = odom_data[4]
 
-        odom_msg.pose.pose.position.x = self.x
-        odom_msg.pose.pose.position.y = self.y
+        odom_msg.pose.pose.position.x = self.position["x"]
+        odom_msg.pose.pose.position.y = self.position["y"]
         odom_msg.pose.pose.position.z = 0.0
 
         quaternion = self.quaternion_from_rpy(0,theta,0)
@@ -112,7 +112,7 @@ class Controller:
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
 
-        self.heading = theta
+        self.position["orientation"] = theta
 
         self.odom_pub.publish(odom_msg)
 
@@ -134,7 +134,7 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= 2.0 else 2.0)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
         else:
             z_angular = 0
         
@@ -170,10 +170,10 @@ class Controller:
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        # Sets the self.heading parameters
-        imu_msg.self.heading.x = 0.0
-        imu_msg.self.heading.y = 0.0
-        imu_msg.self.heading.z = 0.0
+        # Sets the self.position["orientation"] parameters (This is wrong)
+        # imu_msg.self.position["orientation"].x = 0.0
+        # imu_msg.self.position["orientation"].y = 0.0
+        # imu_msg.self.position["orientation"].z = 0.0
 
         # Sets the angular velocity parameters
         imu_msg.angular_velocity.x = gyro_x
@@ -277,6 +277,46 @@ class Controller:
 
         print(values)
 
+    # Position controller
+    def move_to_point(self,msg):
+        self.target_pos[0] = msg.x
+        self.target_pos[1] = msg.y
+        current_x = self.position["x"]
+        current_y = self.position["y"]
+        theta = self.position["orientation"]
+
+        if not self.target_pos[0] == None and not self.target_pos[0] == None:
+            # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
+            print("Error: {error}".format(error=math.sqrt((msg.x - current_x)**2 + (msg.y - current_y)**2)))
+            if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .1:
+                print("Done")
+                self.target_pos[0] = None
+                self.target_pos[1] = None
+                self.send_velocity([0,0,0])
+            else:
+
+                # Gets the difference between the current position and desired position
+                delta_x = msg.x - current_x
+                delta_y = msg.y - current_y
+                # Gets the time such that the robot would move to the point at v_max
+                t = math.sqrt(
+                    (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
+                # Gets the velocities
+                x_velo = delta_x / t
+                y_velo = delta_y / t
+
+                # Calculates the sine and cosine of the current theta
+                a = np.cos(theta)
+                b = np.sin(theta)
+
+                # Finds the linear velocity
+                v = 1*(x_velo*a + y_velo*b)
+
+                # Finds the angular velocity
+                omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+                
+                self.send_velocity([v,0,omega])
+            # rate.sleep()
 
     def __init__(self):
 
@@ -295,35 +335,51 @@ class Controller:
         self.proximity = False
         self.global_pos = False
         self.i2c = board.I2C()
-        self.id = 18
-        self.x = None
-        self.y = None
-        self.heading = None
+        self.id = 5
+        self.position = {
+            "x":0,
+            "y":0,
+            "orientation":0
+        }
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
         self.last_call = {"time":None}
 
+        # Creates subscribers for positions topics 
         if self.global_pos:
             self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
         else:
             self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
 
+        # Creates the i2c interface for the bmp sensor
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+        # Creates the i2c interface for the humidity sensor
         self.humidity = adafruit_sht31d.SHT31D(self.i2c)
+
+        # Creates the twist publisher
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
+
+        # Creates the velocity lock for auto stop and velocity control
         self.velo_lock = threading.Lock()
+
+        # Creates the auto-stop thread
         self.stop_thread = threading.Thread(target=self.auto_stop,args=(),daemon=True)
         self.stop_thread.start()
 
-        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)
-        # self.odom_timer = rospy.Timer(rospy.Duration(1/15), self.pub_odom)
+        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)        
 
+        # Creates position control topic
+        self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
+
+        # Creates a publisher for imu data
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=5)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
 
+        # Creates a publisher for the light sensor
         if self.light:
             self.light = APDS9960(self.i2c)
             self.light.enable_proximity = True
@@ -334,6 +390,7 @@ class Controller:
             self.light_timer = rospy.Timer(
                 rospy.Duration(1/20), self.read_light)
 
+        # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
@@ -343,6 +400,7 @@ class Controller:
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/20), self.read_environment)
 
+        # Creates a publisher for a proximity sensor
         if self.proximity:
             self.prox_pub = rospy.Publisher(Int16, "proximity", queue_size=5)
             self.proximity_timer = rospy.Timer(
