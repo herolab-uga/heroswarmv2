@@ -279,44 +279,37 @@ class Controller:
 
     # Position controller
     def move_to_point(self,msg):
-        self.target_pos[0] = msg.x
-        self.target_pos[1] = msg.y
         current_x = self.position["x"]
         current_y = self.position["y"]
         theta = self.position["orientation"]
 
-        if not self.target_pos[0] == None and not self.target_pos[0] == None:
-            # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
-            print("Error: {error}".format(error=math.sqrt((msg.x - current_x)**2 + (msg.y - current_y)**2)))
-            if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .1:
-                print("Done")
-                self.target_pos[0] = None
-                self.target_pos[1] = None
-                self.send_velocity([0,0,0])
-            else:
+        # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
+        print("Error: {error}".format(error=math.sqrt((msg.x - current_x)**2 + (msg.y - current_y)**2)))
+        if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .1:
+            self.send_velocity([0,0,0])
+        else:
 
-                # Gets the difference between the current position and desired position
-                delta_x = msg.x - current_x
-                delta_y = msg.y - current_y
-                # Gets the time such that the robot would move to the point at v_max
-                t = math.sqrt(
-                    (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
-                # Gets the velocities
-                x_velo = delta_x / t
-                y_velo = delta_y / t
+            # Gets the difference between the current position and desired position
+            delta_x = msg.x - current_x
+            delta_y = msg.y - current_y
+            # Gets the time such that the robot would move to the point at v_max
+            t = math.sqrt(
+                (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
+            # Gets the velocities
+            x_velo = delta_x / t
+            y_velo = delta_y / t
 
-                # Calculates the sine and cosine of the current theta
-                a = np.cos(theta)
-                b = np.sin(theta)
+            # Calculates the sine and cosine of the current theta
+            a = np.cos(theta)
+            b = np.sin(theta)
 
-                # Finds the linear velocity
-                v = 1*(x_velo*a + y_velo*b)
+            # Finds the linear velocity
+            v = 1*(x_velo*a + y_velo*b)
 
-                # Finds the angular velocity
-                omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
-                
-                self.send_velocity([v,0,omega])
-            # rate.sleep()
+            # Finds the angular velocity
+            omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+            
+            self.send_velocity([v,0,omega])
 
     def __init__(self):
 
