@@ -323,7 +323,7 @@ class Controller:
         self.environment = False
         self.imu = False
         self.proximity = False
-        self.global_pos = True
+        self.global_pos = False
         self.i2c = board.I2C()
         self.id = 5
         self.position = {
