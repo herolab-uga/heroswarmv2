@@ -338,6 +338,8 @@ class Controller:
         self.linear_y_velo = None
         self.angular_z_velo = None
         self.last_call = {"time":None}
+        self.v_max = 0.1
+        self.omega_max = 1.0
 
         # Creates subscribers for positions topics 
         if self.global_pos:
