@@ -63,14 +63,14 @@ class Controller:
             for robot in msg.robot_pos:
                 if robot.child_frame_id == str(self.id):
                     self.position["x"] = robot.pose.pose.position.x
-                    self.position["y"] = robot.pose.pose.position.z
+                    self.position["y"] = robot.pose.pose.position.y
                     self.position["orientation"] = -self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
                     break
             rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
     def get_pos(self,msg):
         self.position["x"] = msg.pose.pose.position.x
-        self.position["y"] = msg.pose.pose.position.z
+        self.position["y"] = msg.pose.pose.position.y
         self.position["orientation"] = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
         
         # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
