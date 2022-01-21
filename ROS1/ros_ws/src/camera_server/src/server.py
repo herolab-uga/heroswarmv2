@@ -298,7 +298,7 @@ class CameraServer():
         self.image_queue = Queue(maxsize=1)
         self.camera_process = Process(target=self.read_frame,args=(self.image_queue,))
         self.camera_process.start()
-        self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue),daemon=True)
+        self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue,),daemon=True)
         self.position_tracking_thread.start()
 
 if __name__ == '__main__':
