@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 from __future__ import division, print_function
+from ast import arg
 
 import math
 import struct
@@ -63,7 +64,6 @@ class CameraServer():
             for new_robot in add:
                 self.thread_dict[new_robot] = Controller.Controller(new_robot, 
                                                             self.robot_dictionary[new_robot])
-                # self.thread_dict[new_robot].move_to_point(*self.to_point[count])
                 count = count + 1
             # sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
@@ -83,8 +83,6 @@ class CameraServer():
                 frame = image_queue.get()
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 detections, dimg = self.detector.detect(gray, return_image = True)
-                # head_dir = np.array([0,0])
-                # num_detections = len(detections)
                 
                 dimg1 = dimg
 
@@ -110,7 +108,7 @@ class CameraServer():
                 active_dict = {}
                 # print(detections)
                 for detection in detections:
-                    # dimg1 = self.draw(frame, detection.corners)
+
                     center = detection.center
                     
                     # Gets the center of the tag in inches and rotated accordingly
@@ -122,41 +120,31 @@ class CameraServer():
                     if not detection.tag_id in self.reference_tags:
                         # Gets the forward direction
                         (forward_dir, angle) = self.heading_dir(detection.corners, center)
-                        # print(detection.tag_id)
-                        # forward_dir_transform = self.transform(forward_dir)
 
-                        # Draws the arrows
 
-                        # dimg1 = self.draw1(dimg1, forward_dir, center, (0, 0,255))
+                        self.positions.robot_pos.append(Odometry())
+                        self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
-                        # center_txt = center.ravel().astype(int).astype(str)
-                        # cv2.putText(dimg1,posString,tuple(center.ravel().astype(int) + 10),self.font,self.fontScale,(255, 0, 0),self.lineType)
+                        if not detection.tag_id in self.reference_tags:
 
-                        # cv2.putText(dimg1,'Id:' + str(detection.tag_id),tuple(center.ravel().astype(int)),self.font,0.8,(0, 0, 0),2,)
-                        with self.position_lock:
-                            self.positions.robot_pos.append(Odometry())
-                            self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+                            active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                            
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
+                            self.positions.robot_pos[-1].pose.pose.position.z = 0.0
 
-                            if not detection.tag_id in self.reference_tags:
+                            q = self.quaternion_from_rpy(0,0,angle)
 
-                                active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                                
-                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                            self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                            self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                            self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
 
-                                q = self.quaternion_from_rpy(0,0,angle)
+                        else:
 
-                                self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                                self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                                self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                                self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
-
-                            else:
-
-                                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                                self.positions.robot_pos[-1].pose.pose.position.y = 0 
-                                self.positions.robot_pos[-1].pose.pose.position.z = center_transform[1]
+                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                            self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
+                            self.positions.robot_pos[-1].pose.pose.position.z = 0.0
                         
                         self.active_dict = active_dict
 
@@ -234,7 +222,6 @@ class CameraServer():
         self.rotation_matrix
         return np.flip(np.matmul(matrix, self.rotation_matrix))
 
-
     def heading_dir(self, corners, center):
         corner1 = corners[0].ravel()
         corner2 = corners[1].ravel()
@@ -246,6 +233,27 @@ class CameraServer():
         newmidPt = cMidPt + center
         return (newmidPt, theta)
 
+    def get_ground_pos(self,vel_vector):
+        for (id,robot) in enumerate(self.thread_dict):
+            robot.set_velocity(*vel_vector[id])
+
+    def get_odom_vel(self):
+        positions = []
+        for robot in self.thread_dict:
+            positions.append(robot.get_velocity())
+        return positions
+
+    def get_odom_pos(self):
+        positions = []
+        for robot in self.thread_dict:
+            positions.append(robot.get_odom_pos())
+        return positions
+    
+    def get_ground_pos(self):
+        positions = []
+        for robot in self.thread_dict:
+            positions.append(robot.get_ground_pos())
+        return positions
 
     def __init__(self):
 
@@ -259,10 +267,6 @@ class CameraServer():
 
         self.x_distance = 1.6129 #95 #2.413
         self.y_distance = 1.74625 #67.5 #1.7145
-
-        # self.window = "Overlay1"
-
-        # cv2.namedWindow(self.window)
 
         rospy.init_node("camera_server",anonymous=True)
 
@@ -289,16 +293,16 @@ class CameraServer():
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
-        self.position_lock = threading.Lock()
         self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=())
         self.connection_manager_thread.start()
+        self.image_queue = Queue(maxsize=1)
+        self.camera_process = Process(target=self.read_frame,arg=(self.image_queue))
+        self.camera_process.start()
+        self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue),daemon=True)
+        self.position_tracking_thread.start()
 
 if __name__ == '__main__':
         try:
             server = CameraServer()
-            image_queue = Queue(maxsize=1)
-            camera_process = Process(target=server.read_frame,args=(image_queue,))
-            camera_process.start()
-            server.get_positions(image_queue)
         except rospy.ROSInterruptException:
             pass
