@@ -282,7 +282,7 @@ class Controller:
 
         # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
         print("Error: {error}".format(error=math.sqrt((msg.x - current_x)**2 + (msg.y - current_y)**2)))
-        if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .1:
+        if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .05:
             self.send_velocity([0,0,0])
         else:
 
