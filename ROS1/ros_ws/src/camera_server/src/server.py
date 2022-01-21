@@ -36,7 +36,8 @@ class CameraServer():
 
         while True:
             _, frame = capture.read()
-            image_queue.put(frame)
+            if image_queue.empty():
+                image_queue.put(frame)
 
     def get_pos(self,robot_id):
         for robot in self.positions.robot_pos:
@@ -295,7 +296,7 @@ class CameraServer():
 if __name__ == '__main__':
         try:
             server = CameraServer()
-            image_queue = Queue()
+            image_queue = Queue(maxsize=1)
             camera_process = Process(target=server.read_frame,args=(image_queue,))
             camera_process.start()
             server.get_positions(image_queue)
