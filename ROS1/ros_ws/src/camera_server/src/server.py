@@ -18,7 +18,7 @@ import numpy as np
 import rospy
 from geometry_msgs.msg import Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Robot_Pos
+from robot_msgs.msg import Robot_Pos, StringList
 import json
 
 
@@ -231,29 +231,7 @@ class CameraServer():
         cMidPt[0] = cMidPt[0] + 50 * math.cos(theta)
         cMidPt[1] = cMidPt[1] + 50 * math.sin(theta)
         newmidPt = cMidPt + center
-        return (newmidPt, theta)
-
-    def get_ground_pos(self,vel_vector):
-        for (id,robot) in enumerate(self.thread_dict):
-            robot.set_velocity(*vel_vector[id])
-
-    def get_odom_vel(self):
-        positions = []
-        for robot in self.thread_dict:
-            positions.append(robot.get_velocity())
-        return positions
-
-    def get_odom_pos(self):
-        positions = []
-        for robot in self.thread_dict:
-            positions.append(robot.get_odom_pos())
-        return positions
-    
-    def get_ground_pos(self):
-        positions = []
-        for robot in self.thread_dict:
-            positions.append(robot.get_ground_pos())
-        return positions
+        return (newmidPt, theta)   
 
     def __init__(self):
 
@@ -290,6 +268,8 @@ class CameraServer():
         self.robot_dictionary = None
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
+
+        self.active_pub = rospy.Publisher("/active_robots,"StringList,queue_size=1)
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
