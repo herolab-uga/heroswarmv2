@@ -34,21 +34,6 @@ class CameraServer():
             if image_queue.empty():
                 image_queue.put(frame)
 
-    def get_pos(self,robot_id):
-        for robot in self.positions.robot_pos:
-            if robot.child_frame_id == str(robot_id):
-                return robot
-
-    def controller(self,robot_id,robot_hostname,stop_event):
-        pubs = {}
-        for topic in self.topics:
-            pubs[topic] = rospy.Publisher("/"+robot_hostname+"/"+topic,self.topics[topic],queue_size=5)
-
-        while not stop_event.is_set():
-            msg = self.get_pos(robot_id)
-            if not msg == None:
-                pubs["position"].publish(msg)
-
     def connection_manager(self):
         prev_active = []
         count = 0
@@ -56,8 +41,9 @@ class CameraServer():
             active_dict = list(self.active_dict)
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
-                self.thread_dict[new_robot] = Controller.Controller(new_robot, 
-                                                            self.robot_dictionary[new_robot])
+                self.thread_dict[new_robot] = threading.Thread(target=Controller.Controller, args=(new_robot, 
+                                                            self.robot_dictionary[new_robot]),daemon=True)
+                self.thread_dict[new_robot].start()
                 count = count + 1
             # sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
@@ -146,12 +132,6 @@ class CameraServer():
 
                 self.pos_pub.publish(self.positions)
                 self.active_pub.publish(robot_names)
-                
-                
-                # cv2.imshow("test", dimg1)
-                # cv2.waitKey(1)
-
-
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
@@ -240,7 +220,7 @@ class CameraServer():
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
 
-        self.x_distance = 1.6129 #95 #2.413
+        self.x_distance = 2.413
         self.y_distance = 1.74625 #67.5 #1.7145
 
         rospy.init_node("camera_server",anonymous=True)
