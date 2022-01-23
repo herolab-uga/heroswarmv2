@@ -4,6 +4,7 @@ import math
 import struct
 import threading
 import time
+import json
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -325,7 +326,13 @@ class Controller:
         self.proximity = False
         self.global_pos = False
         self.i2c = board.I2C()
-        self.id = 5
+        self.name = rospy.get_namespace()
+
+        with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
+            robot_dictionary = json.load(file)
+            for key in robot_dictionary:
+                if robot_dictionary[key] == self.name:
+                    self.id = int(key)
         self.position = {
             "x":0,
             "y":0,
