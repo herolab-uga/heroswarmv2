@@ -11,6 +11,7 @@ import apriltag
 import cv2
 import numpy as np
 import rospy
+from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos, StringList
 import json
@@ -104,31 +105,24 @@ class CameraServer():
 
 
                         self.positions.robot_pos.append(Odometry())
+                        robot_names.names.append(String())
                         self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
-                        if not detection.tag_id in self.reference_tags:
+                        active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
+                        robot_names.names[-1].data = self.robot_dictionary[str(detection.tag_id)]
 
-                            active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                            robot_names.names.append(self.robot_dictionary[str(detection.tag_id)])
+                        self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                        self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
+                        self.positions.robot_pos[-1].pose.pose.position.z = 0.0
 
-                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
-                            self.positions.robot_pos[-1].pose.pose.position.z = 0.0
+                        q = self.quaternion_from_rpy(0,0,angle)
 
-                            q = self.quaternion_from_rpy(0,0,angle)
-
-                            self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                            self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                            self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                            self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
-
-                        else:
-
-                            self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                            self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
-                            self.positions.robot_pos[-1].pose.pose.position.z = 0.0
+                        self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                        self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                        self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                        self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
                         
-                        self.active_dict = active_dict
+                self.active_dict = active_dict
 
                 self.pos_pub.publish(self.positions)
                 self.active_pub.publish(robot_names)
@@ -246,7 +240,7 @@ class CameraServer():
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.active_pub = rospy.Publisher("/active_robots",StringList,queue_size=1)
+        self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
