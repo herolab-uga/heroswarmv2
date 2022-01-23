@@ -69,8 +69,8 @@ class ServerWrapper():
                     robot["cmd_vel_pub"].Publish(robot["cmd_vel"])
                 else:
                     robot["to_point_pub"].Publish(robot["to_point"])
-        pass
-
+            pub_rate.sleep()
+            
     def set_velocity(self,vel_list):
         for (index,vel) in enumerate(vel_list):
             if not vel == None:
