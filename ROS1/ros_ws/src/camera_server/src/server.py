@@ -1,22 +1,16 @@
 #! /usr/bin/python3
 from __future__ import division, print_function
-from ast import arg
 
 import math
-import struct
 from multiprocessing import Process, Queue
-import time
 from argparse import ArgumentParser
 import threading
-from copy import deepcopy
 import Controller
 
 import apriltag
 import cv2
-import getch
 import numpy as np
 import rospy
-from geometry_msgs.msg import Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos, StringList
 import json
@@ -105,6 +99,7 @@ class CameraServer():
                     except IndexError:
                         continue
                     
+                robot_names = StringList()
                 active_dict = {}
                 # print(detections)
                 for detection in detections:
@@ -128,7 +123,8 @@ class CameraServer():
                         if not detection.tag_id in self.reference_tags:
 
                             active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                            
+                            robot_names.append(self.robot_dictionary[str(detection.tag_id)])
+
                             self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                             self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
                             self.positions.robot_pos[-1].pose.pose.position.z = 0.0
@@ -149,6 +145,7 @@ class CameraServer():
                         self.active_dict = active_dict
 
                 self.pos_pub.publish(self.positions)
+                self.active_pub.publish(robot_names)
                 
                 
                 # cv2.imshow("test", dimg1)
@@ -269,7 +266,7 @@ class CameraServer():
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.active_pub = rospy.Publisher("/active_robots,"StringList,queue_size=1)
+        self.active_pub = rospy.Publisher("/active_robots",StringList,queue_size=1)
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
