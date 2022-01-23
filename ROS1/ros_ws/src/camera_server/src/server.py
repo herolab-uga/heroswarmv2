@@ -109,7 +109,7 @@ class CameraServer():
                         if not detection.tag_id in self.reference_tags:
 
                             active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                            robot_names.append(self.robot_dictionary[str(detection.tag_id)])
+                            robot_names.names.append(self.robot_dictionary[str(detection.tag_id)])
 
                             self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                             self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
