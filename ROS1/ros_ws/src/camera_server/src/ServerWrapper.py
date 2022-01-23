@@ -86,19 +86,19 @@ class ServerWrapper():
     def get_odom_pos(self):
         odom_pos = []
         for active_bot in self.active_bots:
-            odom_pos.append(active_bot["odom_pos"])
+            odom_pos.append(self.active_bots[active_bot]["odom_pos"])
         return odom_pos
     
     def get_position_global(self):
         positions = []
         for active_bot in self.active_bots:
-            positions.append(active_bot["global_pos"])
+            positions.append(self.active_bots[active_bot]["global_pos"])
         return positions
 
     def get_velocity(self):
         velocities = []
         for active_bot in self.active_bots:
-            velocities.append(active_bot["vel"])
+            velocities.append(self.active_bots[active_bot]["vel"])
         return velocities
 
     def __init__(self,selected_bots=0) -> None:
