@@ -320,7 +320,7 @@ class Controller:
 
         # Init the i2c bus
         self.light = True
-        self.environment = False
+        self.environment = True
         self.imu = False
         self.proximity = True
         self.global_pos = False
@@ -394,10 +394,8 @@ class Controller:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-            self.environment_pub = rospy.Publisher(
-                "environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(
-                rospy.Duration(1/20), self.read_environment)
+            self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/20), self.read_environment)
 
         # Creates a publisher for a proximity sensor
         if self.proximity:
