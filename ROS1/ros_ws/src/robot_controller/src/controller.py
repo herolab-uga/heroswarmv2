@@ -351,12 +351,6 @@ class Controller:
         else:
             self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
 
-        # Creates the i2c interface for the bmp sensor
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-
-        # Creates the i2c interface for the humidity sensor
-        self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-
         # Creates the twist publisher
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
 
@@ -392,7 +386,10 @@ class Controller:
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+            # Creates the i2c interface for the bmp sensor
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+            # Creates the i2c interface for the humidity sensor
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
             self.environment_timer = rospy.Timer(rospy.Duration(1/10), self.read_environment)
