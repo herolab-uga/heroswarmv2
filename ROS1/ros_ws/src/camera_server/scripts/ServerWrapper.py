@@ -121,13 +121,15 @@ class ServerWrapper():
     def get_position_global(self):
         positions = []
         for active_bot in self.active_bots:
-            positions.append(self.active_bots[active_bot]["global_pos"])
+            if type(active_bot) == str:
+                positions.append(self.active_bots[active_bot]["global_pos"])
         return positions
 
     def get_velocity(self):
         velocities = []
         for active_bot in self.active_bots:
-            velocities.append(self.active_bots[active_bot]["vel"])
+            if type(active_bot) == str:
+                velocities.append(self.active_bots[active_bot]["vel"])
         return velocities
 
     def __init__(self,selected_bots=0) -> None:
