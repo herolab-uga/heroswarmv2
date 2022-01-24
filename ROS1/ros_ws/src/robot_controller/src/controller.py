@@ -320,7 +320,7 @@ class Controller:
 
         # Init the i2c bus
         self.light_sensor = False
-        self.environment_sensor = True
+        self.environment_sensor = False
         self.imu_sensor = False
         self.proximity_sensor = False
         self.global_pos = False
@@ -380,11 +380,9 @@ class Controller:
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
-
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(
-                rospy.Duration(1/30), self.read_light)
-
+            self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
+        
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
 
@@ -400,8 +398,7 @@ class Controller:
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.proximity_timer = rospy.Timer(
-                rospy.Duration(1/20), self.read_proximity)
+            self.proximity_timer = rospy.Timer(rospy.Duration(1/20), self.read_proximity)
 
         print("Ready")
 
