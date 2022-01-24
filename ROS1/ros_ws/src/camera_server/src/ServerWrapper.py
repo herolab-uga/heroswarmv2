@@ -30,8 +30,22 @@ class ServerWrapper():
         for i in range(self.num_active_bots,self.selected_bots):
             self.num_active_bots += 1
             name = msg.names[i].data
+
+            dict_entry =  {
+                "name":name,
+                "vel_control":None,
+                "global_pos":[0,0,0],
+                "vel":[0,0,0],
+                "odom_pos":[0,0,0],
+                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
+                "cmd_vel":[0,0,0],
+                "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
+                "point":[0,0],
+                "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1)
+            }
             
-            self.active_bots[i] = {
+            self.active_bots[i] = dict_entry
+            self.active_bots[name] = {
                 "name":name,
                 "vel_control":None,
                 "global_pos":[0,0,0],
@@ -52,17 +66,26 @@ class ServerWrapper():
         x_pos = msg.pose.pose.position.x
         y_pos = msg.pose.pose.position.y
         theta = -self.rpy_from_quaternion(msg.position.pose.pose.orientation)[2]
-
-        self.active_bots[id]["vel"] = [x_vel,y_vel,omega]
-        self.active_bots[id]["odom_pos"] = [x_pos,y_pos,theta]
+        try:
+            self.active_bots[id]["vel"] = [x_vel,y_vel,omega]
+            self.active_bots[id]["odom_pos"] = [x_pos,y_pos,theta]
+        except KeyError:
+            print("Id {id} not found".format(id=id))
 
     def position_callback(self,msg,active_bots):
         for i in range(0,self.num_active_bots):
-            x = msg.robot_pos[i].pose.pose.position.x
-            y = msg.robot_pos[i].pose.pose.position.y
-            theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
-            active_bots[int(msg.robot_pos[i].child_frame_id)-3]["global_pos"] = [x,y,theta]
-
+            try:
+                name = self.active_bots[i]["name"]
+                x = msg.robot_pos[i].pose.pose.position.x
+                y = msg.robot_pos[i].pose.pose.position.y
+                theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
+            except KeyError:
+                print("Key {key} not found".format(key=i))
+            try:
+                active_bots[name]["global_pos"] = [x,y,theta]
+            except KeyError:
+                print("Key {key} not found".format(key=name))
+                
     def step(self,rate=15,time=1000):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
