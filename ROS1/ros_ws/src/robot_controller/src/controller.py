@@ -320,7 +320,7 @@ class Controller:
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = False
+        self.light = True
         self.environment = False
         self.imu = False
         self.proximity = False
@@ -333,6 +333,7 @@ class Controller:
             for key in robot_dictionary:
                 if robot_dictionary[key] == self.name:
                     self.id = int(key)
+                    
         self.position = {
             "x":0,
             "y":0,
@@ -368,7 +369,7 @@ class Controller:
         self.stop_thread.start()
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)        
-
+        self.odom_pub_timer = rospy.Timer(rospy.Duration(1/30),self.pub_odom)
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
 
