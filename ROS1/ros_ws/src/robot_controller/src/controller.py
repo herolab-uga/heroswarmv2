@@ -320,9 +320,9 @@ class Controller:
 
         # Init the i2c bus
         self.light = True
-        self.environment = True
+        self.environment = False
         self.imu = False
-        self.proximity = False
+        self.proximity = True
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
