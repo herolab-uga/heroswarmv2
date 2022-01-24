@@ -319,7 +319,7 @@ class Controller:
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = True
+        self.light = False
         self.environment = True
         self.imu = False
         self.proximity = True
@@ -363,6 +363,7 @@ class Controller:
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)        
         self.odom_pub_timer = rospy.Timer(rospy.Duration(1/30),self.pub_odom)
+
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
 
