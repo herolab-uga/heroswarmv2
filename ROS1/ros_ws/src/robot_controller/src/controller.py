@@ -320,7 +320,7 @@ class Controller:
 
         # Init the i2c bus
         self.light_sensor = False
-        self.environment_sensor = True
+        self.environment_sensor = False
         self.imu_sensor = False
         self.proximity_sensor = True
         self.global_pos = False
