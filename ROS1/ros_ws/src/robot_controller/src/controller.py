@@ -319,7 +319,7 @@ class Controller:
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light_sensor = True
+        self.light_sensor = False
         self.environment_sensor = True
         self.imu_sensor = False
         self.proximity_sensor = True
@@ -386,6 +386,12 @@ class Controller:
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
+            if self.light == None:
+                self.light = APDS9960(self.i2c)
+                self.light.enable_proximity = True
+                self.light.enable_gesture = True
+                self.light.enable_color = True
+
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
