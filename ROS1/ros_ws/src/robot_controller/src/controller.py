@@ -319,10 +319,10 @@ class Controller:
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = False
-        self.environment = True
-        self.imu = False
-        self.proximity = True
+        self.light_sensor = False
+        self.environment_sensor = True
+        self.imu_sensor = False
+        self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
@@ -368,13 +368,13 @@ class Controller:
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
 
         # Creates a publisher for imu data
-        if self.imu:
+        if self.imu_sensor:
             self.IMU = LSM6DS33(self.i2c)
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
 
         # Creates a publisher for the light sensor
-        if self.light:
+        if self.light_sensor:
             self.light = APDS9960(self.i2c)
             self.light.enable_proximity = True
             self.light.enable_gesture = True
@@ -385,7 +385,7 @@ class Controller:
                 rospy.Duration(1/30), self.read_light)
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if self.environment:
+        if self.environment_sensor:
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
@@ -396,7 +396,7 @@ class Controller:
             self.environment_timer = rospy.Timer(rospy.Duration(1/10), self.read_environment)
 
         # Creates a publisher for a proximity sensor
-        if self.proximity:
+        if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.proximity_timer = rospy.Timer(
                 rospy.Duration(1/20), self.read_proximity)
