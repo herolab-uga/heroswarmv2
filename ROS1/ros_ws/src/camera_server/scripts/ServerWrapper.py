@@ -65,7 +65,7 @@ class ServerWrapper():
 
         x_pos = msg.pose.pose.position.x
         y_pos = msg.pose.pose.position.y
-        theta = -self.rpy_from_quaternion(msg.position.pose.pose.orientation)[2]
+        theta = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
         try:
             self.active_bots[id]["vel"] = [x_vel,y_vel,omega]
             self.active_bots[id]["odom_pos"] = [x_pos,y_pos,theta]
