@@ -92,7 +92,7 @@ class Controller:
             odom_data[index] = struct.unpack('f', bytes)[0]
 
         # Adds Twist data
-        theta = np.deg2rad(odom_data[2] + self.position["theta"])
+        theta = np.deg2rad(odom_data[2]) + self.position["orientation"]
         odom_msg.twist.twist.linear.x = odom_data[3]
         odom_msg.twist.twist.linear.y = odom_data[4]
         odom_msg.twist.twist.linear.z = 0.0
@@ -112,7 +112,6 @@ class Controller:
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
 
-        self.position["orientation"] = theta
 
         self.odom_pub.publish(odom_msg)
 
