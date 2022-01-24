@@ -401,7 +401,7 @@ class Controller:
 
         # Creates a publisher for a proximity sensor
         if self.proximity:
-            self.prox_pub = rospy.Publisher(Int16, "proximity", queue_size=1)
+            self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.proximity_timer = rospy.Timer(
                 rospy.Duration(1/30), self.read_proximity)
 
