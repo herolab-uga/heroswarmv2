@@ -361,8 +361,8 @@ class Controller:
         self.stop_thread = threading.Thread(target=self.auto_stop,args=(),daemon=True)
         self.stop_thread.start()
 
-        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=5)        
-        self.odom_pub_timer = rospy.Timer(rospy.Duration(1/30),self.pub_odom)
+        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=1)        
+        self.odom_pub_timer = rospy.Timer(rospy.Duration(1/10),self.pub_odom)
 
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
@@ -382,7 +382,7 @@ class Controller:
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
-        
+
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
 
