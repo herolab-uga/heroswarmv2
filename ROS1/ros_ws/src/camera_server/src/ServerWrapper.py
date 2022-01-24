@@ -37,7 +37,7 @@ class ServerWrapper():
                 "global_pos":[0,0,0],
                 "vel":[0,0,0],
                 "odom_pos":[0,0,0],
-                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Twist,self.odom_callback,(i)),
+                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
                 "cmd_vel":[0,0,0],
                 "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
                 "point":[0,0],
@@ -63,7 +63,7 @@ class ServerWrapper():
             theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
             active_bots[int(msg.robot_pos[i].child_frame_id)-3]["global_pos"] = [x,y,theta]
 
-    def step(self,rate=10,time=1000):
+    def step(self,rate=15,time=1000):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
@@ -77,14 +77,17 @@ class ServerWrapper():
         for (index,vel) in enumerate(vel_list):
             if not vel == None:
                 self.active_bots[index]["vel_control"] = True
-                self.active_bots[index]["cmd_vel"] = Twist(vel[0],vel[1],vel[2])
+                msg = Twist()
+                msg.linear.x = vel[0]
+                msg.angular.z = vel[1]
+                self.active_bots[index]["cmd_vel"] = msg
 
     def set_points(self,points):
         for (index,point) in enumerate(points):
 
             if not point == None:
                 self.active_bots[index]["vel_control"] = False
-                self.active_bots[index]["to_point"] = Point(point[0],point[1],point[2])
+                self.active_bots[index]["to_point"] = Point(point[0],point[1],0.0)
 
     def get_odom_pos(self):
         odom_pos = []
