@@ -367,6 +367,11 @@ class Controller:
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
 
+        self.light = APDS9960(self.i2c)
+        self.light.enable_proximity = True
+        self.light.enable_gesture = True
+        self.light.enable_color = True
+
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.IMU = LSM6DS33(self.i2c)
@@ -375,10 +380,6 @@ class Controller:
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
-            self.light = APDS9960(self.i2c)
-            self.light.enable_proximity = True
-            self.light.enable_gesture = True
-            self.light.enable_color = True
 
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(
@@ -386,11 +387,6 @@ class Controller:
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
-            if self.light == None:
-                self.light = APDS9960(self.i2c)
-                self.light.enable_proximity = True
-                self.light.enable_gesture = True
-                self.light.enable_color = True
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
