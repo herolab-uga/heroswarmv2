@@ -30,7 +30,7 @@ for iteration in range(iterations):
         vels.append([x_sum,y_sum])
     
     # passing current pos remove theta
-    vels = si_barrier_cert(vels,current_pos_xy])
+    vels = si_barrier_cert(vels,current_pos_xy)
 
     vels = si_to_uni_dyn(vels,current_pos_xy)
 
