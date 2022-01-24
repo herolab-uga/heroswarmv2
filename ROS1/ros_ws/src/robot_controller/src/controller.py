@@ -375,7 +375,7 @@ class Controller:
         # Creates a publisher for imu data
         if self.imu:
             self.IMU = LSM6DS33(self.i2c)
-            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=5)
+            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
 
         # Creates a publisher for the light sensor
@@ -385,7 +385,7 @@ class Controller:
             self.light.enable_gesture = True
             self.light.enable_color = True
 
-            self.light_pub = rospy.Publisher('light', Light, queue_size=5)
+            self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(
                 rospy.Duration(1/20), self.read_light)
 
@@ -395,13 +395,13 @@ class Controller:
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher(
-                "environment", Environment, queue_size=5)
+                "environment", Environment, queue_size=1)
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/20), self.read_environment)
 
         # Creates a publisher for a proximity sensor
         if self.proximity:
-            self.prox_pub = rospy.Publisher(Int16, "proximity", queue_size=5)
+            self.prox_pub = rospy.Publisher(Int16, "proximity", queue_size=1)
             self.proximity_timer = rospy.Timer(
                 rospy.Duration(1/30), self.read_proximity)
 
