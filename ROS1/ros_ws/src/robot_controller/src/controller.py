@@ -395,7 +395,7 @@ class Controller:
             self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/20), self.read_environment)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/25), self.read_environment)
 
         # Creates a publisher for a proximity sensor
         if self.proximity:
