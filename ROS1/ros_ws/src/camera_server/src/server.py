@@ -33,7 +33,9 @@ class CameraServer():
         while True:
             _, frame = capture.read()
             if image_queue.empty():
-                image_queue.put(frame)
+                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+                
+                image_queue.put(self.detector.detect(gray, return_image = True))
 
     def connection_manager(self):
         prev_active = []
@@ -61,13 +63,9 @@ class CameraServer():
         while True:
             if not image_queue.empty():
                 #print("Running")
-                frame = image_queue.get()
-                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-                detections, dimg = self.detector.detect(gray, return_image = True)
+                detections, dimg = image_queue.get()
                 
                 dimg1 = dimg
-
-
 
                 self.positions = Robot_Pos()
                 
