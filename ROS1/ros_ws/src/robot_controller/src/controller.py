@@ -17,7 +17,7 @@ from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_Pos
+from robot_msgs.msg import Environment, Light, Robot_Pos,StringList
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String
 from subprocess import call
@@ -314,6 +314,14 @@ class Controller:
             call("sudo shutdown 0", shell=True)
         elif msg.data == "restart":
             call("sudo shutdown -r 0", shell=True)
+            
+    def active_callback(self,msg):
+        for name in msg.robots:
+            if name.data == self.name:
+                break
+        msg.robots.append(String(self.name))
+        self.active_pub.publish(msg)
+        
 
     def __init__(self):
 
@@ -381,6 +389,9 @@ class Controller:
         self.light.enable_proximity = True
         self.light.enable_gesture = True
         self.light.enable_color = True
+        
+        self.active_sub = rospy.Subscriber("/active_robts",StringList,self.active_callback)
+        self.active_pub = rospy.Publisher("/active_robots",StringList,queue_size=1)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
