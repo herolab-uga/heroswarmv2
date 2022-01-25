@@ -19,7 +19,8 @@ from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
-from std_msgs.msg import Int16
+from std_msgs.msg import Int16, String
+from subprocess import call
 
 
 class Controller:
@@ -308,6 +309,12 @@ class Controller:
             
             self.send_velocity([v,0,omega])
 
+    def shutdown_callback(self,msg):
+        if msg.data == "shutdown":
+            call("sudo shutdown 0", shell=True)
+        elif msg.data == "restart":
+            call("sudo shutdown -r 0", shell=True)
+
     def __init__(self):
 
         rospy.init_node("robot_controller", anonymous=True)
@@ -366,6 +373,9 @@ class Controller:
 
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
+
+        # Creates shutdown hook
+        self.shutdown_sub = rospy.Subscriber("shutdown", String, self.shutdown_callback)
 
         self.light = APDS9960(self.i2c)
         self.light.enable_proximity = True
