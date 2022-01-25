@@ -39,5 +39,5 @@ for iteration in range(iterations):
     vels = si_to_uni_dyn(vels,np.asarray(current_pos).transpose())
 
     wrapper.set_velocities(vels.transpose())
-    wrapper.step(time=100)
+    wrapper.step(time=50)
 
