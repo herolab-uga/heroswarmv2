@@ -1,4 +1,4 @@
-from ServerWrapper import ServerWrapper
+from ServerWrapper import *
 import numpy as np
 from rps.utilities.graph import *
 from rps.utilities.transformations import *
@@ -6,19 +6,23 @@ from rps.utilities.barrier_certificates import *
 from rps.utilities.misc import *
 from rps.utilities.controllers import *
 
-num_robots = 2
+si_barrier_cert = create_single_integrator_barrier_certificate_with_boundary()
+
+# Create SI to UNI dynamics tranformation
+si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
+
+num_robots = 4
 
 wrapper = ServerWrapper(num_robots)
 
-iterations = 1000
+iterations = 250
 
 for iteration in range(iterations):
 
     # Get the position of the robots using the camera server
     current_pos = wrapper.get_position_global()
-    current_pos_xy = []
-    current_pos_xy.append([x[:1] for x in current_pos])
-    print(current_pos)
+    current_pos_xy = [x[:2] for x in current_pos]
+    # print(current_pos_xy)
 
     vels = []
     for robot in range(num_robots):
@@ -30,10 +34,10 @@ for iteration in range(iterations):
         vels.append([x_sum,y_sum])
     
     # passing current pos remove theta
-    vels = si_barrier_cert(vels,current_pos_xy)
+    vels = si_barrier_cert(np.asarray(vels).transpose(),np.asarray(current_pos_xy).transpose())
 
-    vels = si_to_uni_dyn(vels,current_pos_xy)
+    vels = si_to_uni_dyn(vels,np.asarray(current_pos).transpose())
 
-    wrapper.set_velocities(vels)
-    wrapper.step()
+    wrapper.set_velocities(vels.transpose())
+    wrapper.step(time=100)
 

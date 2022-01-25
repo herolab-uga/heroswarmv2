@@ -1,5 +1,6 @@
 from __future__ import division
 
+import time
 import rospy
 import numpy as np
 from geometry_msgs.msg import Twist, Point
@@ -45,18 +46,7 @@ class ServerWrapper():
             }
             
             self.active_bots[i] = dict_entry
-            self.active_bots[name] = {
-                "name":name,
-                "vel_control":None,
-                "global_pos":[0,0,0],
-                "vel":[0,0,0],
-                "odom_pos":[0,0,0],
-                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
-                "cmd_vel":[0,0,0],
-                "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
-                "point":[0,0],
-                "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1)
-            }
+            self.active_bots[name] = dict_entry
     
     def odom_callback(self,msg,id):
         x_vel = msg.twist.twist.linear.x
@@ -81,6 +71,8 @@ class ServerWrapper():
                 theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
             except KeyError:
                 print("Key {key} not found".format(key=i))
+            except IndexError:
+                print("Index {index} out of bounds".format(index=i))
             try:
                 active_bots[name]["global_pos"] = [x,y,theta]
             except KeyError:
@@ -90,24 +82,23 @@ class ServerWrapper():
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
-                if self.active_bots[robot]["vel_control"]:
-                    self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
-                else:
-                   self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["to_point"])
+                if type(robot) == str:
+                    if self.active_bots[robot]["vel_control"]:
+                        self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
+                    else:
+                        self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["point"])
             pub_rate.sleep()
             
     def set_velocities(self,vel_list):
         for (index,vel) in enumerate(vel_list):
-            if not vel == None:
-                self.active_bots[index]["vel_control"] = True
-                msg = Twist()
-                msg.linear.x = vel[0]
-                msg.angular.z = vel[1]
-                self.active_bots[index]["cmd_vel"] = msg
+            self.active_bots[index]["vel_control"] = True
+            msg = Twist()
+            msg.linear.x = vel[0]
+            msg.angular.z = vel[1]
+            self.active_bots[index]["cmd_vel"] = msg
 
     def set_points(self,points):
         for (index,point) in enumerate(points):
-
             if not point == None:
                 self.active_bots[index]["vel_control"] = False
                 self.active_bots[index]["to_point"] = Point(point[0],point[1],0.0)
@@ -140,4 +131,6 @@ class ServerWrapper():
         self.obom_subs = []
         self.num_active_bots = 0
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
+        time.sleep(.5)
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.position_callback,(self.active_bots))
+        time.sleep(.5)
