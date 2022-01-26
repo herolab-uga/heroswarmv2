@@ -424,6 +424,8 @@ class Controller:
         # Creates the i2c interface for the humidity sensor
         self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
 
+        self.IMU = LSM6DS33(self.i2c)
+
         self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(),daemon=True)
         self.sensor_read_thread.start()
 
@@ -432,8 +434,6 @@ class Controller:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
             self.environment_thread = threading.Thread(target=self.read_environment,args=(5,),daemon=True)
             self.environment_thread.start()
-
-        self.IMU = LSM6DS33(self.i2c)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
