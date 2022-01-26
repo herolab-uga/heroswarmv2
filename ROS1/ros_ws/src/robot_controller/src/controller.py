@@ -227,56 +227,47 @@ class Controller:
             self.prox = self.light.proximity
             rate.sleep()
 
-    def read_light(self, freq) -> None:
-        rate = rospy.Rate(int(freq))
-        while not rospy.is_shutdown():
-            # Creates the light message
-            light_msg = Light()
+    def read_light(self, timer) -> None:
+        # Creates the light message
+        light_msg = Light()
 
-            # Sets the current rgbw value array
-            light_msg.rgbw = self.rgbw
+        # Sets the current rgbw value array
+        light_msg.rgbw = self.rgbw
 
-            # Sets the gesture type
-            light_msg.gesture = self.gesture
+        # Sets the gesture type
+        light_msg.gesture = self.gesture
 
-            # Publishes the message
-            self.light_pub.publish(light_msg)
-            rate.sleep()
+        # Publishes the message
+        self.light_pub.publish(light_msg)
         
-    def read_environment(self, freq) -> None:
-        rate = rospy.Rate(int(freq))
-        while not rospy.is_shutdown():
-            # Creates the environment message
-            environ_msg = Environment()
+    def read_environment(self, timer) -> None:
+        # Creates the environment message
+        environ_msg = Environment()
 
-            # Sets the temperature
-            environ_msg.temp = self.temp
+        # Sets the temperature
+        environ_msg.temp = self.temp
 
-            # Sets the pressure
-            environ_msg.pressure = self.pressure
+        # Sets the pressure
+        environ_msg.pressure = self.pressure
 
-            # Sets the humidity
-            environ_msg.humidity = self.humidity
+        # Sets the humidity
+        environ_msg.humidity = self.humidity
 
-            # Sets the altitude
-            environ_msg.altitude = self.altitude
+        # Sets the altitude
+        environ_msg.altitude = self.altitude
 
-            # Publishes the message
-            self.environment_pub.publish(environ_msg)
-        rate.sleep()
+        # Publishes the message
+        self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self, freq) -> None:
-        rate = rospy.Rate(int(freq))
-        while not rospy.is_shutdown():
-            # Creates the proximity message
-            proximity_msg = Int16()
+    def read_proximity(self, timer) -> None:
+        # Creates the proximity message
+        proximity_msg = Int16()
 
-            # Sets the proximity value
-            proximity_msg.data = self.prox
+        # Sets the proximity value
+        proximity_msg.data = self.prox
 
-            # Publishes the message
-            self.prox_pub.publish(proximity_msg)
-        rate.sleep()
+        # Publishes the message
+        self.prox_pub.publish(proximity_msg)
 
     # Sending an float to the arduino
     # Message format []
