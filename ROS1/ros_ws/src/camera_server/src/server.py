@@ -84,7 +84,7 @@ class CameraServer():
                     except IndexError:
                         continue
                     
-                #robot_names = StringList()
+                robot_names = StringList()
                 active_dict = {}
                 # print(detections)
                 for detection in detections:
@@ -103,7 +103,7 @@ class CameraServer():
 
 
                         self.positions.robot_pos.append(Odometry())
-                        #robot_names.names.append(String())
+                        robot_names.names.append(String())
                         self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                         active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
@@ -123,7 +123,7 @@ class CameraServer():
                 self.active_dict = active_dict
 
                 self.pos_pub.publish(self.positions)
-                #self.active_pub.publish(robot_names)
+                self.active_pub.publish(robot_names)
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
