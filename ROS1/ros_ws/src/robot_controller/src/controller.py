@@ -167,7 +167,7 @@ class Controller:
 
         # Creates the IMU message
         imu_msg = Imu()
-        rate = rospy.Rate(freq)
+        rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
             # Read the sensor
             acc_x, acc_y, acc_z = self.IMU.acceleration
@@ -216,7 +216,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     def read_light(self, freq) -> None:
-        rate = rospy.Rate(freq)
+        rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
             # Creates the light message
             light_msg = Light()
@@ -232,7 +232,7 @@ class Controller:
             rate.sleep()
 
     def read_environment(self, freq) -> None:
-        rate = rospy.Rate(freq)
+        rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
             # Creates the environment message
             environ_msg = Environment()
@@ -254,7 +254,7 @@ class Controller:
         rate.sleep()
 
     def read_proximity(self, freq) -> None:
-        rate = rospy.Rate(freq)
+        rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
             # Creates the proximity message
             proximity_msg = Int16()
