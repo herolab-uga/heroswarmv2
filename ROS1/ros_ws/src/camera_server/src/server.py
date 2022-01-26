@@ -107,7 +107,7 @@ class CameraServer():
                         self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
 
                         active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                        # robot_names.names[-1].data = self.robot_dictionary[str(detection.tag_id)]
+                        robot_names.names[-1].data = self.robot_dictionary[str(detection.tag_id)]
 
                         self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                         self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
