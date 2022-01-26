@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from concurrent.futures import thread
 import math
 import struct
 import threading
@@ -417,6 +418,7 @@ class Controller:
 
         self.IMU = LSM6DS33(self.i2c)
 
+        self.sensor_lock = threading.Lock()
         self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(),daemon=True)
         self.sensor_read_thread.start()
 
