@@ -360,7 +360,7 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-         self.temp = 0
+        self.temp = 0
         self.pressure = 0
         self.humidity = 0
         self.altitude = 0
