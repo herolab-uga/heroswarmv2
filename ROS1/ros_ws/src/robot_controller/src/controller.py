@@ -17,7 +17,7 @@ from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_Pos,StringList
+from robot_msgs.msg import Environment, Light, Robot_Pos, NameList, Name
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String
 from subprocess import call
@@ -314,14 +314,21 @@ class Controller:
             call("sudo shutdown 0", shell=True)
         elif msg.data == "restart":
             call("sudo shutdown -r 0", shell=True)
-            
-    def active_callback(self,msg):
-        for name in msg.robots:
-            if name.data == self.name:
-                break
-        msg.robots.append(String(self.name))
-        self.active_pub.publish(msg)
         
+    def active_callback(self,msg):
+        current_time = time.time()
+        if type(msg) == NameList():
+            self.active_robots = [x for x in msg.names if current_time - x.time < 2]
+        else:
+            if not msg.data in self.active_robots:
+                self.active_robots.append(msg.data)
+        new_msg = NameList()
+        for name in self.active_robots:
+            new_msg.names.append(Name(name,time.time()))
+        self.active_robots.publish(new_msg)
+        
+    def name_pub(self):
+        self.active_pub.publish(Name(self.name,time.time()))
 
     def __init__(self):
 
@@ -341,6 +348,7 @@ class Controller:
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
+        self.active_robots = []
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -390,8 +398,10 @@ class Controller:
         self.light.enable_gesture = True
         self.light.enable_color = True
         
-        self.active_sub = rospy.Subscriber("/active_robts",StringList,self.active_callback)
-        self.active_pub = rospy.Publisher("/active_robots",StringList,queue_size=1)
+        self.active_robot_sub = rospy.Subscriber("/active_robots",NameList,self.active_callback)
+        self.active_robot_pub = rospy.Publisher("/active_robots",NameList,queue_size=1)
+        self.active_pub = rospy.Publisher("/active",String,queue_size=1)
+        self.active_sub = rospy.Subscriber("/active",String,self.active_callback)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
@@ -420,8 +430,9 @@ class Controller:
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.proximity_timer = rospy.Timer(rospy.Duration(1/20), self.read_proximity)
-
-        print("Ready")
+        
+        self.name_pub
+        rospy.Timer(rospy.Duration(1),self.name_pub)
 
 
 if __name__ == '__main__':
