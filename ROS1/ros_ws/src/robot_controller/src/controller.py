@@ -406,7 +406,7 @@ class Controller:
             # Creates the i2c interface for the humidity sensor
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_thread = threading.Thread(target=self.read_environment,args=(60),daemon=True)
+            self.environment_thread = threading.Thread(target=self.read_environment,args=(60,),daemon=True)
             self.environment_thread.start()
 
         # Creates a publisher for imu data
@@ -414,21 +414,21 @@ class Controller:
             self.IMU = LSM6DS33(self.i2c)
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
-            self.environment_thread = threading.Thread(target=self.read_imu,args=(10),daemon=True)
+            self.environment_thread = threading.Thread(target=self.read_imu,args=(10,),daemon=True)
             self.environment_thread.start()
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
-            self.environment_thread = threading.Thread(target=self.read_light,args=(15),daemon=True)
+            self.environment_thread = threading.Thread(target=self.read_light,args=(15,),daemon=True)
             self.environment_thread.start()
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.proximity_timer = rospy.Timer(rospy.Duration(1/20), self.read_proximity)
-            self.environment_thread = threading.Thread(target=self.read_proximity,args=(30),daemon=True)
+            self.environment_thread = threading.Thread(target=self.read_proximity,args=(30,),daemon=True)
             self.environment_thread.start()
 
         print("Ready")
