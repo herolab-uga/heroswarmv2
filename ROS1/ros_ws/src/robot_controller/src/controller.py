@@ -428,22 +428,22 @@ class Controller:
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(5),self.read_environment)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/30),self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(5),self.read_imu)
+            self.imu_timer = rospy.Timer(rospy.Duration(1/50),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(5),self.read_light)
+            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(5),self.read_proximity)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
 
         print("Ready")
 
