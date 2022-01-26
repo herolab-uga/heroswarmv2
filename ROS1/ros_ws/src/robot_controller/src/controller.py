@@ -360,6 +360,14 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
+         self.temp = 0
+        self.pressure = 0
+        self.humidity = 0
+        self.altitude = 0
+        self.rgbw = None
+        self.gesture = 0
+        self.prox = 0
+
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
             for key in robot_dictionary:
