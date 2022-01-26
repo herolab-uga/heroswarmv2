@@ -53,7 +53,8 @@ add_message_files(
    Environment.msg
    Light.msg
    Robot_Pos.msg
-   StringList.msg
+   NameList.msg
+   Name.msg
  )
 
 ## Generate services in the 'srv' folder
