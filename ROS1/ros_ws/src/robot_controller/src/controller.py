@@ -219,24 +219,26 @@ class Controller:
     def read_sensors(self):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
-            self.temp = self.bmp.temperature
-            self.pressure = self.bmp.pressure
-            self.humidity = self.humidity_sensor.read_humidity
-            self.altitude = self.bmp.altitude
-            self.rgbw = set(self.light.color_data)
-            self.gesture = self.light.gesture()
-            self.prox = self.light.proximity
+            with self.sensor_lock:
+                self.temp = self.bmp.temperature
+                self.pressure = self.bmp.pressure
+                self.humidity = self.humidity_sensor.read_humidity
+                self.altitude = self.bmp.altitude
+                self.rgbw = set(self.light.color_data)
+                self.gesture = self.light.gesture()
+                self.prox = self.light.proximity
             rate.sleep()
 
     def read_light(self, timer) -> None:
         # Creates the light message
         light_msg = Light()
 
-        # Sets the current rgbw value array
-        light_msg.rgbw = self.rgbw
+        with self.sensor_lock:
+            # Sets the current rgbw value array
+            light_msg.rgbw = self.rgbw
 
-        # Sets the gesture type
-        light_msg.gesture = self.gesture
+            # Sets the gesture type
+            light_msg.gesture = self.gesture
 
         # Publishes the message
         self.light_pub.publish(light_msg)
@@ -244,18 +246,18 @@ class Controller:
     def read_environment(self, timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
+        with self.sensor_lock:
+            # Sets the temperature
+            environ_msg.temp = self.temp
 
-        # Sets the temperature
-        environ_msg.temp = self.temp
+            # Sets the pressure
+            environ_msg.pressure = self.pressure
 
-        # Sets the pressure
-        environ_msg.pressure = self.pressure
+            # Sets the humidity
+            environ_msg.humidity = self.humidity
 
-        # Sets the humidity
-        environ_msg.humidity = self.humidity
-
-        # Sets the altitude
-        environ_msg.altitude = self.altitude
+            # Sets the altitude
+            environ_msg.altitude = self.altitude
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
@@ -264,8 +266,9 @@ class Controller:
         # Creates the proximity message
         proximity_msg = Int16()
 
-        # Sets the proximity value
-        proximity_msg.data = self.prox
+        with self.sensor_lock:
+            # Sets the proximity value
+            proximity_msg.data = self.prox
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
