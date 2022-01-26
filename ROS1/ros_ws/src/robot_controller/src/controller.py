@@ -218,6 +218,7 @@ class Controller:
     def read_sensors(self):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
+            print("Running")
             self.temp = self.bmp.temperature
             self.pressure = self.bmp.pressure
             self.humidity = self.humidity_sensor.read_humidity
