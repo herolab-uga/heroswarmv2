@@ -5,6 +5,7 @@ import struct
 import threading
 import time
 import json
+import os
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -314,6 +315,8 @@ class Controller:
             call("sudo shutdown 0", shell=True)
         elif msg.data == "restart":
             call("sudo shutdown -r 0", shell=True)
+        elif msg.data == "restart_ros":
+            call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def __init__(self):
 
