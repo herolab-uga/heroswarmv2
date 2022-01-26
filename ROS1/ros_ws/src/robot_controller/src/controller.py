@@ -215,6 +215,18 @@ class Controller:
     #     # Publishes the message
     #     self.mic_pub.publish(mic_msg)
 
+    def read_sensors(self):
+        rate = rospy.Rate(60)
+        while not rospy.is_shutdown:
+            self.temp = self.bmp.temperature
+            self.pressure = self.bmp.pressure
+            self.humidity = self.humidity_sensor.read_humidity
+            self.altitude = self.bmp.altitude
+            self.rgbw = set(self.light.color_data)
+            self.gesture = self.light.gesture()
+            self.prox = self.light.proximity
+            rate.sleep()
+
     def read_light(self, freq) -> None:
         rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
@@ -222,15 +234,15 @@ class Controller:
             light_msg = Light()
 
             # Sets the current rgbw value array
-            light_msg.rgbw = set(self.light.color_data)
+            light_msg.rgbw = self.rgbw
 
             # Sets the gesture type
-            light_msg.gesture = self.light.gesture()
+            light_msg.gesture = self.gesture
 
             # Publishes the message
             self.light_pub.publish(light_msg)
             rate.sleep()
-
+        
     def read_environment(self, freq) -> None:
         rate = rospy.Rate(int(freq))
         while not rospy.is_shutdown():
@@ -238,16 +250,16 @@ class Controller:
             environ_msg = Environment()
 
             # Sets the temperature
-            environ_msg.temp = self.bmp.temperature
+            environ_msg.temp = self.temp
 
             # Sets the pressure
-            environ_msg.pressure = self.bmp.pressure
+            environ_msg.pressure = self.pressure
 
             # Sets the humidity
-            environ_msg.humidity = self.humidity.relative_humidity
+            environ_msg.humidity = self.humidity
 
             # Sets the altitude
-            environ_msg.altitude = self.bmp.altitude
+            environ_msg.altitude = self.altitude
 
             # Publishes the message
             self.environment_pub.publish(environ_msg)
@@ -260,7 +272,7 @@ class Controller:
             proximity_msg = Int16()
 
             # Sets the proximity value
-            proximity_msg.data = self.light.proximity
+            proximity_msg.data = self.prox
 
             # Publishes the message
             self.prox_pub.publish(proximity_msg)
@@ -396,22 +408,27 @@ class Controller:
         self.light.enable_gesture = True
         self.light.enable_color = True
 
+        
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        # Creates the i2c interface for the bmp sensor
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+        # Creates the i2c interface for the humidity sensor
+        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+
+        self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(),daemon=True)
+        self.sensor_read_thread.start()
+
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
-
-            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-            # Creates the i2c interface for the bmp sensor
-            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-
-            # Creates the i2c interface for the humidity sensor
-            self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
             self.environment_thread = threading.Thread(target=self.read_environment,args=(5,),daemon=True)
             self.environment_thread.start()
 
+        self.IMU = LSM6DS33(self.i2c)
+
         # Creates a publisher for imu data
         if self.imu_sensor:
-            self.IMU = LSM6DS33(self.i2c)
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_thread = threading.Thread(target=self.read_imu,args=(60,),daemon=True)
             self.imu_thread.start()
