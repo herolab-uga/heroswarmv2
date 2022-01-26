@@ -413,21 +413,18 @@ class Controller:
         if self.imu_sensor:
             self.IMU = LSM6DS33(self.i2c)
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
             self.imu_thread = threading.Thread(target=self.read_imu,args=(60,),daemon=True)
             self.imu_thread.start()
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
             self.light_thread = threading.Thread(target=self.read_light,args=(15,),daemon=True)
             self.light_thread.start()
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.proximity_timer = rospy.Timer(rospy.Duration(1/20), self.read_proximity)
             self.prox_thread = threading.Thread(target=self.read_proximity,args=(30,),daemon=True)
             self.prox_thread.start()
 
