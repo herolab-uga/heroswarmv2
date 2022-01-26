@@ -6,6 +6,7 @@ import threading
 import time
 import json
 import os
+import threading
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -162,32 +163,34 @@ class Controller:
                     self.angular_z_velo = 0
             time.sleep(.1)
 
-    def read_imu(self, event=None) -> None:
+    def read_imu(self, freq) -> None:
 
         # Creates the IMU message
         imu_msg = Imu()
+        rate = rospy.Rate(freq)
+        while not rospy.is_shutdown():
+            # Read the sensor
+            acc_x, acc_y, acc_z = self.IMU.acceleration
+            gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        # Read the sensor
-        acc_x, acc_y, acc_z = self.IMU.acceleration
-        gyro_x, gyro_y, gyro_z = self.IMU.gyro
+            # Sets the self.position["orientation"] parameters (This is wrong)
+            # imu_msg.self.position["orientation"].x = 0.0
+            # imu_msg.self.position["orientation"].y = 0.0
+            # imu_msg.self.position["orientation"].z = 0.0
 
-        # Sets the self.position["orientation"] parameters (This is wrong)
-        # imu_msg.self.position["orientation"].x = 0.0
-        # imu_msg.self.position["orientation"].y = 0.0
-        # imu_msg.self.position["orientation"].z = 0.0
+            # Sets the angular velocity parameters
+            imu_msg.angular_velocity.x = gyro_x
+            imu_msg.angular_velocity.y = gyro_y
+            imu_msg.angular_velocity.z = gyro_z
 
-        # Sets the angular velocity parameters
-        imu_msg.angular_velocity.x = gyro_x
-        imu_msg.angular_velocity.y = gyro_y
-        imu_msg.angular_velocity.z = gyro_z
+            # Sets the linear acceleration parameters
+            imu_msg.linear_acceleration.x = acc_x
+            imu_msg.linear_acceleration.y = acc_y
+            imu_msg.linear_acceleration.z = acc_z
 
-        # Sets the linear acceleration parameters
-        imu_msg.linear_acceleration.x = acc_x
-        imu_msg.linear_acceleration.y = acc_y
-        imu_msg.linear_acceleration.z = acc_z
-
-        # Publishes the message
-        self.imu_pub.publish(imu_msg)
+            # Publishes the message
+            self.imu_pub.publish(imu_msg)
+            rate.sleep()
 
     # Remove DC bias before computing RMS.
     def mean(self, values):
@@ -212,48 +215,56 @@ class Controller:
     #     # Publishes the message
     #     self.mic_pub.publish(mic_msg)
 
-    def read_light(self, event=None) -> None:
+    def read_light(self, freq) -> None:
+        rate = rospy.Rate(freq)
+        while not rospy.is_shutdown():
+            # Creates the light message
+            light_msg = Light()
 
-        # Creates the light message
-        light_msg = Light()
+            # Sets the current rgbw value array
+            light_msg.rgbw = set(self.light.color_data)
 
-        # Sets the current rgbw value array
-        light_msg.rgbw = set(self.light.color_data)
+            # Sets the gesture type
+            light_msg.gesture = self.light.gesture()
 
-        # Sets the gesture type
-        light_msg.gesture = self.light.gesture()
+            # Publishes the message
+            self.light_pub.publish(light_msg)
+            rate.sleep()
 
-        # Publishes the message
-        self.light_pub.publish(light_msg)
+    def read_environment(self, freq) -> None:
+        rate = rospy.Rate(freq)
+        while not rospy.is_shutdown():
+            # Creates the environment message
+            environ_msg = Environment()
 
-    def read_environment(self, event=None) -> None:
-        # Creates the environment message
-        environ_msg = Environment()
+            # Sets the temperature
+            environ_msg.temp = self.bmp.temperature
 
-        # Sets the temperature
-        environ_msg.temp = self.bmp.temperature
+            # Sets the pressure
+            environ_msg.pressure = self.bmp.pressure
 
-        # Sets the pressure
-        environ_msg.pressure = self.bmp.pressure
+            # Sets the humidity
+            environ_msg.humidity = self.humidity.relative_humidity
 
-        # Sets the humidity
-        environ_msg.humidity = self.humidity.relative_humidity
+            # Sets the altitude
+            environ_msg.altitude = self.bmp.altitude
 
-        # Sets the altitude
-        environ_msg.altitude = self.bmp.altitude
+            # Publishes the message
+            self.environment_pub.publish(environ_msg)
+        rate.sleep()
 
-        # Publishes the message
-        self.environment_pub.publish(environ_msg)
+    def read_proximity(self, freq) -> None:
+        rate = rospy.Rate(freq)
+        while not rospy.is_shutdown():
+            # Creates the proximity message
+            proximity_msg = Int16()
 
-    def read_proximity(self, timer) -> None:
-        # Creates the proximity message
-        proximity_msg = Int16()
+            # Sets the proximity value
+            proximity_msg.data = self.light.proximity
 
-        # Sets the proximity value
-        proximity_msg.data = self.light.proximity
-
-        # Publishes the message
-        self.prox_pub.publish(proximity_msg)
+            # Publishes the message
+            self.prox_pub.publish(proximity_msg)
+        rate.sleep()
 
     # Sending an float to the arduino
     # Message format []
@@ -332,7 +343,7 @@ class Controller:
         self.light_sensor = True
         self.environment_sensor = True
         self.imu_sensor = False
-        self.proximity_sensor = False
+        self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
@@ -385,18 +396,7 @@ class Controller:
         self.light.enable_gesture = True
         self.light.enable_color = True
 
-        # Creates a publisher for imu data
-        if self.imu_sensor:
-            self.IMU = LSM6DS33(self.i2c)
-            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
-
-        # Creates a publisher for the light sensor
-        if self.light_sensor:
-            self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
-
-        # Creates a publisher for the magnetometer, bmp and humidity sensor
+         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
@@ -406,12 +406,30 @@ class Controller:
             # Creates the i2c interface for the humidity sensor
             self.humidity = adafruit_sht31d.SHT31D(self.i2c)
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/10), self.read_environment)
+            self.environment_thread = threading.Thread(target=self.read_environment,args=(60),daemon=True)
+            self.environment_thread.start()
+
+        # Creates a publisher for imu data
+        if self.imu_sensor:
+            self.IMU = LSM6DS33(self.i2c)
+            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
+            self.imu_timer = rospy.Timer(rospy.Duration(1/30), self.read_imu)
+            self.environment_thread = threading.Thread(target=self.read_imu,args=(10),daemon=True)
+            self.environment_thread.start()
+
+        # Creates a publisher for the light sensor
+        if self.light_sensor:
+            self.light_pub = rospy.Publisher('light', Light, queue_size=1)
+            self.light_timer = rospy.Timer(rospy.Duration(1/30), self.read_light)
+            self.environment_thread = threading.Thread(target=self.read_light,args=(15),daemon=True)
+            self.environment_thread.start()
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.proximity_timer = rospy.Timer(rospy.Duration(1/20), self.read_proximity)
+            self.environment_thread = threading.Thread(target=self.read_proximity,args=(30),daemon=True)
+            self.environment_thread.start()
 
         print("Ready")
 
