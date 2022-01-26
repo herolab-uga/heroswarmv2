@@ -218,7 +218,6 @@ class Controller:
     def read_sensors(self):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
-            print("Running")
             self.temp = self.bmp.temperature
             self.pressure = self.bmp.pressure
             self.humidity = self.humidity_sensor.read_humidity
@@ -343,7 +342,6 @@ class Controller:
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def __init__(self):
-        print("Starting")
 
         rospy.init_node("robot_controller", anonymous=True)
 
@@ -434,26 +432,22 @@ class Controller:
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_thread = threading.Thread(target=self.read_environment,args=(5,),daemon=True)
-            self.environment_thread.start()
+            self.environment_timer = rospy.Timer(rospy.Duration(5),self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_thread = threading.Thread(target=self.read_imu,args=(60,),daemon=True)
-            self.imu_thread.start()
+            self.imu_timer = rospy.Timer(rospy.Duration(5),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_thread = threading.Thread(target=self.read_light,args=(5,),daemon=True)
-            self.light_thread.start()
+            self.light_timer = rospy.Timer(rospy.Duration(5),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.prox_thread = threading.Thread(target=self.read_proximity,args=(15,),daemon=True)
-            self.prox_thread.start()
+            self.environment_timer = rospy.Timer(rospy.Duration(5),self.read_proximity)
 
         print("Ready")
 
