@@ -220,7 +220,7 @@ class Controller:
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
             with self.sensor_lock:
-                rospy.loginfo("Running")
+                print("Running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.read_humidity
@@ -338,7 +338,7 @@ class Controller:
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def __init__(self):
-        rospy.loginfo("Start")
+        print("Start")
         rospy.init_node("robot_controller", anonymous=True)
 
         # Arduino Device Address
