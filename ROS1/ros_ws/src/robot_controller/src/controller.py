@@ -223,7 +223,7 @@ class Controller:
                 # print("Running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.humidity
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
@@ -421,6 +421,8 @@ class Controller:
 
         # Creates the i2c interface for the humidity sensor
         self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
         self.IMU = LSM6DS33(self.i2c)
 
