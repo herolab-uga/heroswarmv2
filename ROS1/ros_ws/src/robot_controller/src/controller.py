@@ -218,9 +218,9 @@ class Controller:
 
     def read_sensors(self,sensor_data):
         rate = rospy.Rate(60)
-        while not rospy.is_shutdown:
+        while not rospy.is_shutdown():
             with self.sensor_lock:
-                print("Running")
+                # print("Running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.read_humidity
@@ -338,7 +338,7 @@ class Controller:
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def __init__(self):
-        print("Start")
+        # print("Start")
         rospy.init_node("robot_controller", anonymous=True)
 
         # Arduino Device Address
@@ -448,7 +448,7 @@ class Controller:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
 
-        print("Ready")
+        # print("Ready")
 
 
 if __name__ == '__main__':
