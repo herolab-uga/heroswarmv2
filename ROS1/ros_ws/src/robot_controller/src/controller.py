@@ -8,6 +8,7 @@ import time
 import json
 import os
 import threading
+import multiprocessing as mp
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -397,7 +398,7 @@ class Controller:
         self.velo_lock = threading.Lock()
 
         # Creates the auto-stop thread
-        self.stop_thread = threading.Thread(target=self.auto_stop,args=(),daemon=True)
+        self.stop_thread = mp.Process(target=self.auto_stop,args=())
         self.stop_thread.start()
 
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=1)        
