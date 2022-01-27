@@ -357,10 +357,10 @@ class Controller:
         self.name = rospy.get_namespace()
 
         self.sensor_data = {
-            "temp":0,
-            "pressure":0,
-            "humidity":0,
-            "altitude":0,
+            "temp":0.0,
+            "pressure":0.0,
+            "humidity":0.0,
+            "altitude":0.0,
             "rgbw":[],
             "gesture":0,
             "prox":0
