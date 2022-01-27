@@ -220,27 +220,24 @@ class Controller:
     def read_sensors(self,sensor_data):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown():
-            with self.sensor_lock:
-                # print("Running")
-                sensor_data["temp"] = self.bmp.temperature
-                sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-                sensor_data["altitude"] = self.bmp.altitude
-                sensor_data["rgbw"] = self.light.color_data
-                sensor_data["gesture"] = self.light.gesture()
-                sensor_data["prox"] = self.light.proximity
+            sensor_data["temp"] = self.bmp.temperature
+            sensor_data["pressure"] = self.bmp.pressure
+            sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+            sensor_data["altitude"] = self.bmp.altitude
+            sensor_data["rgbw"] = self.light.color_data
+            sensor_data["gesture"] = self.light.gesture()
+            sensor_data["prox"] = self.light.proximity
             rate.sleep()
 
     def read_light(self, timer) -> None:
         # Creates the light message
         light_msg = Light()
 
-        with self.sensor_lock:
-            # Sets the current rgbw value array
-            light_msg.rgbw = self.sensor_data["rgbw"]
+        # Sets the current rgbw value array
+        light_msg.rgbw = self.sensor_data["rgbw"]
 
-            # Sets the gesture type
-            light_msg.gesture = self.sensor_data["gesture"]
+        # Sets the gesture type
+        light_msg.gesture = self.sensor_data["gesture"]
 
         # Publishes the message
         self.light_pub.publish(light_msg)
@@ -248,18 +245,18 @@ class Controller:
     def read_environment(self, timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
-        with self.sensor_lock:
-            # Sets the temperature
-            environ_msg.temp = self.sensor_data["temp"]
 
-            # Sets the pressure
-            environ_msg.pressure = self.sensor_data["pressure"]
+        # Sets the temperature
+        environ_msg.temp = self.sensor_data["temp"]
 
-            # Sets the humidity
-            environ_msg.humidity = self.sensor_data["humidity"][0]
+        # Sets the pressure
+        environ_msg.pressure = self.sensor_data["pressure"]
 
-            # Sets the altitude
-            environ_msg.altitude = self.sensor_data["altitude"]
+        # Sets the humidity
+        environ_msg.humidity = self.sensor_data["humidity"][0]
+
+        # Sets the altitude
+        environ_msg.altitude = self.sensor_data["altitude"]
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
@@ -268,9 +265,8 @@ class Controller:
         # Creates the proximity message
         proximity_msg = Int16()
 
-        with self.sensor_lock:
-            # Sets the proximity value
-            proximity_msg.data = self.sensor_data["prox"]
+        # Sets the proximity value
+        proximity_msg.data = self.sensor_data["prox"]
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -427,7 +423,6 @@ class Controller:
 
         self.IMU = LSM6DS33(self.i2c)
 
-        self.sensor_lock = threading.Lock()
         self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(self.sensor_data,),daemon=True)
         self.sensor_read_thread.start()
 
