@@ -220,7 +220,7 @@ class Controller:
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
             with self.sensor_lock:
-                print("running")
+                rospy.loginfo("Running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.read_humidity
