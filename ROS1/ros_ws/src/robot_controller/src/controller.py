@@ -216,17 +216,17 @@ class Controller:
     #     # Publishes the message
     #     self.mic_pub.publish(mic_msg)
 
-    def read_sensors(self):
+    def read_sensors(self,sensor_data):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
             with self.sensor_lock:
-                self.temp = self.bmp.temperature
-                self.pressure = self.bmp.pressure
-                self.humidity = self.humidity_sensor.read_humidity
-                self.altitude = self.bmp.altitude
-                self.rgbw = set(self.light.color_data)
-                self.gesture = self.light.gesture()
-                self.prox = self.light.proximity
+                sensor_data["temp"] = self.bmp.temperature
+                sensor_data["pressure"] = self.bmp.pressure
+                sensor_data["humidity"] = self.humidity_sensor.read_humidity
+                sensor_data["altitude"] = self.bmp.altitude
+                sensor_data["rgbw"] = set(self.light.color_data)
+                sensor_data["gesture"] = self.light.gesture()
+                sensor_data["prox"] = self.light.proximity
             rate.sleep()
 
     def read_light(self, timer) -> None:
@@ -235,10 +235,10 @@ class Controller:
 
         with self.sensor_lock:
             # Sets the current rgbw value array
-            light_msg.rgbw = self.rgbw
+            light_msg.rgbw = self.sensor_data["rgbw"]
 
             # Sets the gesture type
-            light_msg.gesture = self.gesture
+            light_msg.gesture = self.sensor_data["gesture"]
 
         # Publishes the message
         self.light_pub.publish(light_msg)
@@ -248,16 +248,16 @@ class Controller:
         environ_msg = Environment()
         with self.sensor_lock:
             # Sets the temperature
-            environ_msg.temp = self.temp
+            environ_msg.temp = self.sensor_data["temp"]
 
             # Sets the pressure
-            environ_msg.pressure = self.pressure
+            environ_msg.pressure = self.sensor_data["pressure"]
 
             # Sets the humidity
-            environ_msg.humidity = self.humidity
+            environ_msg.humidity = self.sensor_data["humidity"]
 
             # Sets the altitude
-            environ_msg.altitude = self.altitude
+            environ_msg.altitude = self.sensor_data["altitude"]
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
@@ -268,7 +268,7 @@ class Controller:
 
         with self.sensor_lock:
             # Sets the proximity value
-            proximity_msg.data = self.prox
+            proximity_msg.data = self.sensor_data["prox"]
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -355,13 +355,15 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.temp = 0
-        self.pressure = 0
-        self.humidity = 0
-        self.altitude = 0
-        self.rgbw = None
-        self.gesture = 0
-        self.prox = 0
+        self.sensor_data = {
+            "temp":0.0,
+            "pressure":0.0,
+            "humidity":0.0,
+            "altitude":0.0,
+            "rgbw":None,
+            "gesture":0.0,
+            "prox":0.0
+        }
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -433,7 +435,7 @@ class Controller:
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/50),self.read_imu)
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
