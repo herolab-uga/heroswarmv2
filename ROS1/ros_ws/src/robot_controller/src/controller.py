@@ -220,6 +220,7 @@ class Controller:
         rate = rospy.Rate(60)
         while not rospy.is_shutdown:
             with self.sensor_lock:
+                print("running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.read_humidity
@@ -229,46 +230,46 @@ class Controller:
                 sensor_data["prox"] = self.light.proximity
             rate.sleep()
 
-    def read_light(self, timer, sensor_data) -> None:
+    def read_light(self, timer) -> None:
         # Creates the light message
         light_msg = Light()
 
         with self.sensor_lock:
             # Sets the current rgbw value array
-            light_msg.rgbw = sensor_data["rgbw"]
+            light_msg.rgbw = self.sensor_data["rgbw"]
 
             # Sets the gesture type
-            light_msg.gesture = sensor_data["gesture"]
+            light_msg.gesture = self.sensor_data["gesture"]
 
         # Publishes the message
         self.light_pub.publish(light_msg)
         
-    def read_environment(self, timer, sensor_data) -> None:
+    def read_environment(self, timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
         with self.sensor_lock:
             # Sets the temperature
-            environ_msg.temp = sensor_data["temp"]
+            environ_msg.temp = ["temp"]
 
             # Sets the pressure
-            environ_msg.pressure = sensor_data["pressure"]
+            environ_msg.pressure = self.sensor_data["pressure"]
 
             # Sets the humidity
-            environ_msg.humidity = sensor_data["humidity"]
+            environ_msg.humidity = self.sensor_data["humidity"]
 
             # Sets the altitude
-            environ_msg.altitude = sensor_data["altitude"]
+            environ_msg.altitude = self.sensor_data["altitude"]
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self, timer, sensor_data) -> None:
+    def read_proximity(self, timer, ) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
 
         with self.sensor_lock:
             # Sets the proximity value
-            proximity_msg.data = sensor_data["prox"]
+            proximity_msg.data = self.sensor_data["prox"]
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -430,22 +431,22 @@ class Controller:
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/30),self.read_environment,(self.sensor_data,))
+            self.environment_timer = rospy.Timer(rospy.Duration(1/30),self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu,(self.sensor_data,))
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light,(self.sensor_data,))
+            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity,(self.sensor_data,))
+            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
 
         print("Ready")
 
