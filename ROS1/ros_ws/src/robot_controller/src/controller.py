@@ -220,7 +220,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     def read_sensors(self,sensor_data):
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(5)
         while not rospy.is_shutdown():
             if sensor_data["read"]:
                 sensor_data["temp"] = self.bmp.temperature
