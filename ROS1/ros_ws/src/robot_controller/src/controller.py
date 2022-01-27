@@ -365,8 +365,7 @@ class Controller:
             "prox":0
         }
 
-        with open("/home/pi/heroswarmv2/ROS1/ros_ws
-            environ_msg.altitude = self./src/robot_controller/src/robots.json") as file:
+        with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
             for key in robot_dictionary:
                 if robot_dictionary[key] == self.name:
