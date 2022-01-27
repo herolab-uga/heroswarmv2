@@ -249,7 +249,7 @@ class Controller:
         environ_msg = Environment()
         with self.sensor_lock:
             # Sets the temperature
-            environ_msg.temp = ["temp"][0]
+            environ_msg.temp = self.sensor_data["temp"][0]
 
             # Sets the pressure
             environ_msg.pressure = self.sensor_data["pressure"]
