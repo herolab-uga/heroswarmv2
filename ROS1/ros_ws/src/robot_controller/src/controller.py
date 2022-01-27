@@ -436,7 +436,7 @@ class Controller:
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
+            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
