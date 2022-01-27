@@ -249,13 +249,13 @@ class Controller:
         environ_msg = Environment()
         with self.sensor_lock:
             # Sets the temperature
-            environ_msg.temp = ["temp"]
+            environ_msg.temp = ["temp"][0]
 
             # Sets the pressure
             environ_msg.pressure = self.sensor_data["pressure"]
 
             # Sets the humidity
-            environ_msg.humidity = self.sensor_data["humidity"]
+            environ_msg.humidity = self.sensor_data["humidity"][0]
 
             # Sets the altitude
             environ_msg.altitude = self.sensor_data["altitude"]
