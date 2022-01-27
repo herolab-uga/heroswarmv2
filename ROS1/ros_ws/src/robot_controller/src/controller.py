@@ -121,6 +121,7 @@ class Controller:
         self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
+        self.sensor_data["read"] = False
         x_velo = 0
         z_angular = 0
         with self.velo_lock:
@@ -159,6 +160,7 @@ class Controller:
                 continue
             elif time.time() - self.last_call["time"] > 0.25:
                 if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
+                    self.sensor_data["read"] = False
                     self.send_velocity([0, 0, 0])
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
@@ -166,7 +168,7 @@ class Controller:
             time.sleep(.1)
 
     def read_imu(self, freq) -> None:
-
+        self.sensor_data["read"] = False
         # Creates the IMU message
         imu_msg = Imu()
         rate = rospy.Rate(int(freq))
@@ -218,16 +220,17 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     def read_sensors(self,sensor_data):
-        rate = rospy.Rate(60)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            sensor_data["temp"] = self.bmp.temperature
-            sensor_data["pressure"] = self.bmp.pressure
-            sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-            sensor_data["altitude"] = self.bmp.altitude
-            sensor_data["rgbw"] = self.light.color_data
-            sensor_data["gesture"] = self.light.gesture()
-            sensor_data["prox"] = self.light.proximity
-            rate.sleep()
+            if True:
+                sensor_data["temp"] = self.bmp.temperature
+                sensor_data["pressure"] = self.bmp.pressure
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["altitude"] = self.bmp.altitude
+                sensor_data["rgbw"] = self.light.color_data
+                sensor_data["gesture"] = self.light.gesture()
+                sensor_data["prox"] = self.light.proximity
+                rate.sleep()
 
     def read_light(self, timer) -> None:
         # Creates the light message
@@ -291,6 +294,7 @@ class Controller:
         self.linear = values[1]
 
         self.angular_z_velo = values[2]
+        self.sensor_data["read"] = True
 
     # Position controller
     def move_to_point(self,msg):
@@ -354,6 +358,7 @@ class Controller:
         self.name = rospy.get_namespace()
 
         self.sensor_data = {
+            "read":True,
             "temp":0.0,
             "pressure":0.0,
             "humidity":0.0,
@@ -429,7 +434,7 @@ class Controller:
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/30),self.read_environment)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
@@ -444,7 +449,7 @@ class Controller:
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
 
         # print("Ready")
 
