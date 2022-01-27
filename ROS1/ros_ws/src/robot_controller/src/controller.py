@@ -224,7 +224,7 @@ class Controller:
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.read_humidity
                 sensor_data["altitude"] = self.bmp.altitude
-                sensor_data["rgbw"] = set(self.light.color_data)
+                sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
             rate.sleep()
@@ -360,7 +360,7 @@ class Controller:
             "pressure":0,
             "humidity":0,
             "altitude":0,
-            "rgbw":None,
+            "rgbw":[],
             "gesture":0,
             "prox":0
         }
