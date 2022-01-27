@@ -338,7 +338,7 @@ class Controller:
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def __init__(self):
-
+        rospy.loginfo("Start")
         rospy.init_node("robot_controller", anonymous=True)
 
         # Arduino Device Address
