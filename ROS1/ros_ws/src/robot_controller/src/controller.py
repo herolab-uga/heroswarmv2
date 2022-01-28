@@ -158,7 +158,7 @@ class Controller:
         while True:
             if self.last_call["time"] == None:
                 continue
-            elif time.time() - self.last_call["time"] > 0.1:
+            elif time.time() - self.last_call["time"] > 0.12:
                 if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
                     self.sensor_data["read"] = False
                     self.send_velocity([0, 0, 0])
