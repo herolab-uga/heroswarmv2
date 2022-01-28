@@ -239,7 +239,6 @@ class Controller:
         self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
         self.IMU = LSM6DS33(self.i2c)
-
         while not rospy.is_shutdown():
             if sensor_data["read"]:
                 sensor_data["temp"] = self.bmp.temperature
