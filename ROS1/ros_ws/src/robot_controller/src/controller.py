@@ -161,7 +161,7 @@ class Controller:
             elif time.time() - self.last_call["time"] > 0.12:
                 if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
                     self.sensor_data["read"] = False
-                    self.send_velocity([0, 0, 0])
+                    self.send_velocity([0.0, 0.0, 0.0])
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
                     self.angular_z_velo = 0
@@ -313,6 +313,16 @@ class Controller:
 
         self.angular_z_velo = values[2]
         self.sensor_data["read"] = True
+
+
+    def move_to_angle(self,angle):
+        rate = rospy.Rate(10)
+        delta_theta = self.position["theta"] - angle
+        while delta_theta > 0.05:
+            delta_theta = self.position["theta"] - angle
+            self.send_velocity([0.0,0.0,delta_theta])
+            rate.sleep()
+        self.send_velocity([0.0,0.0,0.0])
 
     # Position controller
     def move_to_point(self,msg):
