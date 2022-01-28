@@ -221,6 +221,24 @@ class Controller:
 
     def read_sensors(self,sensor_data):
         rate = rospy.Rate(5)
+
+        # Creates sensor objects
+        self.light = APDS9960(self.i2c)
+        self.light.enable_proximity = True
+        self.light.enable_gesture = True
+        self.light.enable_color = True
+
+        
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        # Creates the i2c interface for the bmp sensor
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+        # Creates the i2c interface for the humidity sensor
+        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+
+        self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             if sensor_data["read"]:
                 sensor_data["temp"] = self.bmp.temperature
@@ -411,7 +429,16 @@ class Controller:
         # Creates shutdown hook
         self.shutdown_sub = rospy.Subscriber("shutdown", String, self.shutdown_callback)
 
-        self.light = APDS9960(self.i2c)
+        self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
+        # self.sensor_read_thread.start()
+
+         # Creates a publisher for the magnetometer, bmp and humidity sensor
+        if self.environment_sensor:
+            self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
+            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
+
+        # Creates a publisher for imu data
+        if self.imu_sensor:self.light = APDS9960(self.i2c)
         self.light.enable_proximity = True
         self.light.enable_gesture = True
         self.light.enable_color = True
@@ -427,17 +454,6 @@ class Controller:
         self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
         self.IMU = LSM6DS33(self.i2c)
-
-        self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(self.sensor_data,),daemon=True)
-        # self.sensor_read_thread.start()
-
-         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if self.environment_sensor:
-            self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
-
-        # Creates a publisher for imu data
-        if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
