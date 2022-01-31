@@ -26,7 +26,7 @@ class CameraServer():
             capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
             capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
             capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-            capture.set(cv2.CAP_PROP_FPS, 30)
+            capture.set(cv2.CAP_PROP_FPS, 60)
         except ValueError:
             self.cap = cv2.VideoCapture(self.options.device_or_movie)
 
