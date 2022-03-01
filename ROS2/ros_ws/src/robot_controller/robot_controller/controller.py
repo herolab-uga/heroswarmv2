@@ -1,30 +1,35 @@
 #! /usr/bin/python3
 
+import json
 import math
+import multiprocessing as mp
+import os
 import struct
-import numpy as np
+import threading
+import time
+from concurrent.futures import thread
+from subprocess import call
 
 import adafruit_bmp280
 import adafruit_lis3mdl
 import adafruit_sht31d
 import board
+import numpy as np
 import rclpy
+import serial
 import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-from geometry_msgs.msg import Quaternion, Twist, Vector3
+from geometry_msgs.msg import Point, Twist
 from nav_msgs.msg import Odometry
-from rclpy.node import Node
-from robot_msgs.msg import Enviornment, Light
+from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
-from std_msgs.msg import Int16
+from std_msgs.msg import Int16, String
 
 
 class Controller(Node):
-
     def __init__(self):
-
-        # Creates the control node
+        # print("Start")
         super().__init__("robot_controller")
 
         # Arduino Device Address
@@ -34,52 +39,115 @@ class Controller(Node):
         self.bus = smbus.SMBus(1)
 
         # Init the i2c bus
-        self.light = True
-        self.enviornment = True
-        self.imu = True
-        self.proximity = True
+        self.light_sensor = True
+        self.environment_sensor = True
+        self.imu_sensor = False
+        self.proximity_sensor = True
+        self.global_pos = False
         self.i2c = board.I2C()
-        self.heading = 0
-        
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-        self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-        self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
-        
-        #self.mic_pub = self.create_publisher(Int16,"mic",2)
+        self.uart_bus = serial.Serial("/dev/ttyAMA0",9600,timout=0.005)
+        self.name = self.get_namespace()
 
-        if self.imu:
-            self.IMU = LSM6DS33(self.i2c)
-            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-            self.odom_pub = self.create_publisher(Odometry, "odom",5)
-            self.odom_tmr = self.create_timer(.015, self.pub_odom)
-            self.imu_pub = self.create_publisher(Imu,"imu",5)
-            self.imu_tmr = self.create_timer(1.0, self.read_imu)
+        self.sensor_data = {
+            "read":True,
+            "temp":0.0,
+            "pressure":0.0,
+            "humidity":0.0,
+            "altitude":0.0,
+            "rgbw":[],
+            "gesture":0,
+            "prox":0
+        }
 
-        if self.light:
-            self.light = APDS9960(self.i2c)
-            self.light.enable_proximity = True
-            self.light.enable_gesture = True
-            self.light.enable_color = True
-            self.prox_pub = self.create_publisher(Int16,"proximity",5)
-            self.prox_tmr = self.create_timer(.030, self.read_proximity)
-            self.light_pub = self.create_publisher(Light,'light',5)
-            self.light_tmr = self.create_timer(0.03, self.read_light)
-        
-        if self.enviornment:
-            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-            self.humidity = adafruit_sht31d.SHT31D(self.i2c)
-            self.enviornment_pub = self.create_publisher(Enviornment,"enviornment",5)
-            self.enviorn_tmr = self.create_timer(1.0, self.read_enviornment)
-        
-        if self.proximity:
-            self.proximity_pub = self.create_publisher(Int16,"proximity",5)
-            self.proximity_tmr = self.create_timer(1.0, self.read_proximity)
-
+        with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
+            robot_dictionary = json.load(file)
+            for key in robot_dictionary:
+                if robot_dictionary[key] == self.name:
+                    self.id = int(key)
+                    
+        self.position = {
+            "x":0,
+            "y":0,
+            "orientation":0
+        }
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        print("Ready")
+        self.last_call = {"time":None}
+        self.v_max = 0.1
+        self.omega_max = 1.0
+
+        # Creates subscribers for positions topics 
+        if self.global_pos:
+            self.pos_sub_global = self.create_subscriber(Robot_Pos,"/positions", self.get_pos_global)
+        else:
+            self.pos_sub_namespace = self.create_subscriber(Odometry,"position", self.get_pos)
+
+        # Creates the twist publisher
+        self.twist_sub = self.create_subscriber(Twist,"cmd_vel", self.read_twist)
+
+        # Creates the velocity lock for auto stop and velocity control
+        self.velo_lock = threading.Lock()
+
+        # Creates the auto-stop thread
+        self.stop_thread = mp.Process(target=self.auto_stop,args=())
+        self.stop_thread.start()
+
+        self.odom_pub = self.create_publisher(Odometry,"odom", queue_size=1)        
+        self.odom_pub_timer = self.create_timer(.1,self.pub_odom)
+
+        # Creates position control topic
+        self.position_sub = self.create_subscriber(Point,"to_point",self.move_to_point)
+
+        # Creates shutdown hook
+        self.shutdown_sub = self.create_subscriber(String,"shutdown", self.shutdown_callback)
+
+        self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
+        # self.sensor_read_thread.start()
+
+         # Creates a publisher for the magnetometer, bmp and humidity sensor
+        if self.environment_sensor:
+            self.environment_pub = self.create_publisher(Environment,"environment",queue_size=1)
+            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
+
+        # Creates a publisher for imu data
+        if self.imu_sensor:
+            self.imu_pub = self.create_publisher(Imu,"imu", queue_size=1)
+            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
+
+        # Creates a publisher for the light sensor
+        if self.light_sensor:
+            self.light_pub = self.create_publisher(Light,'light', queue_size=1)
+            # self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
+
+        # Creates a publisher for a proximity sensor
+        if self.proximity_sensor:
+            self.prox_pub = self.create_publisher(Int16,"proximity", queue_size=1)
+            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
+
+        # print("Ready")
+
+    def __del__(self):
+        self.send_velocity([0, 0, 0])
     
+    def rpy_from_quaternion(self, quaternion):
+        x = quaternion.x
+        y = quaternion.y
+        z = quaternion.z
+        w = quaternion.w
+
+        sinr_cosp = 2 * (w * x + y * z)
+        cosr_cosp = 1 - 2 * (x * x + y * y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        sinp = 2 * (w * y - z * x)
+        pitch = np.arcsin(sinp)
+
+        siny_cosp = 2 * (w * z + x * y)
+        cosy_cosp = 1 - 2 * (y * y + z * z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+        return roll, pitch, yaw
+
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
         sy = math.sin(yaw * 0.5)
@@ -95,13 +163,29 @@ class Controller(Node):
         q[3] = cr * cp * cy + sr * sp * sy
         return q
 
-    def pub_odom(self):
+    def get_pos_global(self,msg):
+            for robot in msg.robot_pos:
+                if robot.child_frame_id == str(self.id):
+                    self.position["x"] = robot.pose.pose.position.x
+                    self.position["y"] = robot.pose.pose.position.y
+                    self.position["orientation"] = -self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
+                    break
+            # rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
+
+    def get_pos(self,msg):
+        self.position["x"] = msg.pose.pose.position.x
+        self.position["y"] = msg.pose.pose.position.y
+        self.position["orientation"] = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
+        
+        # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
+
+    def pub_odom(self, timer, event=None):
         # Creates the odom message
         odom_msg = Odometry()
 
         data = self.bus.read_i2c_block_data(self.arduino, 0)
 
-        odom_data = [0.0,0.0,0.0,0.0,0.0]
+        odom_data = [0.0, 0.0, 0.0, 0.0, 0.0]
 
         # Get odom data from arduino
         for index in range(5):
@@ -110,21 +194,21 @@ class Controller(Node):
                 bytes.append(data[4*index + i])
             odom_data[index] = struct.unpack('f', bytes)[0]
 
-        odom_data[2] = np.radians(odom_data[2])
         # Adds Twist data
-        odom_msg.twist.twist.linear.x = odom_data[3] * math.cos(odom_data[2])
-        odom_msg.twist.twist.linear.y = odom_data[3] * math.sin(odom_data[2])
+        theta = np.deg2rad(odom_data[2]) #+ self.position["orientation"]
+        odom_msg.twist.twist.linear.x = odom_data[3]
+        odom_msg.twist.twist.linear.y = odom_data[4]
         odom_msg.twist.twist.linear.z = 0.0
-        
+
         odom_msg.twist.twist.angular.x = 0.0
         odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = odom_data[4]
 
-        odom_msg.pose.pose.position.x = odom_data[0]
-        odom_msg.pose.pose.position.y = odom_data[1]
+        odom_msg.pose.pose.position.x = odom_data[0] #+ self.position["x"] 
+        odom_msg.pose.pose.position.y = odom_data[1] #+ self.position["y"]
         odom_msg.pose.pose.position.z = 0.0
 
-        quaternion = self.quaternion_from_rpy(0, self.heading,0)
+        quaternion = self.quaternion_from_rpy(0,0,theta)
 
         odom_msg.pose.pose.orientation.x = quaternion[0]
         odom_msg.pose.pose.orientation.y = quaternion[1]
@@ -132,73 +216,89 @@ class Controller(Node):
         odom_msg.pose.pose.orientation.w = quaternion[3]
 
         self.odom_pub.publish(odom_msg)
+
         
-    def read_twist(self,msg) -> None:
+    def read_twist(self, msg, event=None) -> None:
+        self.sensor_data["read"] = False
+        x_velo = 0
+        z_angular = 0
+        with self.velo_lock:
+                self.last_call["time"] = time.time()
         # Reads ths twist message x linear velocity
-        x_velo = msg.linear.x
-        
+        if not msg.linear.x == 0:
+            direction_lin = msg.linear.x / abs(msg.linear.x)
+            x_velo = direction_lin * (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
+        else:
+            x_velo = 0
+
         # Reads the twist message y linear velocity
         y_velo = msg.linear.y
 
         # Reads the twist message z angular velocity
-        z_angular = msg.angular.z
-
-        
+        if not msg.angular.z == 0:
+            direction_ang = msg.angular.z / abs(msg.angular.z)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
+        else:
+            z_angular = 0
         
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
-
+            # Logs the data
+            # rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
-            self.send_velocity([x_velo,y_velo,z_angular])
-
+            with self.velo_lock:
+                self.last_call["time"] = time.time()
+            self.send_velocity([x_velo, y_velo, z_angular])
             self.linear_x_velo = x_velo
-
-            self.linear=y_velo = y_velo
-
+            self.linear_y_velo = y_velo
             self.angular_z_velo = z_angular
 
-            # Logs the data
-            self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo,y=y_velo,z=z_angular))
-            
+    def auto_stop(self):
+        while True:
+            if self.last_call["time"] == None:
+                continue
+            elif time.time() - self.last_call["time"] > 0.12:
+                if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
+                    self.sensor_data["read"] = False
+                    self.send_velocity([0.0, 0.0, 0.0])
+                    self.linear_x_velo = 0
+                    self.linear_y_velo = 0
+                    self.angular_z_velo = 0
+            time.sleep(.1)
 
-
-    def read_imu(self) -> None:
+    def read_imu(self, freq) -> None:
+        self.sensor_data["read"] = False
         # Creates the IMU message
         imu_msg = Imu()
-        
-        # Read the sensor
-        acc_x, acc_y, acc_z = self.IMU.acceleration
-        gyro_x, gyro_y, gyro_z = self.IMU.gyro
-        mag_x, mag_y, mag_z = self.magnetometer.magnetic
-        # print("Mag_x: ",mag_x)
-        # print("Mag_y: ",mag_y)
-        # print("Mag_z: ",mag_z)
-        self.heading = np.arctan2(mag_z,mag_x)
-        # print(self.heading)
+        rate = self.create_rate(int(freq))
+        while not self.ok():
+            # Read the sensor
+            acc_x, acc_y, acc_z = self.IMU.acceleration
+            gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        # Sets the orientation parameters
-        imu_msg.orientation.x = 0.0
-        imu_msg.orientation.y = self.heading
-        imu_msg.orientation.z = 0.0
+            # Sets the self.position["orientation"] parameters (This is wrong)
+            # imu_msg.self.position["orientation"].x = 0.0
+            # imu_msg.self.position["orientation"].y = 0.0
+            # imu_msg.self.position["orientation"].z = 0.0
 
-        # Sets the angular velocity parameters
-        imu_msg.angular_velocity.x = gyro_x
-        imu_msg.angular_velocity.y = gyro_y
-        imu_msg.angular_velocity.z = gyro_z
+            # Sets the angular velocity parameters
+            imu_msg.angular_velocity.x = gyro_x
+            imu_msg.angular_velocity.y = gyro_y
+            imu_msg.angular_velocity.z = gyro_z
 
-        # Sets the linear acceleration parameters
-        imu_msg.linear_acceleration.x = acc_x
-        imu_msg.linear_acceleration.y = acc_y
-        imu_msg.linear_acceleration.z = acc_z
+            # Sets the linear acceleration parameters
+            imu_msg.linear_acceleration.x = acc_x
+            imu_msg.linear_acceleration.y = acc_y
+            imu_msg.linear_acceleration.z = acc_z
 
-        # Publishes the message
-        self.imu_pub.publish(imu_msg)
+            # Publishes the message
+            self.imu_pub.publish(imu_msg)
+            rate.sleep()
     
     # Remove DC bias before computing RMS.
-    def mean(self,values):
+    def mean(self, values):
         return sum(values) / len(values)
 
-
-    def normalized_rms(self,values):
+    def normalized_rms(self, values):
         minbuf = int(self.mean(values))
         samples_sum = sum(
             float(sample - minbuf) * (sample - minbuf)
@@ -217,62 +317,147 @@ class Controller(Node):
     #     # Publishes the message
     #     self.mic_pub.publish(mic_msg)
 
-    
-    def read_light(self) -> None:
+    def read_sensors(self,sensor_data):
+        rate = self.create_rate(5)
+
+        # Creates sensor objects
+        self.light = APDS9960(self.i2c)
+        self.light.enable_proximity = True
+        self.light.enable_gesture = True
+        self.light.enable_color = True
+
+        
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        # Creates the i2c interface for the bmp sensor
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+        # Creates the i2c interface for the humidity sensor
+        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+
+        self.IMU = LSM6DS33(self.i2c)
+        while not self.ok():
+            if sensor_data["read"]:
+                sensor_data["temp"] = self.bmp.temperature
+                sensor_data["pressure"] = self.bmp.pressure
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["altitude"] = self.bmp.altitude
+                sensor_data["rgbw"] = self.light.color_data
+                sensor_data["gesture"] = self.light.gesture()
+                sensor_data["prox"] = self.light.proximity
+                rate.sleep()
+
+    def read_light(self, timer) -> None:
         # Creates the light message
         light_msg = Light()
 
         # Sets the current rgbw value array
-        light_msg.rgbw = set(self.light.color_data)
+        light_msg.rgbw = self.sensor_data["rgbw"]
 
         # Sets the gesture type
-        light_msg.gesture = self.light.gesture()
+        light_msg.gesture = self.sensor_data["gesture"]
 
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def read_enviornment(self) -> None:
-        # Creates the enviornment message
-        enviorn_msg = Enviornment()
+    def read_environment(self, timer) -> None:
+        # Creates the environment message
+        environ_msg = Environment()
 
         # Sets the temperature
-        enviorn_msg.temp = self.bmp.temperature
+        environ_msg.temp = self.sensor_data["temp"]
 
-        # Sets the pressure 
-        enviorn_msg.pressure = self.bmp.pressure
+        # Sets the pressure
+        environ_msg.pressure = self.sensor_data["pressure"]
 
         # Sets the humidity
-        enviorn_msg.humidity = self.humidity.relative_humidity
+        environ_msg.humidity = self.sensor_data["humidity"]
 
         # Sets the altitude
-        enviorn_msg.altitude = self.bmp.altitude
+        environ_msg.altitude = self.sensor_data["altitude"]
 
         # Publishes the message
-        self.enviornment_pub.publish(enviorn_msg)
+        self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self) -> None:
+    def read_proximity(self, timer, ) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
-        
+
         # Sets the proximity value
-        proximity_msg.data = self.light.proximity
+        proximity_msg.data = self.sensor_data["prox"]
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
- 
 
     # Sending an float to the arduino
     # Message format []
-    def send_velocity(self,values):
-        byteList = []
+    def send_velocity(self, values):
+        message = "0,"
+        for value in values: message += str(value) + ","
 
-        # Converts the values to bytes 
-        for value in values:
-            byteList += list(struct.pack('f', value))
-        byteList.append(0)  # fails to send last byte over I2C, hence this needs to be added 
+        self.uart_bus.send(message.encode())
+        ack = self.uart_bus.readline().decode().strip()
 
-        # Writes the values to the i2c
-        self.bus.write_i2c_block_data(self.arduino, byteList[0], byteList[1:12])
+        if ack == "error": self.send_velocity(values)
+
+        self.linear_x_velo = values[0]
+
+        self.linear = values[1]
+
+        self.angular_z_velo = values[2]
+
+
+    def move_to_angle(self,angle):
+        rate = self.create_rate(10)
+        delta_theta = self.position["theta"] - angle
+        while delta_theta > 0.05:
+            delta_theta = self.position["theta"] - angle
+            self.send_velocity([0.0,0.0,delta_theta])
+            rate.sleep()
+        self.send_velocity([0.0,0.0,0.0])
+
+    # Position controller
+    def move_to_point(self,msg):
+        current_x = self.position["x"]
+        current_y = self.position["y"]
+        theta = self.position["orientation"]
+
+        # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
+        # print("Error: {error}".format(error=math.sqrt((msg.x - current_x)**2 + (msg.y - current_y)**2)))
+        if math.sqrt(math.pow((msg.x - current_x),2) + math.pow((msg.y - current_y),2)) < .05:
+            self.send_velocity([0,0,0])
+        else:
+
+            # Gets the difference between the current position and desired position
+            delta_x = msg.x - current_x
+            delta_y = msg.y - current_y
+            # Gets the time such that the robot would move to the point at v_max
+            t = math.sqrt(
+                (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
+            # Gets the velocities
+            x_velo = delta_x / t
+            y_velo = delta_y / t
+
+            # Calculates the sine and cosine of the current theta
+            a = np.cos(theta)
+            b = np.sin(theta)
+
+            # Finds the linear velocity
+            v = 1*(x_velo*a + y_velo*b)
+
+            # Finds the angular velocity
+            omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+            
+            self.send_velocity([v,0,omega])
+
+    def shutdown_callback(self,msg):
+        if msg.data == "shutdown":
+            call("sudo shutdown 0", shell=True)
+        elif msg.data == "restart":
+            call("sudo shutdown -r 0", shell=True)
+        elif msg.data == "restart_ros":
+            call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
 
 def main(args=None):
