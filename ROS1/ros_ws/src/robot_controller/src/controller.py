@@ -1,14 +1,14 @@
 #! /usr/bin/python3
 
-from concurrent.futures import thread
+import json
 import math
+import multiprocessing as mp
+import os
 import struct
 import threading
 import time
-import json
-import os
-import threading
-import multiprocessing as mp
+from concurrent.futures import thread
+from subprocess import call
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -16,15 +16,15 @@ import adafruit_sht31d
 import board
 import numpy as np
 import rospy
+import serial
 import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-from geometry_msgs.msg import Twist, Point
+from geometry_msgs.msg import Point, Twist
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String
-from subprocess import call
 
 
 class Controller:
@@ -295,24 +295,19 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self, values):
-        byteList = []
+        message = "0,"
+        for value in values: message += str(value) + ","
 
-        # Converts the values to bytes
-        for value in values:
-            byteList += list(struct.pack('f', value))
-        # fails to send last byte over I2C, hence this needs to be added
-        byteList.append(0)
+        self.uart_bus.send(message.encode())
+        ack = self.uart_bus.readline().decode().strip()
 
-        # Writes the values to the i2c
-        self.bus.write_i2c_block_data(
-            self.arduino, byteList[0], byteList[1:12])
+        if ack == "error": self.send_velocity(values)
 
         self.linear_x_velo = values[0]
 
         self.linear = values[1]
 
         self.angular_z_velo = values[2]
-        self.sensor_data["read"] = True
 
 
     def move_to_angle(self,angle):
@@ -383,6 +378,7 @@ class Controller:
         self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
+        self.uart_bus = serial.Serial("/dev/ttyAMA0",9600,timout=0.005)
         self.name = rospy.get_namespace()
 
         self.sensor_data = {
