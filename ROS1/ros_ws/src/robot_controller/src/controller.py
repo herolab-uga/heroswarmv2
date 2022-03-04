@@ -295,19 +295,20 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self, values):
-        message = "0,"
-        for value in values: message += str(value) + ","
+        if not (values[0] == self.linear_x_velo and values[1] == self.linear_y_velo and values[2] == self.angular_z_velo):
+            message = "0,"
+            for value in values: message += str(value) + ","
+            print(message)
+            self.uart_bus.send(message.encode())
+            ack = self.uart_bus.readline().decode().strip()
 
-        self.uart_bus.send(message.encode())
-        ack = self.uart_bus.readline().decode().strip()
+            if ack == "error": self.send_velocity(values)
 
-        if ack == "error": self.send_velocity(values)
+            self.linear_x_velo = values[0]
 
-        self.linear_x_velo = values[0]
+            self.linear = values[1]
 
-        self.linear = values[1]
-
-        self.angular_z_velo = values[2]
+            self.angular_z_velo = values[2]
 
 
     def move_to_angle(self,angle):
