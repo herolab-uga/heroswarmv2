@@ -378,7 +378,8 @@ class Controller:
         self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
-        self.uart_bus = serial.Serial("/dev/ttyAMA0",9600,timout=0.005)
+        self.uart_bus = serial.Serial("/dev/ttyAMA0",9600)
+        self.uart_bus.timeout = .005
         self.name = rospy.get_namespace()
 
         self.sensor_data = {
