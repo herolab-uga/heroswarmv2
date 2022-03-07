@@ -129,7 +129,7 @@
         public:
 
             //SwarmBot Constructor
-            SwarmBot(byte leftIN1 = 13, byte leftIN2 = 12, byte leftA = A2, byte leftB = A1, byte leftPWR = A3, byte leftGND = A0, byte rightIN1 = 11, byte rightIN2 = 10, byte rightA = 5, byte rightB = 6, byte rightPWR = A4, byte rightGND = A5, byte mode = 9, int CPP = 28, int ratio = 100, float wheelDiameter = 0.0325, float wheelBase = 0.073);
+            SwarmBot(byte leftIN1 = 13, byte leftIN2 = 12, byte leftA = A2, byte leftB = A1, byte leftPWR = A3, byte leftGND = A0, byte rightIN1 = 11, byte rightIN2 = 10, byte rightA = 5, byte rightB = 6, byte rightPWR = A4, byte rightGND = A5, byte mode = 9, int CPP = 28, int ratio = 50, float wheelDiameter = 0.0325, float wheelBase = 0.073);
             void initializePorts();
             byte getLeftEncoderA();
             byte getLeftEncoderB();
