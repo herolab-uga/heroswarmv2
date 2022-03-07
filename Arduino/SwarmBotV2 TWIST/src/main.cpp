@@ -33,6 +33,7 @@ void setup() {
   Wire.onRequest(sendEvent);
 
   Serial1.begin(9600);
+  Serial.begin(9600);
 
   attachInterrupt(steve.getLeftEncoderA(), leftInterrupt, CHANGE);
   attachInterrupt(steve.getLeftEncoderB(), leftInterrupt, CHANGE);
@@ -48,6 +49,7 @@ void loop() {
   steve.updateOdometery();
   
   if (Serial1.available()){
+    Serial.println("avalible");
     int mode = Serial1.parseInt();
     if (mode == 0) {
       linearVelocity = Serial1.parseFloat();
