@@ -297,7 +297,7 @@ class Controller:
     def send_velocity(self, values):
         if not (values[0] == self.linear_x_velo and values[1] == self.linear_y_velo and values[2] == self.angular_z_velo):
             message = "0,"
-            for value in values: message += str(value) + ","
+            for value in values: message += str(float(value)) + ","
             print(message)
             self.uart_bus.write(message.encode())
             ack = self.uart_bus.readline().decode().strip()
