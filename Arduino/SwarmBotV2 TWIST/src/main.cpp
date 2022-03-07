@@ -55,6 +55,7 @@ void loop() {
       while (Serial1.available()) {
         Serial1.read();
       }
+      Serial1.println("ack");
       steve.setVelocity(linearVelocity, angularVelocity);
       steve.printOdom(driveMode, linearVelocity, angularVelocity);
     } else if (mode == 1) {
