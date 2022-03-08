@@ -268,16 +268,16 @@ class Controller:
         environ_msg = Environment()
 
         # Sets the temperature
-        environ_msg.temp = self.sensor_data["temp"]
+        environ_msg.temp = float(self.sensor_data["temp"])
 
         # Sets the pressure
-        environ_msg.pressure = self.sensor_data["pressure"]
+        environ_msg.pressure = float(self.sensor_data["pressure"])
 
         # Sets the humidity
-        environ_msg.humidity = self.sensor_data["humidity"]
+        environ_msg.humidity = float(self.sensor_data["humidity"])
 
         # Sets the altitude
-        environ_msg.altitude = self.sensor_data["altitude"]
+        environ_msg.altitude = float(self.sensor_data["altitude"])
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
