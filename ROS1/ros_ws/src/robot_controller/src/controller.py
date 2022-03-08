@@ -274,7 +274,7 @@ class Controller:
         environ_msg.pressure = float(self.sensor_data["pressure"])
 
         # Sets the humidity
-        environ_msg.humidity = self.sensor_data["humidity"]
+        environ_msg.humidity = float(self.sensor_data["humidity"][-1])
 
         # Sets the altitude
         environ_msg.altitude = float(self.sensor_data["altitude"])
