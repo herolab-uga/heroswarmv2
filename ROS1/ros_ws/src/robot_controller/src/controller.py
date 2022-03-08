@@ -256,9 +256,11 @@ class Controller:
 
         # Sets the current rgbw value array
         light_msg.rgbw = self.sensor_data["rgbw"]
+        light_msg.rgbw = self.light.color_data
 
         # Sets the gesture type
-        light_msg.gesture = self.sensor_data["gesture"]
+        # light_msg.gesture = self.sensor_data["gesture"]
+        light_msg.gesture = self.light.gesture()
 
         # Publishes the message
         self.light_pub.publish(light_msg)
@@ -268,16 +270,20 @@ class Controller:
         environ_msg = Environment()
 
         # Sets the temperature
-        environ_msg.temp = float(self.sensor_data["temp"])
+        # environ_msg.temp = float(self.sensor_data["temp"])
+        environ_msg.temp = self.bmp.temperature
 
         # Sets the pressure
-        environ_msg.pressure = float(self.sensor_data["pressure"])
+        # environ_msg.pressure = float(self.sensor_data["pressure"])
+        environ_msg.pressure = self.bmp.pressure
 
         # Sets the humidity
-        environ_msg.humidity = self.sensor_data["humidity"]
+        # environ_msg.humidity = self.sensor_data["humidity"]
+        environ_msg.humidity = self.humidity_sensor.relative_humidity[0]
 
         # Sets the altitude
-        environ_msg.altitude = float(self.sensor_data["altitude"])
+        # environ_msg.altitude = float(self.sensor_data["altitude"])
+        environ_msg.altitude = self.bmp.altitude
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
@@ -287,7 +293,8 @@ class Controller:
         proximity_msg = Int16()
 
         # Sets the proximity value
-        proximity_msg.data = self.sensor_data["prox"]
+        # proximity_msg.data = self.sensor_data["prox"]
+        proximity_msg.data = self.light.proximity
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -384,6 +391,21 @@ class Controller:
         self.uart_bus.timeout = .005
         self.name = rospy.get_namespace()
 
+        self.light = APDS9960(self.i2c)
+        self.light.enable_proximity = True
+        self.light.enable_gesture = True
+        self.light.enable_color = True
+
+        
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        # Creates the i2c interface for the bmp sensor
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+        # Creates the i2c interface for the humidity sensor
+        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+
         self.sensor_data = {
             "read":True,
             "temp":0.0,
@@ -438,8 +460,8 @@ class Controller:
         # Creates shutdown hook
         self.shutdown_sub = rospy.Subscriber("shutdown", String, self.shutdown_callback)
 
-        self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(self.sensor_data,),daemon=True)
-        self.sensor_read_thread.start()
+        # self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(self.sensor_data,),daemon=True)
+        # self.sensor_read_thread.start()
 
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
