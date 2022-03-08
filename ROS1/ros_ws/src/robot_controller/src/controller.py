@@ -241,7 +241,6 @@ class Controller:
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             if sensor_data["read"]:
-                print("Running")
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.relative_humidity
@@ -249,6 +248,7 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
+                print(sensor_data["temp"])
                 rate.sleep()
 
     def read_light(self, timer) -> None:
