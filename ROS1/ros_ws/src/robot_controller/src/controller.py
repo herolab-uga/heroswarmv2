@@ -243,7 +243,7 @@ class Controller:
             if sensor_data["read"]:
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
@@ -274,7 +274,7 @@ class Controller:
         environ_msg.pressure = float(self.sensor_data["pressure"])
 
         # Sets the humidity
-        environ_msg.humidity = float(self.sensor_data["humidity"][-1])
+        environ_msg.humidity = self.sensor_data["humidity"]
 
         # Sets the altitude
         environ_msg.altitude = float(self.sensor_data["altitude"])
