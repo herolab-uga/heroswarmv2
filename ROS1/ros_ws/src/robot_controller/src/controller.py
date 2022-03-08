@@ -220,7 +220,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     def read_sensors(self,sensor_data):
-        rate = rospy.Rate(5)
+        rate = rospy.Rate(60)
 
         # Creates sensor objects
         self.light = APDS9960(self.i2c)
