@@ -299,8 +299,9 @@ class Controller:
             message = "0,"
             for value in values: message += str(float(value)) + ","
             print(message)
-            self.uart_bus.write(message.encode())
+            self.uart_bus.write(message[0:-1].encode())
             ack = self.uart_bus.readline().decode().strip()
+            print(ack)
 
             if ack == "error": self.send_velocity(values)
 
