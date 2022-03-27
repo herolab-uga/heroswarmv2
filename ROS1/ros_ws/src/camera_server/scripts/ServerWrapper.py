@@ -5,7 +5,8 @@ import rospy
 import numpy as np
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import StringList, Robot_Pos
+from robot_msgs.msg import StringList, Robot_Pos,Light
+from std_msgs.msg import Int16
 
 class ServerWrapper():
     
@@ -42,11 +43,28 @@ class ServerWrapper():
                 "cmd_vel":[0,0,0],
                 "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
                 "point":[0,0],
-                "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1)
+                "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1),
+                "light_sub":rospy.Subscriber("/{robot_name}/light".format(robot_name=name),Light,self.light_callback,(i)),
+                "prox_sub":rospy.Subscriber("/{robot_name}/proximity".format(robot_name=name),Int16,self.prox_callback,(i)),
+                "light_sensor": {"rgbw":None,
+                                 "proximity":None}
             }
             
             self.active_bots[i] = dict_entry
             self.active_bots[name] = dict_entry
+
+    def prox_callback(self,msg,id):
+        try:
+            self.active_bots[id]["light_sensor"]["proximity"] = msg.data
+        except KeyError:
+            print("Id {id} not found".format(id=id))
+
+    def light_callback(self,msg,id):
+        try:
+            self.active_bots[id]["light_sensor"]["rgbw"] = msg.light.rgbw
+        except KeyError:
+            print("Id {id} not found".format(id=id))
+        
     
     def odom_callback(self,msg,id):
         x_vel = msg.twist.twist.linear.x
@@ -56,6 +74,7 @@ class ServerWrapper():
         x_pos = msg.pose.pose.position.x
         y_pos = msg.pose.pose.position.y
         theta = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
+        
         try:
             self.active_bots[id]["vel"] = [x_vel,y_vel,omega]
             self.active_bots[id]["odom_pos"] = [x_pos,y_pos,theta]
@@ -71,14 +90,17 @@ class ServerWrapper():
                 theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
             except KeyError:
                 print("Key {key} not found".format(key=i))
+                continue
             except IndexError:
                 print("Index {index} out of bounds".format(index=i))
+                continue
             try:
                 active_bots[name]["global_pos"] = [x,y,theta]
             except KeyError:
                 print("Key {key} not found".format(key=name))
+                continue
                 
-    def step(self,rate=10,time=1000):
+    def step(self,rate=10,time=100):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
@@ -88,6 +110,10 @@ class ServerWrapper():
                     else:
                         self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["point"])
             pub_rate.sleep()
+    
+    def stop(self):
+        self.set_velocities([[0.0,0.0,]]*self.num_active_bots)
+        self.step()
             
     def set_velocities(self,vel_list):
         for (index,vel) in enumerate(vel_list):
@@ -122,6 +148,13 @@ class ServerWrapper():
             if type(active_bot) == str:
                 velocities.append(self.active_bots[active_bot]["vel"])
         return velocities
+
+    def get_proximity(self):
+        prox = []
+        for active_bot in self.active_bots:
+            if type(active_bot) == str:
+                prox.append(self.active_bots[active_bot]["proximity "])
+        return prox
 
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
