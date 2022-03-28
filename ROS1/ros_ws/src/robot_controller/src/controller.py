@@ -1,14 +1,14 @@
 #! /usr/bin/python3
 
-import json
+from concurrent.futures import thread
 import math
-import multiprocessing as mp
-import os
 import struct
 import threading
 import time
-from concurrent.futures import thread
-from subprocess import call
+import json
+import os
+import threading
+import multiprocessing as mp
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -16,15 +16,15 @@ import adafruit_sht31d
 import board
 import numpy as np
 import rospy
-import serial
 import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-from geometry_msgs.msg import Point, Twist
+from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String
+from subprocess import call
 
 
 class Controller:
@@ -220,7 +220,7 @@ class Controller:
     #     self.mic_pub.publish(mic_msg)
 
     def read_sensors(self,sensor_data):
-        rate = rospy.Rate(60)
+        rate = rospy.Rate(5)
 
         # Creates sensor objects
         self.light = APDS9960(self.i2c)
@@ -243,7 +243,7 @@ class Controller:
             if sensor_data["read"]:
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
@@ -256,11 +256,9 @@ class Controller:
 
         # Sets the current rgbw value array
         light_msg.rgbw = self.sensor_data["rgbw"]
-        light_msg.rgbw = self.light.color_data
 
         # Sets the gesture type
-        # light_msg.gesture = self.sensor_data["gesture"]
-        light_msg.gesture = self.light.gesture()
+        light_msg.gesture = self.sensor_data["gesture"]
 
         # Publishes the message
         self.light_pub.publish(light_msg)
@@ -270,20 +268,16 @@ class Controller:
         environ_msg = Environment()
 
         # Sets the temperature
-        # environ_msg.temp = float(self.sensor_data["temp"])
-        environ_msg.temp = self.bmp.temperature
+        environ_msg.temp = self.sensor_data["temp"]
 
         # Sets the pressure
-        # environ_msg.pressure = float(self.sensor_data["pressure"])
-        environ_msg.pressure = self.bmp.pressure
+        environ_msg.pressure = self.sensor_data["pressure"]
 
         # Sets the humidity
-        # environ_msg.humidity = self.sensor_data["humidity"]
-        environ_msg.humidity = self.humidity_sensor.relative_humidity[0]
+        environ_msg.humidity = self.sensor_data["humidity"]
 
         # Sets the altitude
-        # environ_msg.altitude = float(self.sensor_data["altitude"])
-        environ_msg.altitude = self.bmp.altitude
+        environ_msg.altitude = self.sensor_data["altitude"]
 
         # Publishes the message
         self.environment_pub.publish(environ_msg)
@@ -293,8 +287,7 @@ class Controller:
         proximity_msg = Int16()
 
         # Sets the proximity value
-        # proximity_msg.data = self.sensor_data["prox"]
-        proximity_msg.data = self.light.proximity
+        proximity_msg.data = self.sensor_data["prox"]
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -302,21 +295,24 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_velocity(self, values):
-        if not (values[0] == self.linear_x_velo and values[1] == self.linear_y_velo and values[2] == self.angular_z_velo):
-            message = "0,"
-            for value in values: message += str(float(value)) + ","
-            print(message)
-            self.uart_bus.write(message[0:-1].encode())
-            ack = self.uart_bus.readline().decode().strip()
-            print(ack)
+        byteList = []
 
-            if ack == "error": self.send_velocity(values)
+        # Converts the values to bytes
+        for value in values:
+            byteList += list(struct.pack('f', value))
+        # fails to send last byte over I2C, hence this needs to be added
+        byteList.append(0)
 
-            self.linear_x_velo = values[0]
+        # Writes the values to the i2c
+        self.bus.write_i2c_block_data(
+            self.arduino, byteList[0], byteList[1:12])
 
-            self.linear = values[1]
+        self.linear_x_velo = values[0]
 
-            self.angular_z_velo = values[2]
+        self.linear = values[1]
+
+        self.angular_z_velo = values[2]
+        self.sensor_data["read"] = True
 
 
     def move_to_angle(self,angle):
@@ -387,24 +383,7 @@ class Controller:
         self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
-        self.uart_bus = serial.Serial("/dev/ttyS0",9600)
-        self.uart_bus.timeout = .005
         self.name = rospy.get_namespace()
-
-        self.light = APDS9960(self.i2c)
-        self.light.enable_proximity = True
-        self.light.enable_gesture = True
-        self.light.enable_color = True
-
-        
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-        # Creates the i2c interface for the bmp sensor
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-
-        # Creates the i2c interface for the humidity sensor
-        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
-        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
-        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
         self.sensor_data = {
             "read":True,
@@ -460,28 +439,28 @@ class Controller:
         # Creates shutdown hook
         self.shutdown_sub = rospy.Subscriber("shutdown", String, self.shutdown_callback)
 
-        # self.sensor_read_thread = threading.Thread(target=self.read_sensors,args=(self.sensor_data,),daemon=True)
+        self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
         # self.sensor_read_thread.start()
 
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
             self.environment_pub = rospy.Publisher("environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/20),self.read_environment)
+            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
+            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
+            # self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/30),self.read_proximity)
+            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
 
         # print("Ready")
 
