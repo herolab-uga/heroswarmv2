@@ -11,11 +11,20 @@ si_barrier_cert = create_single_integrator_barrier_certificate_with_boundary()
 # Create SI to UNI dynamics tranformation
 si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 
-num_robots = 4
+import signal
+import sys
+
+
+num_robots = 2
 
 wrapper = ServerWrapper(num_robots)
 
-iterations = 250
+def signal_handler(sig, frame):
+    wrapper.stop()    
+
+signal.signal(signal.SIGINT, signal_handler)
+
+iterations = 1000000
 
 for iteration in range(iterations):
 
@@ -34,10 +43,11 @@ for iteration in range(iterations):
         vels.append([x_sum,y_sum])
     
     # passing current pos remove theta
-    vels = si_barrier_cert(np.asarray(vels).transpose(),np.asarray(current_pos_xy).transpose())
+    # vels = si_barrier_cert(np.asarray(vels).transpose(),np.asarray(current_pos_xy).transpose())
 
-    vels = si_to_uni_dyn(vels,np.asarray(current_pos).transpose())
+    vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose())
 
     wrapper.set_velocities(vels.transpose())
-    wrapper.step(time=50)
+    wrapper.step(rate=2,time=500)
+wrapper.stop()
 

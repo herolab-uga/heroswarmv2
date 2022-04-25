@@ -30,7 +30,6 @@ class ServerWrapper():
 
     def name_callback(self,msg):
         for i in range(self.num_active_bots,self.selected_bots):
-            self.num_active_bots += 1
             name = msg.names[i].data
 
             dict_entry =  {
@@ -42,16 +41,16 @@ class ServerWrapper():
                 "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
                 "cmd_vel":[0,0,0],
                 "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
-                "point":[0,0],
+                "point":None,
                 "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1),
                 "light_sub":rospy.Subscriber("/{robot_name}/light".format(robot_name=name),Light,self.light_callback,(i)),
                 "prox_sub":rospy.Subscriber("/{robot_name}/proximity".format(robot_name=name),Int16,self.prox_callback,(i)),
                 "light_sensor": {"rgbw":None,
                                  "proximity":None}
             }
-            
             self.active_bots[i] = dict_entry
             self.active_bots[name] = dict_entry
+            self.num_active_bots += 1
 
     def prox_callback(self,msg,id):
         try:
@@ -65,7 +64,6 @@ class ServerWrapper():
         except KeyError:
             print("Id {id} not found".format(id=id))
         
-    
     def odom_callback(self,msg,id):
         x_vel = msg.twist.twist.linear.x
         y_vel = msg.twist.twist.linear.y
@@ -100,7 +98,7 @@ class ServerWrapper():
                 print("Key {key} not found".format(key=name))
                 continue
                 
-    def step(self,rate=10,time=1000):
+    def step(self,rate=10,time=100):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
@@ -126,14 +124,16 @@ class ServerWrapper():
     def set_points(self,points):
         for (index,point) in enumerate(points):
             if not point == None:
+                msg = Point()
+                msg.x = point[0]
+                msg.y = point[1]
                 self.active_bots[index]["vel_control"] = False
-                self.active_bots[index]["to_point"] = Point(point[0],point[1],0.0)
+                self.active_bots[index]["point"] = msg
 
     def get_odom_pos(self):
         odom_pos = []
         for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                odom_pos.append(self.active_bots[active_bot]["odom_pos"])
+            odom_pos.append(self.active_bots[active_bot]["odom_pos"])
         return odom_pos
     
     def get_position_global(self):
@@ -154,20 +154,22 @@ class ServerWrapper():
         prox = []
         for active_bot in self.active_bots:
             if type(active_bot) == str:
-                prox.append(self.active_bots[active_bot]["proximity"])
+                prox.append(self.active_bots[active_bot]["proximity "])
         return prox
 
-    def get_active(self):
-        return self.active_bots
+    def get_robot_names(self):
+        name = []
+        for active_bot in self.active_bots:
+            if type(active_bot) == int:
+                name.append(self.active_bots[active_bot]["name"])
+        return name
 
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
         self.selected_bots = selected_bots
         self.active_bots = {}
-        self.velocity_subs = []
-        self.obom_subs = []
         self.num_active_bots = 0
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
-        time.sleep(.5)
+        while self.num_active_bots < self.selected_bots:
+            continue
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.position_callback,(self.active_bots))
-        time.sleep(.5)
