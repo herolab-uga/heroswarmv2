@@ -10,7 +10,7 @@ from multiprocessing import Process, Queue
 import apriltag
 import cv2
 import numpy as np
-import ROS1.ros_ws.src.camera_server.src.distributed_controller as distributed_controller
+import distributed_controller as distributed_controller 
 import rospy
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos, StringList
