@@ -1,1 +1,1 @@
-std_msgs/String[] names
+std_msgs/String[] data
