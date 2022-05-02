@@ -14,7 +14,9 @@ import distributed_controller as distributed_controller
 import rospy
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos, StringList
+from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
 from std_msgs.msg import String
+from geometry_msgs import Pose
 
 
 class CameraServer():
@@ -94,8 +96,27 @@ class CameraServer():
                     center_transform = self.transform(center)
 
                     # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
+                    if detection.tag_id in self.charger_tags and not detection.tag_id in self.close_chargers:
+                        
+                        (forward_dif,angle) = self.heading_dir(detection.corners,center)
 
-                    if not detection.tag_id in self.reference_tags:
+                        temp = Pose()
+                        
+                        temp.position.x = center_transform[0]
+                        temp.position.y = center_transform[1]
+                        temp.position.z = 0.0
+
+                        q = self.quaternion_from_rpy(0,0,angle)
+
+                        temp.orientation.x = q[0]
+                        temp.orientation.y = q[1]
+                        temp.orientation.z = q[2]
+                        temp.orientation.w = q[3]
+
+                        
+                        self.charger_tags[detection.tag_id] = temp
+
+                    elif not detection.tag_id in self.reference_tags:
                         # Gets the forward direction
                         (forward_dir, angle) = self.heading_dir(detection.corners, center)
 
@@ -191,7 +212,18 @@ class CameraServer():
         cMidPt[0] = cMidPt[0] + 50 * math.cos(theta)
         cMidPt[1] = cMidPt[1] + 50 * math.sin(theta)
         newmidPt = cMidPt + center
-        return (newmidPt, theta)   
+        return (newmidPt, theta)
+
+    def handle_get_charger(self,req):
+
+        open_charger = list(self.open_chargers)[0]
+        self.closed_chargers.append(open_charger)
+        return GetChargerResponse(open_charger)
+
+    def handle_release_charger(self,req):
+
+        self.closed_chargers.remove(req.id)
+        return ReleaseChargerResponse(True)
 
     def __init__(self):
 
@@ -202,6 +234,10 @@ class CameraServer():
         self.transform_matrix = None
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
+        self.charger_tags = [500]
+
+        self.open_chargers = {}
+        self.closed_chargers = []
 
         self.x_distance = 2.413
         self.y_distance = 1.74625 #67.5 #1.7145
@@ -235,15 +271,22 @@ class CameraServer():
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
+        get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
+        release_charger = rospy.Serive("release_charger",ReleaseCharger,self.handle_release_charger)
+
         self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
+        
         self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=())
         self.connection_manager_thread.start()
+        
         self.image_queue = Queue(maxsize=1)
+        
         self.camera_process = Process(target=self.read_frame,args=(self.image_queue,))
         self.camera_process.start()
+
         self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue,),daemon=True)
         self.position_tracking_thread.start()
 
