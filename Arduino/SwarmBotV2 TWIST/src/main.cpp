@@ -1,15 +1,21 @@
-#include <Wire.h>
-#include <Swarmbot.h>
 
+#include <Arduino.h> 
+#include <Swarmbot.h>
+#include <Wire.h>
+#include <Adafruit_NeoPixel.h>
 SwarmBot steve; 
 imu IMU;
 
 int timer = 0;
-bool SerialFlag = false;
+bool serialFlag = false;
 bool driveMode = true;
 float targetX, targetY, linearVelocity, angularVelocity;
-float inputArray[3];
+float inputArray[4];
 float scaleFactor = 0;
+//float data[5];
+float measuredvbat  = 0;
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
 
 void leftInterrupt(){
   steve.updateLeftEncoder();
@@ -18,22 +24,63 @@ void rightInterrupt(){
   steve.updateRightEncoder();
 }
 
+union BytesToFloat {
+    byte valueBuffer[12];
+    float valueReading[3];    
+} converter;
+
+void printInfo(){
+    for(uint8_t index = 0; index<3; index++){
+        Serial.print("The number is: ");
+        float data = converter.valueReading[index];
+        Serial.println(data);
+        inputArray[index] = data;
+    }
+
+    serialFlag = false;
+}
+void receiveEvent(int byteCount){
+    for(uint8_t index = 0; index<byteCount; index++){
+        converter.valueBuffer[index] = Wire.read();
+    }
+    serialFlag = true;
+}
+
 void sendEvent(){
-  float odometryData[5];
-  odometryData[0] = steve.getX();
-  odometryData[1] = steve.getY();
-  odometryData[2] = steve.getHeading();
-  odometryData[3] = steve.getLinearVel();
-  odometryData[4] = steve.getAngularVel();
-  Wire.write((byte*)odometryData, sizeof(odometryData));
+  float data[6];
+  data[0] = steve.getX();
+  data[1] = steve.getY();
+  data[2] = steve.getHeading();
+  data[3] = steve.getLinearVel();
+  data[4] = steve.getAngularVel();
+  data[5] = measuredvbat;
+  Serial.print("Get X: ");
+  Serial.println(data[0]);
+  Wire.write((byte*)data, sizeof(data));
+  //Serial.println(steve.getX(),8);
+}
+
+void interpretData(float array[4]){
+  switch((int) array[0]){
+    case 0:
+      linearVelocity = array[1];
+      angularVelocity = array[3];
+      steve.setPIDSetpoint(linearVelocity,angularVelocity);
+      break;
+    case 1:
+      pixels.clear();
+      pixels.setPixelColor(0, pixels.Color(array[1], array[2], array[3]));
+      pixels.show();
+    default:
+      break;
+  }
 }
 void setup() {
+  //IMU.setupIMU();
 
   Wire.begin(0x8);
+  Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
-
-  Serial1.begin(9600);
-  Serial.begin(9600);
 
   attachInterrupt(steve.getLeftEncoderA(), leftInterrupt, CHANGE);
   attachInterrupt(steve.getLeftEncoderB(), leftInterrupt, CHANGE);
@@ -41,12 +88,31 @@ void setup() {
   attachInterrupt(steve.getRightEncoderA(), rightInterrupt, CHANGE);
   attachInterrupt(steve.getRightEncoderB(), rightInterrupt, CHANGE);
   steve.initializePorts();
-  delay(500);
+  Serial.begin(115200);
+  
+  Serial.print("ready");
+
+  pinMode(A6,INPUT);
+
+  pixels.begin();
+  pixels.clear();
+  pixels.setBrightness(255);
+  pixels.show();
+
+  delay(1000);
 }
 
 void loop() {
+  measuredvbat = analogRead(A6);
+  measuredvbat *= 2; // we divided by 2, so multiply back
+  measuredvbat *= 3.6; // Multiply by 3.6V, our reference voltage
+  measuredvbat /= 1024; // convert to voltage
 
   steve.updateOdometery();
+
+  if(serialFlag){
+    interpretData(inputArray);
+  }
   
   if (Serial1.available()){
     Serial.println("avalible");
