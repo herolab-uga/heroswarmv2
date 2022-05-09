@@ -413,9 +413,9 @@ class Controller:
                 except rospy.ServiceException as exc:
                     print("Get service did not process request: " + str(exc))
 
-    def neoPixel_callback(self,msg):
+    def neopixel_callback(self,msg):
         print(msg.data)
-        self.send_values(*msg.data,1)
+        self.send_values(msg.data,1)
 
     def pub_battery(self,timer):
         battery_msg = Float32()
@@ -528,7 +528,7 @@ class Controller:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
             # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
 
-        self.neopixel_subscriber = rospy.Subscriber("neopixel",Int16MultiArray,self.neoPixel_callback)
+        self.neopixel_subscriber = rospy.Subscriber("neopixel",Int16MultiArray,self.neopixel_callback)
 
         # print("Ready")
 
