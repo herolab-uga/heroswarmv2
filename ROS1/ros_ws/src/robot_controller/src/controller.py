@@ -255,6 +255,7 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
+                print(sensor_data["prox"])
                 rate.sleep()
 
     def read_light(self, timer) -> None:
