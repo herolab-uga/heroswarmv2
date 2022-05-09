@@ -413,6 +413,10 @@ class Controller:
     def neoPixel_callback(self,msg):
         self.send_values(*msg.data)
 
+    def pub_battery(self):
+        battery_msg = Float32()
+        battery_msg.data = self.sensor_data["battery"]
+        self.battery_pub.publish(battery_msg)
 
     def __init__(self):
         # print("Start")
@@ -487,7 +491,7 @@ class Controller:
         self.read_arduino_data_timer = rospy.Timer(rospy.Duration(1/10),self.read_arduino_data)
 
         # Publish the batterry level on the battery topic with at 5hz 
-        self.battery_timer = rospy.Timer(rospy.Duration(1/5),lambda x: self.battery_pub.publish(Float32(self.sensor_data["battery"])))
+        self.battery_timer = rospy.Timer(rospy.Duration(1/5),self.pub_battery)
 
         # Creates position control topic
         self.position_sub = rospy.Subscriber("to_point",Point,self.move_to_point)
