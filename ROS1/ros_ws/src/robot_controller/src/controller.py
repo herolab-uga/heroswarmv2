@@ -502,7 +502,7 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber("shutdown", String, self.shutdown_callback)
 
         self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
-        # self.sensor_read_thread.start()
+        self.sensor_read_thread.start()
 
         self.auto_charge_timer = rospy.Timer(rospy.Duration(1/60),self.auto_charge)
 
