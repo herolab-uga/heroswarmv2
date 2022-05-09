@@ -16,9 +16,9 @@ class PositionController():
         rospy.init_node("Posistion_Controller", anonymous=True)
 
         self.odom_node = rospy.Subscriber(
-            "/swarmbilly1/position", Odometry, self.read_pos)
+            "/swarmapril1/position", Odometry, self.read_pos)
         self.twist_pub = rospy.Publisher(
-            "/swarmbilly1/cmd_vel", Twist, queue_size=0)
+            "/swarmapril1/cmd_vel", Twist, queue_size=0)
         self.point_sub = rospy.Subscriber(
             "to_point", Point, self.move_to_point_topic)
         self.position = {}
