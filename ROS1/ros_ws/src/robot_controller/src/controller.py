@@ -302,7 +302,6 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_values(self,values=None,opcode = 0):
-        print(values)
         # Converts the values to bytes
         byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
@@ -414,7 +413,6 @@ class Controller:
                     print("Get service did not process request: " + str(exc))
 
     def neopixel_callback(self,msg):
-        print(msg.data)
         self.send_values(msg.data,1.0)
 
     def pub_battery(self,timer):
@@ -521,12 +519,12 @@ class Controller:
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            # self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
+            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
 
         self.neopixel_subscriber = rospy.Subscriber("neopixel",Int16MultiArray,self.neopixel_callback)
 
