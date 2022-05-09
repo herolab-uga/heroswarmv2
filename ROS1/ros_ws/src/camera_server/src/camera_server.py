@@ -16,7 +16,7 @@ from nav_msgs.msg import Odometry
 from robot_msgs.msg import Robot_Pos, StringList
 from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
 from std_msgs.msg import String
-from geometry_msgs import Pose
+from geometry_msgs.msg import Pose
 
 
 class CameraServer():
@@ -272,8 +272,8 @@ class CameraServer():
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
-        release_charger = rospy.Serive("release_charger",ReleaseCharger,self.handle_release_charger)
+        self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
+        self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
 
         self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
         self.positions = None
