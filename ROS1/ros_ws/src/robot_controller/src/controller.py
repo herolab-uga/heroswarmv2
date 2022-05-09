@@ -304,7 +304,7 @@ class Controller:
     def send_values(self,values=None,opcode = 0):
         print(values)
         # Converts the values to bytes
-        byteList = list(struct.pack("i", opcode)) + list(struct.pack('fff', *values))
+        byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
@@ -415,7 +415,7 @@ class Controller:
 
     def neopixel_callback(self,msg):
         print(msg.data)
-        self.send_values(msg.data,1)
+        self.send_values(msg.data,1.0)
 
     def pub_battery(self,timer):
         battery_msg = Float32()
