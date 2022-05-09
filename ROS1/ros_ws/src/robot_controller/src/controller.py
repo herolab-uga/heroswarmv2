@@ -126,6 +126,7 @@ class Controller:
             self.odom_pub.publish(odom_msg)
         except OSError as e:
             return 1
+
     def read_twist(self, msg, event=None) -> None:
         self.sensor_data["read"] = False
         x_velo = 0
@@ -410,6 +411,7 @@ class Controller:
                     print("Get service did not process request: " + str(exc))
 
     def neoPixel_callback(self,msg):
+        print(msg)
         self.send_values(*msg.data,1)
 
     def pub_battery(self,timer):
