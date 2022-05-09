@@ -255,7 +255,6 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                print(sensor_data["prox"])
                 rate.sleep()
 
     def read_light(self, timer) -> None:
@@ -522,12 +521,12 @@ class Controller:
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/25),self.read_light)
+            self.light_timer = rospy.Timer(rospy.Duration(1/5),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/5),self.read_proximity)
 
         self.neopixel_subscriber = rospy.Subscriber("neopixel",Int16MultiArray,self.neopixel_callback)
 
