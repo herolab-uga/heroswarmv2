@@ -91,8 +91,6 @@ class Controller:
 
         data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
 
-        print(data)
-
         # Get odom data from arduino
         for index in range(len(data)):
             bytes = bytearray()
