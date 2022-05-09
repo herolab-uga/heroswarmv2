@@ -214,12 +214,13 @@ class CameraServer():
         newmidPt = cMidPt + center
         return (newmidPt, theta)
 
+    # Get a charger
     def handle_get_charger(self,req):
-
         open_charger = list(self.open_chargers)[0]
         self.closed_chargers.append(open_charger)
-        return GetChargerResponse(open_charger)
+        return GetChargerResponse(id = open_charger, position=open_charger)
 
+    # Release the charger when done charging
     def handle_release_charger(self,req):
 
         self.closed_chargers.remove(req.id)
