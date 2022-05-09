@@ -299,7 +299,7 @@ class Controller:
 
     # Sending an float to the arduino
     # Message format []
-    def send_values(self,opcode = 0,values=None):
+    def send_values(self,values=None,opcode = 0):
         # Converts the values to bytes
         byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
@@ -409,7 +409,7 @@ class Controller:
                     print("Get service did not process request: " + str(exc))
 
     def neoPixel_callback(self,msg):
-        self.send_values(1,*msg.data)
+        self.send_values(*msg.data,1)
 
     def pub_battery(self,timer):
         battery_msg = Float32()
