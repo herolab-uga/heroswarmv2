@@ -87,9 +87,10 @@ class Controller:
         # Creates the odom message
         odom_msg = Odometry()
 
+        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
         data = self.bus.read_i2c_block_data(self.arduino, 0)
 
-        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         print(data)
 
         # Get odom data from arduino
