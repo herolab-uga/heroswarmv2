@@ -101,7 +101,7 @@ class Controller:
             data[index] = struct.unpack('f', bytes)[0]
 
         # Updates Battery Level
-        self.sensor_data["battery"] = data
+        self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
         theta = np.deg2rad(data[2]) #+ self.position["orientation"]
@@ -413,7 +413,7 @@ class Controller:
     def neoPixel_callback(self,msg):
         self.send_values(*msg.data)
 
-    def pub_battery(self):
+    def pub_battery(self,timer):
         battery_msg = Float32()
         battery_msg.data = self.sensor_data["battery"]
         self.battery_pub.publish(battery_msg)
