@@ -43,9 +43,9 @@ for iteration in range(iterations):
         vels.append([x_sum,y_sum])
     
     # passing current pos remove theta
-    # vels = si_barrier_cert(np.asarray(vels).transpose(),np.asarray(current_pos_xy).transpose())
+    vels = si_barrier_cert(np.asarray(vels).transpose(),np.asarray(current_pos_xy).transpose())
 
-    vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose())
+    vels = si_to_uni_dyn(vels,np.asarray(current_pos).transpose())
 
     wrapper.set_velocities(vels.transpose())
     wrapper.step(rate=2,time=500)
