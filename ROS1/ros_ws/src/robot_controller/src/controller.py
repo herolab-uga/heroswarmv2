@@ -440,7 +440,9 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.sensor_data = {
+        self.manager = mp.Manager()
+
+        self.sensor_data = self.manager.dict({
             "read":True,
             "temp":0.0,
             "pressure":0.0,
@@ -450,7 +452,7 @@ class Controller:
             "gesture":0,
             "prox":0,
             "battery":None
-        }
+        })
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -520,12 +522,12 @@ class Controller:
         # Creates a publisher for the light sensor
         if self.light_sensor:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(rospy.Duration(1/10),self.read_light)
+            self.light_timer = rospy.Timer(rospy.Duration(1/25),self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
             self.prox_pub = rospy.Publisher("proximity",Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_proximity)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/25),self.read_proximity)
 
         self.neopixel_subscriber = rospy.Subscriber("neopixel",Int16MultiArray,self.neopixel_callback)
 
