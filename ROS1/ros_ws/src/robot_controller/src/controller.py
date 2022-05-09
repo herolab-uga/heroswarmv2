@@ -89,15 +89,15 @@ class Controller:
 
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-        data = self.bus.read_i2c_block_data(self.arduino, 0)
+        data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
 
         print(data)
 
         # Get odom data from arduino
-        for index in range(5):
+        for index in range(len(data)):
             bytes = bytearray()
             for i in range(4):
-                bytes.append(data[4*index + i])
+                bytes.append(data_pre_conv[4*index + i])
             data[index] = struct.unpack('f', bytes)[0]
 
         # Updates Battery Level
