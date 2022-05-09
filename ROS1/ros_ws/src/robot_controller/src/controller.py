@@ -405,7 +405,7 @@ class Controller:
                     try:
                         release = release_charger(charger.id)
                     except rospy.ServiceException as exc:
-                    print("Release service did not process request: " + str(exc))
+                        print("Release service did not process request: " + str(exc))
                 except rospy.ServiceException as exc:
                     print("Get service did not process request: " + str(exc))
 
