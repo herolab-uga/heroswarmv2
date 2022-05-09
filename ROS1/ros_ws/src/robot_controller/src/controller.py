@@ -309,7 +309,7 @@ class Controller:
 
         # Writes the values to the i2c
         self.bus.write_i2c_block_data(
-            self.arduino, byteList[0], byteList[1:16])
+            self.arduino, byteList[0], byteList[1:17])
 
         self.linear_x_velo = values[0]
 
@@ -411,7 +411,7 @@ class Controller:
                     print("Get service did not process request: " + str(exc))
 
     def neoPixel_callback(self,msg):
-        print(msg)
+        print(msg.data)
         self.send_values(*msg.data,1)
 
     def pub_battery(self,timer):
