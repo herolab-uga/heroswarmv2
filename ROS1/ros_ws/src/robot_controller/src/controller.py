@@ -92,14 +92,14 @@ class Controller:
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
         # Get odom data from arduino
-        for index in range(len(data)):
+        for index in range(5):
             bytes = bytearray()
             for i in range(4):
                 bytes.append(data[4*index + i])
             data[index] = struct.unpack('f', bytes)[0]
 
         # Updates Battery Level
-        self.sensor_data["battery"] = (data[5] * 4.2)/4096
+        self.sensor_data["battery"] = data
 
         # Adds Twist data
         theta = np.deg2rad(data[2]) #+ self.position["orientation"]
@@ -299,9 +299,9 @@ class Controller:
 
     # Sending an float to the arduino
     # Message format []
-    def send_values(self, values):
+    def send_values(self, opcode,values):
         # Converts the values to bytes
-        byteList = list(struct.pack("f", 1.0)) + list(struct.pack('fff', *values))
+        byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
@@ -371,7 +371,7 @@ class Controller:
         elif msg.data == "restart_ros":
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
-    def auto_charge(self):
+    def auto_charge(self,timer):
         if self.sensor_data["battery"] <= 3.2:
             battery_voltage = self.sensor_data["battery"]
             self.twist_sub.shutdown()
