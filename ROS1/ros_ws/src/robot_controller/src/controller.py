@@ -89,42 +89,43 @@ class Controller:
 
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-        data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
+        try:
+            data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
+            # Get odom data from arduino
+            for index in range(len(data)):
+                bytes = bytearray()
+                for i in range(4):
+                    bytes.append(data_pre_conv[4*index + i])
+                data[index] = struct.unpack('f', bytes)[0]
 
-        # Get odom data from arduino
-        for index in range(len(data)):
-            bytes = bytearray()
-            for i in range(4):
-                bytes.append(data_pre_conv[4*index + i])
-            data[index] = struct.unpack('f', bytes)[0]
+            # Updates Battery Level
+            self.sensor_data["battery"] = data[5]
 
-        # Updates Battery Level
-        self.sensor_data["battery"] = data[5]
+            # Adds Twist data
+            theta = np.deg2rad(data[2]) #+ self.position["orientation"]
+            odom_msg.twist.twist.linear.x = data[3]
+            odom_msg.twist.twist.linear.y = data[4]
+            odom_msg.twist.twist.linear.z = 0.0
 
-        # Adds Twist data
-        theta = np.deg2rad(data[2]) #+ self.position["orientation"]
-        odom_msg.twist.twist.linear.x = data[3]
-        odom_msg.twist.twist.linear.y = data[4]
-        odom_msg.twist.twist.linear.z = 0.0
+            odom_msg.twist.twist.angular.x = 0.0
+            odom_msg.twist.twist.angular.y = 0.0
+            odom_msg.twist.twist.angular.z = data[4]
 
-        odom_msg.twist.twist.angular.x = 0.0
-        odom_msg.twist.twist.angular.y = 0.0
-        odom_msg.twist.twist.angular.z = data[4]
+            odom_msg.pose.pose.position.x = data[0] #+ self.position["x"] 
+            odom_msg.pose.pose.position.y = data[1] #+ self.position["y"]
+            odom_msg.pose.pose.position.z = 0.0
 
-        odom_msg.pose.pose.position.x = data[0] #+ self.position["x"] 
-        odom_msg.pose.pose.position.y = data[1] #+ self.position["y"]
-        odom_msg.pose.pose.position.z = 0.0
+            quaternion = self.quaternion_from_rpy(0,0,theta)
 
-        quaternion = self.quaternion_from_rpy(0,0,theta)
-
-        odom_msg.pose.pose.orientation.x = quaternion[0]
-        odom_msg.pose.pose.orientation.y = quaternion[1]
-        odom_msg.pose.pose.orientation.z = quaternion[2]
-        odom_msg.pose.pose.orientation.w = quaternion[3]
+            odom_msg.pose.pose.orientation.x = quaternion[0]
+            odom_msg.pose.pose.orientation.y = quaternion[1]
+            odom_msg.pose.pose.orientation.z = quaternion[2]
+            odom_msg.pose.pose.orientation.w = quaternion[3]
 
 
-        self.odom_pub.publish(odom_msg)
-
+            self.odom_pub.publish(odom_msg)
+        except OSError as e:
+            return 1
     def read_twist(self, msg, event=None) -> None:
         self.sensor_data["read"] = False
         x_velo = 0
