@@ -468,9 +468,6 @@ class Controller:
             self.pos_sub_global = rospy.Subscriber("/positions", Robot_Pos, self.get_pos_global)
         else:
             self.pos_sub_namespace = rospy.Subscriber("position", Odometry, self.get_pos)
-        
-        # Gets the list of open chargers
-        self.chargers = rospy.Subscriber("/chargers",StringList,self.charger_list)
 
         # Creates the twist publisher
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
