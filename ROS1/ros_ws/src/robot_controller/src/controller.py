@@ -302,6 +302,7 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_values(self,values=None,opcode = 0):
+        print(values)
         # Converts the values to bytes
         byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
