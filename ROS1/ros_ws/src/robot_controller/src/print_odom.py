@@ -16,7 +16,7 @@ class PrintOdom():
     def __init__(self) -> None:
         rospy.init_node("read_odom", anonymous=True)
         self.odom_node = rospy.Subscriber(
-            "/swarmbilly1/position", Odometry, self.read_pos)
+            "/swarmapril1/position", Odometry, self.read_pos)
         self.positions = {}
 
     def rpy_from_quaternion(self, quaternion):
