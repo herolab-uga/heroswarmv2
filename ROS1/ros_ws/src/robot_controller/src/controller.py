@@ -90,6 +90,7 @@ class Controller:
         data = self.bus.read_i2c_block_data(self.arduino, 0)
 
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        print(data)
 
         # Get odom data from arduino
         for index in range(5):
@@ -372,40 +373,41 @@ class Controller:
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
     def auto_charge(self,timer):
-        if self.sensor_data["battery"] <= 3.2:
-            battery_voltage = self.sensor_data["battery"]
-            self.twist_sub.shutdown()
-            self.last_call["time"] == None
-            self.send_values([0,0,0])
-            rospy.wait_for_service("get_charger")
-            get_charger = rospy.ServiceProxy("get_charger",GetCharger)
-            try:
-                charger = get_charger(self.robot_name)
-                current_x = self.position["x"]
-                current_y = self.position["y"]
-                while math.sqrt(math.pow((charger.position.x + 0.0254 - current_x),2) + math.pow((charger.position.y - current_y),2)) < .05:
+        if not self.sensor_data["battery"] == None:
+            if self.sensor_data["battery"] <= 3.2:
+                battery_voltage = self.sensor_data["battery"]
+                self.twist_sub.shutdown()
+                self.last_call["time"] == None
+                self.send_values([0,0,0])
+                rospy.wait_for_service("get_charger")
+                get_charger = rospy.ServiceProxy("get_charger",GetCharger)
+                try:
+                    charger = get_charger(self.robot_name)
                     current_x = self.position["x"]
                     current_y = self.position["y"]
-                    self.move_to_point_handler(charger.position.x + 0.0254,charger[0].y)
-                self.move_to_angle(self.quaternion_from_rpy(charger.position.x.orientation))
-                self.send_values([-.1,0.0,0.0])
+                    while math.sqrt(math.pow((charger.position.x + 0.0254 - current_x),2) + math.pow((charger.position.y - current_y),2)) < .05:
+                        current_x = self.position["x"]
+                        current_y = self.position["y"]
+                        self.move_to_point_handler(charger.position.x + 0.0254,charger[0].y)
+                    self.move_to_angle(self.quaternion_from_rpy(charger.position.x.orientation))
+                    self.send_values([-.1,0.0,0.0])
 
-                while battery_voltage + .1 > self.sensor_data["battery"]:
-                    continue
+                    while battery_voltage + .1 > self.sensor_data["battery"]:
+                        continue
 
-                self.send_values([0,0.0,0.0])
+                    self.send_values([0,0.0,0.0])
 
-                while self.sensor_data["battery"] < 4.1: #busy wait is a bad idea what can i do here
-                    continue
+                    while self.sensor_data["battery"] < 4.1: #busy wait is a bad idea what can i do here
+                        continue
 
-                rospy.wait_for_service("release_charger")
-                release_charger = rospy.ServiceProxy("release_charger", release_charger)
-                try:
-                    release = release_charger(charger.id)
+                    rospy.wait_for_service("release_charger")
+                    release_charger = rospy.ServiceProxy("release_charger", release_charger)
+                    try:
+                        release = release_charger(charger.id)
+                    except rospy.ServiceException as exc:
+                    print("Release service did not process request: " + str(exc))
                 except rospy.ServiceException as exc:
-                 print("Release service did not process request: " + str(exc))
-            except rospy.ServiceException as exc:
-                 print("Get service did not process request: " + str(exc))
+                    print("Get service did not process request: " + str(exc))
 
     def neoPixel_callback(self,msg):
         self.send_values(*msg.data)
