@@ -312,7 +312,7 @@ class Controller:
 
         # Writes the values to the i2c
         self.bus.write_i2c_block_data(
-            self.arduino, byteList[0], byteList[1:17])
+            self.arduino, byteList[0], byteList[1:16])
 
         self.linear_x_velo = values[0]
 
