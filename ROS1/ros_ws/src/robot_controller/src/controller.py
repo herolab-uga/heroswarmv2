@@ -307,8 +307,6 @@ class Controller:
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
-        print(byteList)
-
         # Writes the values to the i2c
         self.bus.write_i2c_block_data(
             self.arduino, byteList[0], byteList[1:16])
@@ -340,7 +338,7 @@ class Controller:
         theta = self.position["orientation"]
 
         # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
-        print("Error: {error}".format(error=math.sqrt((x - current_x)**2 + (y - current_y)**2)))
+        # print("Error: {error}".format(error=math.sqrt((x - current_x)**2 + (y - current_y)**2)))
         if math.sqrt(math.pow((x - current_x),2) + math.pow((y - current_y),2)) < .05:
             self.send_values([0,0,0])
         else:
