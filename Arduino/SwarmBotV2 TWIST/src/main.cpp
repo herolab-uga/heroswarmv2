@@ -54,8 +54,8 @@ void sendEvent(){
   data[3] = steve.getLinearVel();
   data[4] = steve.getAngularVel();
   data[5] = measuredvbat;
-  Serial.print("Get X: ");
-  Serial.println(data[0]);
+  // Serial.print("Get X: ");
+  // Serial.println(data[0]);
   Wire.write((byte*)data, sizeof(data));
   //Serial.println(steve.getX(),8);
 }
@@ -77,6 +77,12 @@ void interpretData(float array[4]){
 }
 void setup() {
   //IMU.setupIMU();
+
+  measuredvbat = analogRead(A6);
+  measuredvbat *= 2; // we divided by 2, so multiply back
+  measuredvbat *= 3.6; // Multiply by 3.6V, our reference voltage
+  measuredvbat /= 1024; // convert to voltage
+
 
   Wire.begin(0x8);
   Wire.onReceive(receiveEvent);
