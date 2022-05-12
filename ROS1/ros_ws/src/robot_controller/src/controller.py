@@ -302,21 +302,27 @@ class Controller:
     # Sending an float to the arduino
     # Message format []
     def send_values(self,values=None,opcode = 0):
+        self.sensor_data["read"] = False
         # Converts the values to bytes
         byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
-        # Writes the values to the i2c
-        self.bus.write_i2c_block_data(
-            self.arduino, byteList[0], byteList[1:16])
+        try:
+            # Writes the values to the i2c
+            self.bus.write_i2c_block_data(
+                self.arduino, byteList[0], byteList[1:16])
+            if opcode == 0:
+                self.linear_x_velo = values[0]
 
-        self.linear_x_velo = values[0]
+                self.linear = values[1]
 
-        self.linear = values[1]
+                self.angular_z_velo = values[2]
+            self.sensor_data["read"] = True
+        except OSError:
+            rospy.logerror("Could not send message: {opcode} {data}".format(opcode=opcode,data=values))
 
-        self.angular_z_velo = values[2]
-        self.sensor_data["read"] = True
+        
 
 
     def move_to_angle(self,angle):
