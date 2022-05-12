@@ -320,7 +320,7 @@ class Controller:
                 self.angular_z_velo = values[2]
             self.sensor_data["read"] = True
         except OSError:
-            rospy.logerror("Could not send message: {opcode} {data}".format(opcode=opcode,data=values))
+            print("Could not send message: {opcode} {data}".format(opcode=opcode,data=values))
 
         
 
