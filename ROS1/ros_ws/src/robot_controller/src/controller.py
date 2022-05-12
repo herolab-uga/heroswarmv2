@@ -504,7 +504,7 @@ class Controller:
         self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
         self.sensor_read_thread.start()
 
-        self.auto_charge_timer = rospy.Timer(rospy.Duration(1/60),self.auto_charge)
+        # self.auto_charge_timer = rospy.Timer(rospy.Duration(1/60),self.auto_charge)
 
          # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
