@@ -303,8 +303,12 @@ class Controller:
     # Message format []
     def send_values(self,values=None,opcode = 0):
         self.sensor_data["read"] = False
-        # Converts the values to bytes
-        byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
+        # Work around for demo remove later
+        if self.name == "swarmpaddy1" or self.name == "swarmstarburst1":
+            # Converts the values to bytes
+            byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
+        else:
+            byteList = list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
