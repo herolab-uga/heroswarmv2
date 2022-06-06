@@ -24,7 +24,7 @@ from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos, StringList
-from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse
+# from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 from subprocess import call
@@ -380,44 +380,44 @@ class Controller(Node):
         elif msg.data == "restart_ros":
             call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
-    def auto_charge(self,timer):
-        if not self.sensor_data["battery"] == None:
-            if self.sensor_data["battery"] <= 3.2:
-                battery_voltage = self.sensor_data["battery"]
-                self.twist_sub.shutdown()
-                self.last_call["time"] == None
-                self.send_values([0,0,0])
-                get_charger = self.create_client(topic="get_charger",msg_type=GetCharger)
-                while not get_charger.wait_for_service(timeout_sec=1.0):
-                    self.get_logger().info('service not available, waiting again...')
+    # def auto_charge(self,timer):
+    #     if not self.sensor_data["battery"] == None:
+    #         if self.sensor_data["battery"] <= 3.2:
+    #             battery_voltage = self.sensor_data["battery"]
+    #             self.twist_sub.shutdown()
+    #             self.last_call["time"] == None
+    #             self.send_values([0,0,0])
+    #             get_charger = self.create_client(topic="get_charger",msg_type=GetCharger)
+    #             while not get_charger.wait_for_service(timeout_sec=1.0):
+    #                 self.get_logger().info('service not available, waiting again...')
                 
-                try:
-                    charger = get_charger(self.robot_name)
-                    current_x = self.position["x"]
-                    current_y = self.position["y"]
-                    while math.sqrt(math.pow((charger.position.x + 0.0254 - current_x),2) + math.pow((charger.position.y - current_y),2)) < .05:
-                        current_x = self.position["x"]
-                        current_y = self.position["y"]
-                        self.move_to_point_handler(charger.position.x + 0.0254,charger[0].y)
-                    self.move_to_angle(self.quaternion_from_rpy(charger.position.x.orientation))
-                    self.send_values([-.1,0.0,0.0])
+    #             try:
+    #                 charger = get_charger(self.robot_name)
+    #                 current_x = self.position["x"]
+    #                 current_y = self.position["y"]
+    #                 while math.sqrt(math.pow((charger.position.x + 0.0254 - current_x),2) + math.pow((charger.position.y - current_y),2)) < .05:
+    #                     current_x = self.position["x"]
+    #                     current_y = self.position["y"]
+    #                     self.move_to_point_handler(charger.position.x + 0.0254,charger[0].y)
+    #                 self.move_to_angle(self.quaternion_from_rpy(charger.position.x.orientation))
+    #                 self.send_values([-.1,0.0,0.0])
 
-                    while battery_voltage + .1 > self.sensor_data["battery"]:
-                        continue
+    #                 while battery_voltage + .1 > self.sensor_data["battery"]:
+    #                     continue
 
-                    self.send_values([0,0.0,0.0])
+    #                 self.send_values([0,0.0,0.0])
 
-                    while self.sensor_data["battery"] < 4.1: #busy wait is a bad idea what can i do here
-                        continue
+    #                 while self.sensor_data["battery"] < 4.1: #busy wait is a bad idea what can i do here
+    #                     continue
 
-                    rospy.wait_for_service("release_charger")
-                    release_charger = rospy.ServiceProxy("release_charger", release_charger)
-                    try:
-                        release = release_charger(charger.id)
-                    except rospy.ServiceException as exc:
-                        print("Release service did not process request: " + str(exc))
-                except rospy.ServiceException as exc:
-                    print("Get service did not process request: " + str(exc))
+    #                 rospy.wait_for_service("release_charger")
+    #                 release_charger = rospy.ServiceProxy("release_charger", release_charger)
+    #                 try:
+    #                     release = release_charger(charger.id)
+    #                 except rospy.ServiceException as exc:
+    #                     print("Release service did not process request: " + str(exc))
+    #             except rospy.ServiceException as exc:
+    #                 print("Get service did not process request: " + str(exc))
 
     def neopixel_callback(self,msg):
         self.send_values(msg.data,1.0)
