@@ -23,7 +23,7 @@ from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos, StringList
-from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse
+# from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 from subprocess import call
@@ -494,7 +494,7 @@ class Controller:
         self.stop_thread = mp.Process(target=self.auto_stop,args=())
         self.stop_thread.start()
 
-        self.battery_pub = rospy.Publisher("battry",Float32,queue_size=1)
+        self.battery_pub = rospy.Publisher("battery",Float32,queue_size=1)
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=1)        
         self.read_arduino_data_timer = rospy.Timer(rospy.Duration(1/10),self.read_arduino_data)
 
