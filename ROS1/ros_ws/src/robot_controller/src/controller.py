@@ -301,7 +301,7 @@ class Controller:
 
     # Sending an float to the arduino
     # Message format []
-    def send_values(self,values=None,opcode = 0):
+    def send_values(self,values = None, opcode = 0):
         self.sensor_data["read"] = False
         # Work around for demo remove later
         if self.name == "swarmpaddy1" or self.name == "swarmstarburst1":
@@ -446,6 +446,7 @@ class Controller:
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
+        print(self.name)
 
         self.manager = mp.Manager()
 
