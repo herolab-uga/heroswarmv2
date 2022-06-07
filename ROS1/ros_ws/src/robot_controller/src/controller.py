@@ -446,7 +446,6 @@ class Controller:
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
-        print(self.name)
 
         self.manager = mp.Manager()
 
