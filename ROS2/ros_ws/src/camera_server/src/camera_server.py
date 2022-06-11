@@ -50,7 +50,14 @@ class CameraServer():
                                                             self.robot_dictionary[new_robot]),daemon=True)
                 self.thread_dict[new_robot].start()
                 count = count + 1
+            # sub = [sub_bot for sub_bot in prev_active if sub_bot not in active_dict]
             prev_active = active_dict
+            # for missing_robot in sub:
+            #     try:
+            #         self.thread_dict[missing_robot].halt_pos_pub()
+            #         del missing_robot
+            #     except KeyError:
+            #         print("Could not find controller for tag: {}".format(missing_robot))
 
     def get_positions(self,image_queue):
         while True:

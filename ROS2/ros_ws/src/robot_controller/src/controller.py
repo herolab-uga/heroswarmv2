@@ -16,19 +16,21 @@ import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import numpy as np
-import rospy
+import rcply
+from rclpy.node import Node
 import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, Robot_Pos, StringList
+# from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 from subprocess import call
 
 
-class Controller:
+class Controller(Node):
 
     def __del__(self):
         self.send_values([0, 0, 0])
@@ -51,7 +53,7 @@ class Controller:
         yaw = np.arctan2(siny_cosp, cosy_cosp)
         return roll, pitch, yaw
 
-    def quaternion_from_rpy(self, roll, pitch, yaw):
+    def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
         sy = math.sin(yaw * 0.5)
         cp = math.cos(pitch * 0.5)
@@ -66,25 +68,21 @@ class Controller:
         q[3] = cr * cp * cy + sr * sp * sy
         return q
 
-    def get_pos_global(self, msg):
-        for robot in msg.robot_pos:
-            if robot.child_frame_id == str(self.id):
-                self.position["x"] = robot.pose.pose.position.x
-                self.position["y"] = robot.pose.pose.position.y
-                self.position["orientation"] = - \
-                    self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
-                break
-        rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(
-            x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
+    def get_pos_global(self,msg):
+            for robot in msg.robot_pos:
+                if robot.child_frame_id == str(self.id):
+                    self.position["x"] = robot.pose.pose.position.x
+                    self.position["y"] = robot.pose.pose.position.y
+                    self.position["orientation"] = -self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
+                    break
+            # rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
-    def get_pos(self, msg):
+    def get_pos(self,msg):
         self.position["x"] = msg.pose.pose.position.x
         self.position["y"] = msg.pose.pose.position.y
-        self.position["orientation"] = - \
-            self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
-
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(
-            x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
+        self.position["orientation"] = -self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
+        
+        # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(x=self.position["x"],z=self.position["y"],theta=self.position["orientation"]))
 
     def read_arduino_data(self, timer, event=None):
         # Creates the odom message
@@ -105,7 +103,7 @@ class Controller:
             self.sensor_data["battery"] = data[5]
 
             # Adds Twist data
-            theta = np.deg2rad(data[2])
+            theta = np.deg2rad(data[2]) #+ self.position["orientation"]
             odom_msg.twist.twist.linear.x = data[3]
             odom_msg.twist.twist.linear.y = data[4]
             odom_msg.twist.twist.linear.z = 0.0
@@ -114,16 +112,17 @@ class Controller:
             odom_msg.twist.twist.angular.y = 0.0
             odom_msg.twist.twist.angular.z = data[4]
 
-            odom_msg.pose.pose.position.x = data[0]
-            odom_msg.pose.pose.position.y = data[1]
+            odom_msg.pose.pose.position.x = data[0] #+ self.position["x"] 
+            odom_msg.pose.pose.position.y = data[1] #+ self.position["y"]
             odom_msg.pose.pose.position.z = 0.0
 
-            quaternion = self.quaternion_from_rpy(0, 0, theta)
+            quaternion = self.quaternion_from_rpy(0,0,theta)
 
             odom_msg.pose.pose.orientation.x = quaternion[0]
             odom_msg.pose.pose.orientation.y = quaternion[1]
             odom_msg.pose.pose.orientation.z = quaternion[2]
             odom_msg.pose.pose.orientation.w = quaternion[3]
+
 
             self.odom_pub.publish(odom_msg)
         except OSError as e:
@@ -134,12 +133,11 @@ class Controller:
         x_velo = 0
         z_angular = 0
         with self.velo_lock:
-            self.last_call["time"] = time.time()
+                self.last_call["time"] = time.time()
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = direction_lin * \
-                (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
+            x_velo = direction_lin * (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
         else:
             x_velo = 0
 
@@ -149,15 +147,13 @@ class Controller:
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
-            z_angular = direction_ang * \
-                (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
+            z_angular = direction_ang * (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
         else:
             z_angular = 0
-
+        
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
             # Logs the data
-            rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=y_velo, z=z_angular))
+            # rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
             with self.velo_lock:
                 self.last_call["time"] = time.time()
@@ -165,7 +161,7 @@ class Controller:
             self.linear_x_velo = x_velo
             self.linear_y_velo = y_velo
             self.angular_z_velo = z_angular
-
+    
     def auto_stop(self):
         while True:
             if self.last_call["time"] == None:
@@ -188,6 +184,11 @@ class Controller:
             # Read the sensor
             acc_x, acc_y, acc_z = self.IMU.acceleration
             gyro_x, gyro_y, gyro_z = self.IMU.gyro
+
+            # Sets the self.position["orientation"] parameters (This is wrong)
+            # imu_msg.self.position["orientation"].x = 0.0
+            # imu_msg.self.position["orientation"].y = 0.0
+            # imu_msg.self.position["orientation"].z = 0.0
 
             # Sets the angular velocity parameters
             imu_msg.angular_velocity.x = gyro_x
@@ -216,7 +217,17 @@ class Controller:
 
         return math.sqrt(samples_sum / len(values))
 
-    def read_sensors(self, sensor_data):
+    # def read_mic(self) -> None:
+    #     # Creates the mic message
+    #     mic_msg = Int16()
+
+    #     # Sets the meassage data value
+    #     mic_msg.data = None
+
+    #     # Publishes the message
+    #     self.mic_pub.publish(mic_msg)
+
+    def read_sensors(self,sensor_data):
         rate = rospy.Rate(5)
 
         # Creates sensor objects
@@ -225,6 +236,7 @@ class Controller:
         self.light.enable_gesture = True
         self.light.enable_color = True
 
+        
         self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
         # Creates the i2c interface for the bmp sensor
         self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
@@ -258,7 +270,7 @@ class Controller:
 
         # Publishes the message
         self.light_pub.publish(light_msg)
-
+        
     def read_environment(self, timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
@@ -289,16 +301,11 @@ class Controller:
         self.prox_pub.publish(proximity_msg)
 
     # Sending an float to the arduino
-    # Message format [msgid , args]
-    def send_values(self, values=None, opcode=0):
+    # Message format []
+    def send_values(self,values=None,opcode = 0):
         self.sensor_data["read"] = False
-        # Work around for demo remove later
-        if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/":
-            # Converts the values to bytes
-            byteList = list(struct.pack("f", opcode)) + \
-                list(struct.pack('fff', *values))
-        else:
-            byteList = list(struct.pack('fff', *values))
+        # Converts the values to bytes
+        byteList = list(struct.pack("f", opcode)) + list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
 
@@ -314,30 +321,33 @@ class Controller:
                 self.angular_z_velo = values[2]
             self.sensor_data["read"] = True
         except OSError:
-            print("Could not send message: {opcode} {data}".format(
-                opcode=opcode, data=values))
+            print("Could not send message: {opcode} {data}".format(opcode=opcode,data=values))
 
-    def move_to_angle(self, angle):
+        
+
+
+    def move_to_angle(self,angle):
         rate = rospy.Rate(10)
         delta_theta = self.position["theta"] - angle
         while delta_theta > 0.05:
             delta_theta = self.position["theta"] - angle
-            self.send_values([0.0, 0.0, delta_theta])
+            self.send_values([0.0,0.0,delta_theta])
             rate.sleep()
-        self.send_values([0.0, 0.0, 0.0])
+        self.send_values([0.0,0.0,0.0])
 
     # Position controller
-    def move_to_point(self, msg):
-        self.move_to_point_handler(msg.x, msg.y)
+    def move_to_point(self,msg):
+        self.move_to_point_handler(msg.x,msg.y)
 
-    def move_to_point_handler(self, x, y):
+    def move_to_point_handler(self,x,y):
         current_x = self.position["x"]
         current_y = self.position["y"]
         theta = self.position["orientation"]
 
-        rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
-        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .05:
-            self.send_values([0, 0, 0])
+        # rospy.loginfo("X: {x} Y: {y}".format(x=current_x, y=current_y))
+        # print("Error: {error}".format(error=math.sqrt((x - current_x)**2 + (y - current_y)**2)))
+        if math.sqrt(math.pow((x - current_x),2) + math.pow((y - current_y),2)) < .05:
+            self.send_values([0,0,0])
         else:
 
             # Gets the difference between the current position and desired position
@@ -358,31 +368,68 @@ class Controller:
             v = 1*(x_velo*a + y_velo*b)
 
             # Finds the angular velocity
-            omega = self.omega_max * \
-                np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+            omega = self.omega_max * np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
+            
+            self.send_values([v,0,omega])
 
-            self.send_values([v, 0, omega])
-
-    def shutdown_callback(self, msg):
+    def shutdown_callback(self,msg):
         if msg.data == "shutdown":
             call("sudo shutdown 0", shell=True)
         elif msg.data == "restart":
             call("sudo shutdown -r 0", shell=True)
         elif msg.data == "restart_ros":
-            call(
-                "kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()), shell=True)
+            call("kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()),shell=True)
 
-    def neopixel_callback(self, msg):
-        self.send_values(msg.data, 1.0)
+    # def auto_charge(self,timer):
+    #     if not self.sensor_data["battery"] == None:
+    #         if self.sensor_data["battery"] <= 3.2:
+    #             battery_voltage = self.sensor_data["battery"]
+    #             self.twist_sub.shutdown()
+    #             self.last_call["time"] == None
+    #             self.send_values([0,0,0])
+    #             get_charger = self.create_client(topic="get_charger",msg_type=GetCharger)
+    #             while not get_charger.wait_for_service(timeout_sec=1.0):
+    #                 self.get_logger().info('service not available, waiting again...')
+                
+    #             try:
+    #                 charger = get_charger(self.robot_name)
+    #                 current_x = self.position["x"]
+    #                 current_y = self.position["y"]
+    #                 while math.sqrt(math.pow((charger.position.x + 0.0254 - current_x),2) + math.pow((charger.position.y - current_y),2)) < .05:
+    #                     current_x = self.position["x"]
+    #                     current_y = self.position["y"]
+    #                     self.move_to_point_handler(charger.position.x + 0.0254,charger[0].y)
+    #                 self.move_to_angle(self.quaternion_from_rpy(charger.position.x.orientation))
+    #                 self.send_values([-.1,0.0,0.0])
 
-    def pub_battery(self, timer):
+    #                 while battery_voltage + .1 > self.sensor_data["battery"]:
+    #                     continue
+
+    #                 self.send_values([0,0.0,0.0])
+
+    #                 while self.sensor_data["battery"] < 4.1: #busy wait is a bad idea what can i do here
+    #                     continue
+
+    #                 rospy.wait_for_service("release_charger")
+    #                 release_charger = rospy.ServiceProxy("release_charger", release_charger)
+    #                 try:
+    #                     release = release_charger(charger.id)
+    #                 except rospy.ServiceException as exc:
+    #                     print("Release service did not process request: " + str(exc))
+    #             except rospy.ServiceException as exc:
+    #                 print("Get service did not process request: " + str(exc))
+
+    def neopixel_callback(self,msg):
+        self.send_values(msg.data,1.0)
+
+    def pub_battery(self,timer):
         battery_msg = Float32()
         battery_msg.data = self.sensor_data["battery"]
         self.battery_pub.publish(battery_msg)
 
     def __init__(self):
         # print("Start")
-        rospy.init_node("robot_controller", anonymous=True)
+        super().__init__("robot_controller")
 
         # Arduino Device Address
         self.arduino = 0x08
@@ -397,20 +444,20 @@ class Controller:
         self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
-        self.name = rospy.get_namespace()
+        self.name = self.get_namespace()
 
         self.manager = mp.Manager()
 
         self.sensor_data = self.manager.dict({
-            "read": True,
-            "temp": 0.0,
-            "pressure": 0.0,
-            "humidity": 0.0,
-            "altitude": 0.0,
-            "rgbw": [],
-            "gesture": 0,
-            "prox": 0,
-            "battery": None
+            "read":True,
+            "temp":0.0,
+            "pressure":0.0,
+            "humidity":0.0,
+            "altitude":0.0,
+            "rgbw":[],
+            "gesture":0,
+            "prox":0,
+            "battery":None
         })
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
@@ -418,94 +465,79 @@ class Controller:
             for key in robot_dictionary:
                 if robot_dictionary[key] == self.name:
                     self.id = int(key)
-
+                    
         self.position = {
-            "x": 0,
-            "y": 0,
-            "orientation": 0
+            "x":0,
+            "y":0,
+            "orientation":0
         }
 
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        self.last_call = {"time": None}
+        self.last_call = {"time":None}
         self.v_max = 0.1
         self.omega_max = 1.0
 
         self.open_chargers = None
 
-        # Creates subscribers for positions topics
+        # Creates subscribers for positions topics 
         if self.global_pos:
-            self.pos_sub_global = rospy.Subscriber(
-                "/positions", Robot_Pos, self.get_pos_global)
+            self.pos_sub_global = self.create_subscriber(topic="/positions", msg_type=Robot_Pos, callback=self.get_pos_global)
         else:
-            self.pos_sub_namespace = rospy.Subscriber(
-                "position", Odometry, self.get_pos)
+            self.pos_sub_namespace = self.create_subscriber(topic="position", msg_type=Odometry, callback=self.get_pos)
 
         # Creates the twist publisher
-        self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
+        self.twist_sub = self.create_subscriber(topic="cmd_vel", msg_type=Twist, callback=self.read_twist)
 
         # Creates the velocity lock for auto stop and velocity control
         self.velo_lock = threading.Lock()
 
         # Creates the auto-stop thread
-        self.stop_thread = mp.Process(target=self.auto_stop, args=())
+        self.stop_thread = mp.Process(target=self.auto_stop,args=())
         self.stop_thread.start()
 
-        # Creates timer to read data from arduino
-        self.read_arduino_data_timer = rospy.Timer(
-            rospy.Duration(1/10), self.read_arduino_data)
+        self.battery_pub = self.create_publisher(topic="battery",msg_type=Float32,queue_size=1)
+        self.odom_pub = self.create_publisher(topic="odom", msg_type=Odometry, queue_size=1)        
+        self.read_arduino_data_timer = self.create_timer(1/10,callback=self.read_arduino_data)
 
-        # Creates the battery publisher
-        self.battery_pub = rospy.Publisher("battery", Float32, queue_size=1)
-
-        # Creates the odom publisher
-        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=1)
-
-        # Publish the batterry level on the battery topic with at 5hz
-        self.battery_timer = rospy.Timer(rospy.Duration(1/5), self.pub_battery)
+        # Publish the batterry level on the battery topic with at 5hz 
+        self.battery_timer = self.create_timer(1/5,callback=self.pub_battery)
 
         # Creates position control topic
-        self.position_sub = rospy.Subscriber(
-            "to_point", Point, self.move_to_point)
+        self.position_sub = self.create_subscriber(topic="to_point",msg_type=Point,callback=self.move_to_point)
 
         # Creates shutdown hook
-        self.shutdown_sub = rospy.Subscriber(
-            "shutdown", String, self.shutdown_callback)
+        self.shutdown_sub = self.create_subscriber(topic="shutdown", msg_type=String, callback=self.shutdown_callback)
 
-        self.sensor_read_thread = mp.Process(
-            target=self.read_sensors, args=(self.sensor_data,))
-        self.sensor_read_thread.start()
+        self.sensor_read_thread = mp.Process(target=self.read_sensors,args=(self.sensor_data,))
+        # self.sensor_read_thread.start()
 
-        ###_________________Enables Sensor Data Publishers________________###
+        # self.auto_charge_timer = self.create_timer(1/60,callback=self.auto_charge)
 
-        # Creates a publisher for the magnetometer, bmp and humidity sensor
+         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.environment_sensor:
-            self.environment_pub = rospy.Publisher(
-                "environment", Environment, queue_size=1)
-            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
+            self.environment_pub = self.create_publisher(topic="environment", msg_type=Environment, queue_size=1)
+            # self.environment_timer = self.create_timer(1/10,callback=self.read_environment)
 
         # Creates a publisher for imu data
         if self.imu_sensor:
-            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
+            self.imu_pub = self.create_publisher(topic="imu", msg_type=Imu, queue_size=1)
+            # self.imu_timer = self.create_timer(1/60,callback=self.read_imu)
 
         # Creates a publisher for the light sensor
         if self.light_sensor:
-            self.light_pub = rospy.Publisher('light', Light, queue_size=1)
-            self.light_timer = rospy.Timer(
-                rospy.Duration(1/5), self.read_light)
+            self.light_pub = self.create_publisher(topic='light', msg_type=Light, queue_size=1)
+            self.light_timer = self.create_timer(1/5,callback=self.read_light)
 
         # Creates a publisher for a proximity sensor
         if self.proximity_sensor:
-            self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
-            self.environment_timer = rospy.Timer(
-                rospy.Duration(1/5), self.read_proximity)
+            self.prox_pub = self.create_publisher(topic="proximity",msg_type=Int16, queue_size=1)
+            self.environment_timer = self.create_timer(1/5,callback=self.read_proximity)
 
-        self.neopixel_subscriber = rospy.Subscriber(
-            "neopixel", Int16MultiArray, self.neopixel_callback)
+        self.neopixel_subscriber = self.create_subscriber(topic="neopixel",msg_type=Int16MultiArray,callback=self.neopixel_callback)
 
-        rospy.loginfo("Ready")
+        # print("Ready")
 
 
 if __name__ == '__main__':
