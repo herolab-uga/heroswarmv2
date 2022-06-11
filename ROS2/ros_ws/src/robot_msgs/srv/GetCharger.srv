@@ -1,4 +1,0 @@
-std_msgs/String name
----
-UInt16 id
-geometry_msgs/Pose position
