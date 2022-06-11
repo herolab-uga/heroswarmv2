@@ -1,0 +1,8 @@
+prefix=/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/devel
+
+Name: camera_server
+Description: Description of camera_server
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,2 +1,2 @@
-int16[] rgbw
-int16 gesture
+int32[] rgbw
+int32 gesture

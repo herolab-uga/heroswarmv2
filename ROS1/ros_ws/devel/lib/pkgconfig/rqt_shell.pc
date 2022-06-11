@@ -1,0 +1,8 @@
+prefix=/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/devel
+
+Name: rqt_shell
+Description: Description of rqt_shell
+Version: 0.4.11
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
