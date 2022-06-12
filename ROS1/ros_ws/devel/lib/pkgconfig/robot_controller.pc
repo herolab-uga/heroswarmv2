@@ -1,0 +1,8 @@
+prefix=/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/devel
+
+Name: robot_controller
+Description: Description of robot_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

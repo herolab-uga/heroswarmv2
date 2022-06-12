@@ -1,0 +1,5 @@
+# # Please do not modify this file unless there are changes to the root of the repo.
+# # gitignore settings for a specific folder should be inside the appropriate folder 
+
+# # Ignores everything in the root directroy
+/gesture_sensor/*
