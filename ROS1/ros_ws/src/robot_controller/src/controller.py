@@ -236,15 +236,18 @@ class Controller:
 
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
-            if sensor_data["read"]:
-                sensor_data["temp"] = self.bmp.temperature
-                sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-                sensor_data["altitude"] = self.bmp.altitude
-                sensor_data["rgbw"] = self.light.color_data
-                sensor_data["gesture"] = self.light.gesture()
-                sensor_data["prox"] = self.light.proximity
-                rate.sleep()
+            try:
+                if sensor_data["read"]:
+                    sensor_data["temp"] = self.bmp.temperature
+                    sensor_data["pressure"] = self.bmp.pressure
+                    sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                    sensor_data["altitude"] = self.bmp.altitude
+                    sensor_data["rgbw"] = self.light.color_data
+                    sensor_data["gesture"] = self.light.gesture()
+                    sensor_data["prox"] = self.light.proximity
+                    rate.sleep()
+            except Runtime Error:
+                continue # I need to change this
 
     def read_light(self, timer) -> None:
         # Creates the light message
@@ -448,9 +451,9 @@ class Controller:
         # Creates the velocity lock for auto stop and velocity control
         self.velo_lock = threading.Lock()
 
-        # Creates the auto-stop thread
-        self.stop_thread = threading.Thread(target=self.auto_stop, args=())
-        self.stop_thread.start()
+        # # Creates the auto-stop thread
+        # self.stop_thread = threading.Thread(target=self.auto_stop, args=())
+        # self.stop_thread.start()
 
         # Creates the battery publisher
         self.battery_pub = rospy.Publisher("battery", Float32, queue_size=1)
