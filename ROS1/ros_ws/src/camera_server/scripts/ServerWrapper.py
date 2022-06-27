@@ -165,6 +165,13 @@ class ServerWrapper():
                 prox.append(self.active_bots[active_bot]["proximity"])
         return prox
 
+    def get_light(self):
+        light = []
+        for active_bot in self.active_bots:
+            if type(active_bot) == str:
+                light.append(self.active_bots[active_bot]["light_sensor"]["rgbw"])
+        return light
+
     def get_active(self):
         return self.active_bots
 
