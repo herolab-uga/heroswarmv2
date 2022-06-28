@@ -158,6 +158,13 @@ class ServerWrapper():
                 velocities.append(self.active_bots[active_bot]["vel"])
         return velocities
 
+    def get_light(self):
+        light = []
+        for active_bot in self.active_bots:
+            if type(active_bot) == str:
+                light.append(self.active_bots[active_bot]["light_sensor"]["rgbw"])
+        return light
+
     def get_proximity(self):
         prox = []
         for active_bot in self.active_bots:
