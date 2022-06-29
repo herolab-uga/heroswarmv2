@@ -236,18 +236,15 @@ class Controller:
 
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
-            try:
-                if sensor_data["read"]:
-                    sensor_data["temp"] = self.bmp.temperature
-                    sensor_data["pressure"] = self.bmp.pressure
-                    sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-                    sensor_data["altitude"] = self.bmp.altitude
-                    sensor_data["rgbw"] = self.light.color_data
-                    sensor_data["gesture"] = self.light.gesture()
-                    sensor_data["prox"] = self.light.proximity
-                    rate.sleep()
-            except Runtime Error:
-                continue # I need to change this
+            if sensor_data["read"]:
+                sensor_data["temp"] = self.bmp.temperature
+                sensor_data["pressure"] = self.bmp.pressure
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["altitude"] = self.bmp.altitude
+                sensor_data["rgbw"] = self.light.color_data
+                sensor_data["gesture"] = self.light.gesture()
+                sensor_data["prox"] = self.light.proximity
+                rate.sleep()
 
     def read_light(self, timer) -> None:
         # Creates the light message
