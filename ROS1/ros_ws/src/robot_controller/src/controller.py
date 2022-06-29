@@ -237,12 +237,12 @@ class Controller:
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             if sensor_data["read"]:
-                sensor_data["temp"] = self.bmp.temperature
-                sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-                sensor_data["altitude"] = self.bmp.altitude
+                # sensor_data["temp"] = self.bmp.temperature
+                # sensor_data["pressure"] = self.bmp.pressure
+                # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                # sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
-                sensor_data["gesture"] = self.light.gesture()
+                # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
                 rate.sleep()
 
@@ -392,9 +392,9 @@ class Controller:
 
         # Init the i2c bus
         self.light_sensor = True
-        self.environment_sensor = True
+        self.environment_sensor = False
         self.imu_sensor = False
-        self.proximity_sensor = True
+        self.proximity_sensor = False
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
