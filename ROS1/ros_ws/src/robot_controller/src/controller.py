@@ -288,7 +288,7 @@ class Controller:
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
 
-    # Sending an float to the arduino
+     # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
         self.sensor_data["read"] = False
@@ -316,6 +316,7 @@ class Controller:
         except OSError:
             print("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
+
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
