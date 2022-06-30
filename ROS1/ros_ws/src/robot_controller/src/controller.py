@@ -74,8 +74,8 @@ class Controller:
                 self.position["orientation"] = - \
                     self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
                 break
-        rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(
-            x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
+        # rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(
+            # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
 
     def get_pos(self, msg):
         self.position["x"] = msg.pose.pose.position.x
@@ -83,8 +83,8 @@ class Controller:
         self.position["orientation"] = - \
             self.rpy_from_quaternion(msg.pose.pose.orientation)[2]
 
-        rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(
-            x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
+        # rospy.loginfo("X: {x} Z: {z} Theta: {theta}".format(
+            # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
 
     def read_arduino_data(self, timer, event=None):
         # Creates the odom message
