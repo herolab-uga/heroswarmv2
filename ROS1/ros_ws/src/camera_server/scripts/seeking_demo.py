@@ -18,7 +18,11 @@ def main():
     wrapper = ServerWrapper(num_robots) # Swarm warpper object
 
     robot_positions = wrapper.get_position_global() # Returns a list of robot positions and orientaions
-    robot_light_sensor_data = warpper.get_light() # Returns a list of list containing (rgbw) values
+    
+    # Returns a list of list containing (rgbw) values
+    # robot_light_sensor_data[0][0] returns the red value from the sensor of the first robot
+    # robot_light_sensor_data[n][m < 4] returns a value (w,g,b or w ) from the sensor of robot N
+    robot_light_sensor_data = warpper.get_light() 
     current_pos_xy = [x[:2] for x in current_pos] # Current (x,y) positions of the robots
 
     #The control function needs to return a list of velocites for the robots
