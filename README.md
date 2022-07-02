@@ -8,6 +8,8 @@ This repository contains the open-sourced codes and hardware designs of the Swar
 
 * **Aryan Gupta** -- high school intern at HeRoLab (https://github.com/rtlaryan)
 
+* **Sanjay Sarma O V** -- College of Engineering, University of Georgia (https://github.com/sanjayovs)
+
 * PI: Prof. Ramviyas Parasuraman - HeRoLab UGA - (http://hero.uga.edu)
 
 
