@@ -508,5 +508,6 @@ if __name__ == '__main__':
     controller = Controller()
     while not rospy.is_shutdown():
         continue
+    print("Shutdown")
     call("sudo shutdown -h 0", shell=True)
 
