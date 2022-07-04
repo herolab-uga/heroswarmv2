@@ -365,6 +365,7 @@ class Controller:
             self.send_values([v, 0, omega])
 
     def shutdown_callback(self, msg):
+        rospy.loginfo("Shutting Down")
         rospy.signal_shutdown("Rasperry Pi shutting down")
             
 
@@ -508,6 +509,5 @@ if __name__ == '__main__':
     controller = Controller()
     while not rospy.is_shutdown():
         continue
-    print("Shutdown")
     call("sudo shutdown -h 0", shell=True)
 
