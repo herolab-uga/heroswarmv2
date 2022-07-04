@@ -15,7 +15,7 @@ import signal
 import sys
 
 
-num_robots = 2
+num_robots = 3
 
 wrapper = ServerWrapper(num_robots)
 

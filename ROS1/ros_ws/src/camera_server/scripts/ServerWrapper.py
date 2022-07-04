@@ -31,7 +31,7 @@ class ServerWrapper():
     def name_callback(self,msg):
         for i in range(self.num_active_bots,self.selected_bots):
             self.num_active_bots += 1
-            name = msg.names[i].data
+            name = msg.data[i].data
 
             dict_entry =  {
                 "name":name,
@@ -63,7 +63,7 @@ class ServerWrapper():
 
     def light_callback(self,msg,id):
         try:
-            self.active_bots[id]["light_sensor"]["rgbw"] = msg.light.rgbw
+            self.active_bots[id]["light_sensor"]["rgbw"] = msg.rgbw
         except KeyError:
             print("Id {id} not found".format(id=id))
         
@@ -107,7 +107,7 @@ class ServerWrapper():
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
                 if type(robot) == str:
-                    self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
+                    # self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
                     if self.active_bots[robot]["vel_control"]:
                         self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
                     else:
