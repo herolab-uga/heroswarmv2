@@ -365,13 +365,8 @@ class Controller:
             self.send_values([v, 0, omega])
 
     def shutdown_callback(self, msg):
-        if msg.data == "shutdown":
-            call("sudo shutdown 0", shell=True)
-        elif msg.data == "restart":
-            call("sudo shutdown -r 0", shell=True)
-        elif msg.data == "restart_ros":
-            call(
-                "kill {process_id} & source ~/.bashrc".format(process_id=os.getpid()), shell=True)
+        rospy.signal_shutdown("Rasperry Pi shutting down")
+            
 
     def neopixel_callback(self, msg):
         self.send_values(msg.data, 1.0)
@@ -513,3 +508,5 @@ if __name__ == '__main__':
     controller = Controller()
     while not rospy.is_shutdown():
         continue
+    call("sudo shutdown -h 0", shell=True)
+
