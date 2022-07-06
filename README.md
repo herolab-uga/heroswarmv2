@@ -6,7 +6,7 @@ This repository contains the open-sourced codes and hardware designs of the Swar
 
 * **Michael Starks** - undergraduate student researcher at HeRoLab (https://github.com/MichaelStarks)
 
-* **Aryan Gupta** -- high school intern at HeRoLab (https://github.com/rtlaryan)
+* **Aryan Gupta** -- undergraduate student at Georgia Inst. of Technology (previously a high school intern at HeRoLab) (https://github.com/rtlaryan)
 
 * **Sanjay Sarma O V** -- College of Engineering, University of Georgia (https://github.com/sanjayovs)
 
