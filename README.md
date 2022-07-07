@@ -1,6 +1,7 @@
 # heroswarmv2
 This repository contains the open-sourced codes and hardware designs of the Swarm Robot (heroswarmv2) designed at the Heterogeneous Robotics Research Lab (HeRoLab) at the University of Georgia.
 
+Go to the [Wiki page](https://github.com/herolab-uga/heroswarmv2/wiki) for mode details.
 
 ## Core contributors
 
