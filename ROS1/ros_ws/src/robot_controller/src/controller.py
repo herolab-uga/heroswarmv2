@@ -470,8 +470,8 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber(
             "shutdown", String, self.shutdown_callback)
 
-        self.sensor_read_thread = mp.Process(
-            target=self.read_sensors, args=(self.sensor_data,))
+        self.sensor_read_thread = threading.Thread(
+            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
         self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
