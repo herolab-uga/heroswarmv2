@@ -93,7 +93,8 @@ class Controller:
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
         try:
-            data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
+            with self.i2c_lock:
+                data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
             # Get odom data from arduino
             for index in range(len(data)):
                 bytes = bytearray()
@@ -130,7 +131,6 @@ class Controller:
             return 1
 
     def read_twist(self, msg, event=None) -> None:
-        self.sensor_data["read"] = False
         x_velo = 0
         z_angular = 0
         with self.velo_lock:
@@ -172,7 +172,6 @@ class Controller:
                 continue
             elif time.time() - self.last_call["time"] > 0.12:
                 if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
-                    self.sensor_data["read"] = False
                     self.send_values([0.0, 0.0, 0.0])
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
@@ -180,7 +179,6 @@ class Controller:
             time.sleep(.1)
 
     def read_imu(self, freq) -> None:
-        self.sensor_data["read"] = False
         # Creates the IMU message
         imu_msg = Imu()
         rate = rospy.Rate(int(freq))
@@ -222,21 +220,21 @@ class Controller:
         # Creates sensor objects
         self.light = APDS9960(self.i2c)
         self.light.enable_proximity = True
-        self.light.enable_gesture = True
+        self.light.enable_gesture = False
         self.light.enable_color = True
 
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-        # Creates the i2c interface for the bmp sensor
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+        # self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        # # Creates the i2c interface for the bmp sensor
+        # self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
 
-        # Creates the i2c interface for the humidity sensor
-        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
-        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
-        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+        # # Creates the i2c interface for the humidity sensor
+        # self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+        # self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+        # self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
-        self.IMU = LSM6DS33(self.i2c)
+        # self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
-            if sensor_data["read"]:
+            with self.i2c_lock:
                 # sensor_data["temp"] = self.bmp.temperature
                 # sensor_data["pressure"] = self.bmp.pressure
                 # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
@@ -244,7 +242,7 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                rate.sleep()
+            time.sleep(.25)
 
     def read_light(self, timer) -> None:
         # Creates the light message
@@ -303,9 +301,10 @@ class Controller:
         byteList.append(0)
 
         try:
-            # Writes the values to the i2c
-            self.bus.write_i2c_block_data(
-                self.arduino, byteList[0], byteList[1:16])
+            with self.i2c_lock:
+                # Writes the values to the i2c
+                self.bus.write_i2c_block_data(
+                    self.arduino, byteList[0], byteList[1:16])
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
@@ -387,11 +386,13 @@ class Controller:
         # Init smbus
         self.bus = smbus.SMBus(1)
 
+        self.i2c_lock = threading.Lock()
+
         # Init the i2c bus
         self.light_sensor = True
         self.environment_sensor = False
         self.imu_sensor = False
-        self.proximity_sensor = False
+        self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
