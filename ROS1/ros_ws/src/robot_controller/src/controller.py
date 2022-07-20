@@ -93,7 +93,8 @@ class Controller:
         data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
         try:
-            data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
+            with self.i2c_lock:
+                data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
             # Get odom data from arduino
             for index in range(len(data)):
                 bytes = bytearray()
@@ -236,7 +237,7 @@ class Controller:
 
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
-            if sensor_data["read"]:
+            with self.i2c_lock:
                 # sensor_data["temp"] = self.bmp.temperature
                 # sensor_data["pressure"] = self.bmp.pressure
                 # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
@@ -303,9 +304,10 @@ class Controller:
         byteList.append(0)
 
         try:
-            # Writes the values to the i2c
-            self.bus.write_i2c_block_data(
-                self.arduino, byteList[0], byteList[1:16])
+            with self.i2c_lock:
+                # Writes the values to the i2c
+                self.bus.write_i2c_block_data(
+                    self.arduino, byteList[0], byteList[1:16])
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
@@ -386,6 +388,8 @@ class Controller:
 
         # Init smbus
         self.bus = smbus.SMBus(1)
+
+        self.i2c_lock = threading.Lock()
 
         # Init the i2c bus
         self.light_sensor = True
