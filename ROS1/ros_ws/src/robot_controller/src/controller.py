@@ -395,7 +395,7 @@ class Controller:
         self.light_sensor = True
         self.environment_sensor = False
         self.imu_sensor = False
-        self.proximity_sensor = False
+        self.proximity_sensor = True
         self.global_pos = False
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
