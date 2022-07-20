@@ -240,7 +240,6 @@ class Controller:
                 # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
                 # sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
-                print(self.light.color_data)
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
             time.sleep(.25)
