@@ -131,7 +131,6 @@ class Controller:
             return 1
 
     def read_twist(self, msg, event=None) -> None:
-        self.sensor_data["read"] = False
         x_velo = 0
         z_angular = 0
         with self.velo_lock:
@@ -173,7 +172,6 @@ class Controller:
                 continue
             elif time.time() - self.last_call["time"] > 0.12:
                 if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
-                    self.sensor_data["read"] = False
                     self.send_values([0.0, 0.0, 0.0])
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
@@ -181,7 +179,6 @@ class Controller:
             time.sleep(.1)
 
     def read_imu(self, freq) -> None:
-        self.sensor_data["read"] = False
         # Creates the IMU message
         imu_msg = Imu()
         rate = rospy.Rate(int(freq))
@@ -243,9 +240,10 @@ class Controller:
                 # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
                 # sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
+                print(self.light.color_data)
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                time.sleep(.25)
+            time.sleep(.25)
 
     def read_light(self, timer) -> None:
         # Creates the light message
