@@ -406,6 +406,7 @@ class Controller:
         self.imu_sensor = False
         self.proximity_sensor = True
         self.global_pos = False
+        self.get_mic_data = True
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
