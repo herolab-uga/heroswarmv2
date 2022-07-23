@@ -1,8 +1,0 @@
-prefix=/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/devel
-
-Name: rqt_py_console
-Description: Description of rqt_py_console
-Version: 0.4.10
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
