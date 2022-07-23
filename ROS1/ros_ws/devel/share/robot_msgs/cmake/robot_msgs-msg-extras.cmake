@@ -1,2 +1,0 @@
-set(robot_msgs_MESSAGE_FILES "/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/src/robot_msgs/msg/Environment.msg;/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/src/robot_msgs/msg/Light.msg;/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/src/robot_msgs/msg/Robot_Pos.msg;/home/michael/Documents/School/HeroLab/heroswarmv2/ROS1/ros_ws/src/robot_msgs/msg/StringList.msg")
-set(robot_msgs_SERVICE_FILES "")
