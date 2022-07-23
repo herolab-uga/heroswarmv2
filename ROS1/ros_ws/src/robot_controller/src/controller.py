@@ -10,6 +10,7 @@ import json
 import os
 import threading
 import multiprocessing as mp
+import audiobusio
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -90,7 +91,7 @@ class Controller:
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
         try:
             with self.i2c_lock:
@@ -101,6 +102,10 @@ class Controller:
                 for i in range(4):
                     bytes.append(data_pre_conv[4*index + i])
                 data[index] = struct.unpack('f', bytes)[0]
+        except Exception as e:
+            print("Add error")
+
+            self.sensor_data["mic"] = data[6]
 
             # Updates Battery Level
             self.sensor_data["battery"] = data[5]
@@ -201,18 +206,10 @@ class Controller:
             self.imu_pub.publish(imu_msg)
             rate.sleep()
 
-    # Remove DC bias before computing RMS.
-    def mean(self, values):
-        return sum(values) / len(values)
-
-    def normalized_rms(self, values):
-        minbuf = int(self.mean(values))
-        samples_sum = sum(
-            float(sample - minbuf) * (sample - minbuf)
-            for sample in values
-        )
-
-        return math.sqrt(samples_sum / len(values))
+    def normalized_rms(self,values):
+        minbuf = int(sum(values) / len(values))
+        return int(math.sqrt(sum(float(sample - minbuf) *
+                                (sample - minbuf) for sample in values) / len(values)))
 
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
@@ -222,6 +219,10 @@ class Controller:
         self.light.enable_proximity = True
         self.light.enable_gesture = False
         self.light.enable_color = True
+
+        samples = np.array('H', [0] * 160)
+        self.microphone = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA,
+                              sample_rate=16000, bit_depth=16)
 
         # self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
         # # Creates the i2c interface for the bmp sensor
@@ -242,6 +243,7 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
+                sensor_data["mic"] = self.normalized_rms(samples)
             time.sleep(.25)
 
     def read_light(self, timer) -> None:
@@ -285,6 +287,16 @@ class Controller:
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
+
+    def read_mic(self,timer):
+        # Creates the mic message
+        mic_msg = Int16()
+
+        # Sets the mic value
+        mic_msg.data = self.sensor_data["mic"]
+
+        # Publishes the message
+        self.mic_pub.publish(mic_msg)
 
      # Sending an float to the arduino
     # Message format [msgid , args]
@@ -394,6 +406,7 @@ class Controller:
         self.imu_sensor = False
         self.proximity_sensor = True
         self.global_pos = False
+        self.get_mic_data = True
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
@@ -408,7 +421,8 @@ class Controller:
             "rgbw": [],
             "gesture": 0,
             "prox": 0,
-            "battery": None
+            "battery": None,
+            "mic":0
         })
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
@@ -499,6 +513,11 @@ class Controller:
             self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_proximity)
+
+        if self.get_mic_data:
+            self.mic_pub = rospy.Publisher("mic", Int16, queue_size=1)
+            self.mic_timer = rospy.Timer(
+                rospy.Duration(1/5), self.read_mic)
 
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
