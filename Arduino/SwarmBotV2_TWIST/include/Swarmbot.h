@@ -2,9 +2,9 @@
 #ifndef SWARMBOT_H
 #define SWARMBOT_H
     #include <Arduino.h>
-    #include <IMU.h>
+    // #include <IMU.h>
 
-    extern imu IMU;
+    // extern imu IMU;
     
     class SwarmBot{
         //Motor Driver and Encoder Definitions 

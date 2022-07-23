@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_NeoPixel.h>
 SwarmBot steve; 
-imu IMU;
+// imu IMU;
 
 int timer = 0;
 bool serialFlag = false;
