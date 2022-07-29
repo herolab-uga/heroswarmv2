@@ -10,7 +10,6 @@ import json
 import os
 import threading
 import multiprocessing as mp
-import audiobusio
 
 import adafruit_bmp280
 import adafruit_lis3mdl
