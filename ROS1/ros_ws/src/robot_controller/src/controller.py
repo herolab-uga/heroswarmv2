@@ -205,11 +205,6 @@ class Controller:
             self.imu_pub.publish(imu_msg)
             rate.sleep()
 
-    def normalized_rms(self,values):
-        minbuf = int(sum(values) / len(values))
-        return int(math.sqrt(sum(float(sample - minbuf) *
-                                (sample - minbuf) for sample in values) / len(values)))
-
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
 
@@ -240,7 +235,6 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                sensor_data["mic"] = self.normalized_rms(samples)
             time.sleep(.25)
 
     def read_light(self, timer) -> None:
