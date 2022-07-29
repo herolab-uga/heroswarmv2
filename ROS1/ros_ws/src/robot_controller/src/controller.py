@@ -102,7 +102,7 @@ class Controller:
                     bytes.append(data_pre_conv[4*index + i])
                 data[index] = struct.unpack('f', bytes)[0]
         except Exception as e:
-            print("Add error")
+            print(e)
 
             # self.sensor_data["mic"] = data[6]
 
