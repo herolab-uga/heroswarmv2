@@ -292,7 +292,7 @@ class Controller:
     def send_values(self, values=None, opcode=0):
         self.sensor_data["read"] = False
         # Work around for demo remove later
-        if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/":
+        if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1":
             # Converts the values to bytes
             byteList = list(struct.pack("f", opcode)) + \
                 list(struct.pack('fff', *values))
