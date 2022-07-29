@@ -220,8 +220,6 @@ class Controller:
         self.light.enable_color = True
 
         samples = np.array('H', [0] * 160)
-        self.microphone = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA,
-                              sample_rate=16000, bit_depth=16)
 
         # self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
         # # Creates the i2c interface for the bmp sensor
