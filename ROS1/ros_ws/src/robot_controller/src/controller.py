@@ -214,8 +214,6 @@ class Controller:
         self.light.enable_gesture = False
         self.light.enable_color = True
 
-        samples = np.array('H', [0] * 160)
-
         # self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
         # # Creates the i2c interface for the bmp sensor
         # self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
