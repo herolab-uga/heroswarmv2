@@ -148,7 +148,7 @@ class Controller:
             x_velo = 0
 
         # Reads the twist message y linear velocity
-        y_velo = msg.linear.y
+        y_velo = 0
 
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
@@ -474,9 +474,9 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber(
             "shutdown", String, self.shutdown_callback)
 
-        self.sensor_read_thread = threading.Thread(
-            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
-        self.sensor_read_thread.start()
+        # self.sensor_read_thread = threading.Thread(
+        #     target=self.read_sensors, args=(self.sensor_data,),daemon=True)
+        # self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
 
