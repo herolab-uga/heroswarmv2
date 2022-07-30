@@ -303,9 +303,11 @@ class Controller:
 
         try:
             with self.i2c_lock:
+                print("Lock acquired")
                 # Writes the values to the i2c
                 self.bus.write_i2c_block_data(
                     self.arduino, byteList[0], byteList[1:16])
+                print("Lock released")
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
