@@ -104,36 +104,34 @@ class Controller:
         except Exception as e:
             print(e)
 
-            print(data[6])
-            self.sensor_data["mic"] = data[6]
+        print(data[6])
+        self.sensor_data["mic"] = data[6]
 
-            # Updates Battery Level
-            self.sensor_data["battery"] = data[5]
+        # Updates Battery Level
+        self.sensor_data["battery"] = data[5]
 
-            # Adds Twist data
-            theta = np.deg2rad(data[2])
-            odom_msg.twist.twist.linear.x = data[3]
-            odom_msg.twist.twist.linear.y = data[4]
-            odom_msg.twist.twist.linear.z = 0.0
+        # Adds Twist data
+        theta = np.deg2rad(data[2])
+        odom_msg.twist.twist.linear.x = data[3]
+        odom_msg.twist.twist.linear.y = data[4]
+        odom_msg.twist.twist.linear.z = 0.0
 
-            odom_msg.twist.twist.angular.x = 0.0
-            odom_msg.twist.twist.angular.y = 0.0
-            odom_msg.twist.twist.angular.z = data[4]
+        odom_msg.twist.twist.angular.x = 0.0
+        odom_msg.twist.twist.angular.y = 0.0
+        odom_msg.twist.twist.angular.z = data[4]
 
-            odom_msg.pose.pose.position.x = data[0]
-            odom_msg.pose.pose.position.y = data[1]
-            odom_msg.pose.pose.position.z = 0.0
+        odom_msg.pose.pose.position.x = data[0]
+        odom_msg.pose.pose.position.y = data[1]
+        odom_msg.pose.pose.position.z = 0.0
 
-            quaternion = self.quaternion_from_rpy(0, 0, theta)
+        quaternion = self.quaternion_from_rpy(0, 0, theta)
 
-            odom_msg.pose.pose.orientation.x = quaternion[0]
-            odom_msg.pose.pose.orientation.y = quaternion[1]
-            odom_msg.pose.pose.orientation.z = quaternion[2]
-            odom_msg.pose.pose.orientation.w = quaternion[3]
+        odom_msg.pose.pose.orientation.x = quaternion[0]
+        odom_msg.pose.pose.orientation.y = quaternion[1]
+        odom_msg.pose.pose.orientation.z = quaternion[2]
+        odom_msg.pose.pose.orientation.w = quaternion[3]
 
-            self.odom_pub.publish(odom_msg)
-        except OSError as e:
-            return 1
+        self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
