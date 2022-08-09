@@ -90,7 +90,7 @@ class Controller:
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0]
 
         try:
             with self.i2c_lock:
@@ -104,7 +104,7 @@ class Controller:
         except Exception as e:
             print(e)
 
-            # self.sensor_data["mic"] = data[6]
+            self.sensor_data["mic"] = data[6]
 
             # Updates Battery Level
             self.sensor_data["battery"] = data[5]
