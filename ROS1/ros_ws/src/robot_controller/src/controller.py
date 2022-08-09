@@ -104,7 +104,6 @@ class Controller:
         except Exception as e:
             print(e)
 
-        print(data[6])
         self.sensor_data["mic"] = data[6]
 
         # Updates Battery Level
