@@ -279,7 +279,7 @@ class Controller:
 
     def read_mic(self,timer):
         # Creates the mic message
-        mic_msg = Int16()
+        mic_msg = Float32()
 
         # Sets the mic value
         mic_msg.data = self.sensor_data["mic"]
@@ -507,7 +507,7 @@ class Controller:
                 rospy.Duration(1/5), self.read_proximity)
 
         if self.get_mic_data:
-            self.mic_pub = rospy.Publisher("mic", Int16, queue_size=1)
+            self.mic_pub = rospy.Publisher("mic", Float32, queue_size=1)
             self.mic_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_mic)
 
