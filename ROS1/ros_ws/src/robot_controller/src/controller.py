@@ -90,11 +90,16 @@ class Controller:
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0]
+        data = bytearray(7)
 
         try:
-            with self.i2c_lock:
-                data_pre_conv = self.bus.read_i2c_block_data(self.arduino, 0)
+            try:
+                with self.i2c as i2c:
+                    while i2c.try_lock():
+                        pass
+                    data_pre_conv = i2c.readfrom_into(self.arduino,data)
+            finally:
+                i2c.unlock()
             # Get odom data from arduino
             for index in range(len(data)):
                 bytes = bytearray()
@@ -223,14 +228,13 @@ class Controller:
 
         # self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
-            with self.i2c_lock:
-                # sensor_data["temp"] = self.bmp.temperature
-                # sensor_data["pressure"] = self.bmp.pressure
-                # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
-                # sensor_data["altitude"] = self.bmp.altitude
-                sensor_data["rgbw"] = self.light.color_data
-                # sensor_data["gesture"] = self.light.gesture()
-                sensor_data["prox"] = self.light.proximity
+            # sensor_data["temp"] = self.bmp.temperature
+            # sensor_data["pressure"] = self.bmp.pressure
+            # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+            # sensor_data["altitude"] = self.bmp.altitude
+            sensor_data["rgbw"] = self.light.color_data
+            # sensor_data["gesture"] = self.light.gesture()
+            sensor_data["prox"] = self.light.proximity
             time.sleep(.25)
 
     def read_light(self, timer) -> None:
@@ -300,12 +304,17 @@ class Controller:
         byteList.append(0)
 
         try:
-            with self.i2c_lock:
-                print("Lock acquired")
-                # Writes the values to the i2c
-                self.bus.write_i2c_block_data(
-                    self.arduino, byteList[0], byteList[1:16])
+            try:
+                with self.i2c as i2c:
+                    while i2c.try_lock():
+                        pass
+                    print("Lock acquired")
+                    # Writes the values to the i2c
+                    i2c.writeto(self.arduino, byteList[1:16], stop=False)
+            finally:
+                i2c.unlock()
                 print("Lock released")
+
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
@@ -386,9 +395,9 @@ class Controller:
         self.arduino = 0x08
 
         # Init smbus
-        self.bus = smbus.SMBus(1)
+        # self.bus = smbus.SMBus(1)
 
-        self.i2c_lock = threading.Lock()
+        # self.i2c_lock = threading.Lock()
 
         # Init the i2c bus
         self.light_sensor = True
