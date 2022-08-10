@@ -292,7 +292,6 @@ class Controller:
      # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
-        self.sensor_data["read"] = False
         # Work around for demo remove later
         if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
             # Converts the values to bytes
@@ -321,7 +320,6 @@ class Controller:
                 self.linear = values[1]
 
                 self.angular_z_velo = values[2]
-            self.sensor_data["read"] = True
         except OSError as e:
             print(e)
             print("Could not send message: {opcode} {data}".format(
@@ -412,7 +410,6 @@ class Controller:
         self.manager = mp.Manager()
 
         self.sensor_data = self.manager.dict({
-            "read": True,
             "temp": 0.0,
             "pressure": 0.0,
             "humidity": 0.0,
