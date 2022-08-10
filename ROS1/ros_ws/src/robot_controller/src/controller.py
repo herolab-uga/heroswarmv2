@@ -229,6 +229,8 @@ class Controller:
         # self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             try:
+                while self.i2c.try_lock():
+                    pass
                 # sensor_data["temp"] = self.bmp.temperature
                 # sensor_data["pressure"] = self.bmp.pressure
                 # sensor_data["humidity"] = self.humidity_sensor.relative_humidity
