@@ -428,7 +428,7 @@ class Controller:
         self.open_chargers = None
 
         # Creates subscribers for positions topics
-        if os.environ["global_pos"] == "True":
+        if rospy.get_param("global_pos") == "True":
             self.pos_sub_global = rospy.Subscriber(
                 "/positions", Robot_Pos, self.get_pos_global)
         else:
