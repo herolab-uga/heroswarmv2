@@ -186,25 +186,22 @@ class Controller:
     def read_imu(self, freq) -> None:
         # Creates the IMU message
         imu_msg = Imu()
-        rate = rospy.Rate(int(freq))
-        while not rospy.is_shutdown():
-            # Read the sensor
-            acc_x, acc_y, acc_z = self.IMU.acceleration
-            gyro_x, gyro_y, gyro_z = self.IMU.gyro
+        # Read the sensor
+        acc_x, acc_y, acc_z = self.IMU.acceleration
+        gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-            # Sets the angular velocity parameters
-            imu_msg.angular_velocity.x = gyro_x
-            imu_msg.angular_velocity.y = gyro_y
-            imu_msg.angular_velocity.z = gyro_z
+        # Sets the angular velocity parameters
+        imu_msg.angular_velocity.x = gyro_x
+        imu_msg.angular_velocity.y = gyro_y
+        imu_msg.angular_velocity.z = gyro_z
 
-            # Sets the linear acceleration parameters
-            imu_msg.linear_acceleration.x = acc_x
-            imu_msg.linear_acceleration.y = acc_y
-            imu_msg.linear_acceleration.z = acc_z
+        # Sets the linear acceleration parameters
+        imu_msg.linear_acceleration.x = acc_x
+        imu_msg.linear_acceleration.y = acc_y
+        imu_msg.linear_acceleration.z = acc_z
 
-            # Publishes the message
-            self.imu_pub.publish(imu_msg)
-            rate.sleep()
+        # Publishes the message
+        self.imu_pub.publish(imu_msg)
 
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
@@ -476,7 +473,7 @@ class Controller:
         if rospy.get_param(self.name + "controller/environment") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.environment_pub = rospy.Publisher(
                 "environment", Environment, queue_size=1)
-            # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
 
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
