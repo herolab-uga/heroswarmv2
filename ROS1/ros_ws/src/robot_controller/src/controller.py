@@ -93,13 +93,10 @@ class Controller:
         data = bytearray(7)
 
         try:
-            try:
-                with self.i2c as i2c:
-                    while i2c.try_lock():
-                        pass
-                    data_pre_conv = i2c.readfrom_into(self.arduino,data)
-            finally:
-                i2c.unlock()
+            with self.i2c as i2c:
+                while i2c.try_lock():
+                    pass
+                data_pre_conv = i2c.readfrom_into(self.arduino,data)
             # Get odom data from arduino
             for index in range(len(data)):
                 bytes = bytearray()
@@ -108,6 +105,8 @@ class Controller:
                 data[index] = struct.unpack('f', bytes)[0]
         except Exception as e:
             print(e)
+        finally:
+            i2c.unlock()
 
         self.sensor_data["mic"] = data[6]
 
@@ -306,18 +305,13 @@ class Controller:
             byteList = list(struct.pack('fff', *values))
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
-
         try:
-            try:
-                with self.i2c as i2c:
-                    while i2c.try_lock():
-                        pass
-                    print("Lock acquired")
-                    # Writes the values to the i2c
-                    i2c.writeto(self.arduino, byteList[1:16], stop=False)
-            finally:
-                i2c.unlock()
-                print("Lock released")
+            with self.i2c as i2c:
+                while i2c.try_lock():
+                    pass
+                print("Lock acquired")
+                # Writes the values to the i2c
+                i2c.writeto(self.arduino, byteList[1:16], stop=False)
 
             if opcode == 0:
                 self.linear_x_velo = values[0]
@@ -329,7 +323,9 @@ class Controller:
             print(e)
             print("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
-
+        finally:
+            i2c.unlock()
+            print("Lock released")
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
@@ -397,15 +393,10 @@ class Controller:
         # Arduino Device Address
         self.arduino = 0x08
 
-        # Init the i2c bus
-        self.global_pos = False
-
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.manager = mp.Manager()
-
-        self.sensor_data = self.manager.dict({
+        self.sensor_data = {
             "temp": 0.0,
             "pressure": 0.0,
             "humidity": 0.0,
@@ -415,7 +406,7 @@ class Controller:
             "prox": 0,
             "battery": None,
             "mic":0
-        })
+        }
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
