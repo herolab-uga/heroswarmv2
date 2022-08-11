@@ -8,5 +8,13 @@
     <arg name="environment" default="False"/>
     <arg name="global_pos" default="False"/>
     <node name="controller" pkg="robot_controller" type="controller.py" output="screen"/>
+      <param name="all_sensors" value="$arg all_sensors)"/>
+      <param name="mic" value="$arg mic)"/>
+      <param name="proximity" value="$arg proximity)"/>
+      <param name="light" value="$arg light)"/>
+      <param name="imu" value="$arg imu)"/>
+      <param name="environment" value="$arg environment)"/>
+      <param name="global_pos" value="$arg global_pos)"/>
+    </node>
   </group>
 </launch>
