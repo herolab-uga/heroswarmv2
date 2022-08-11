@@ -93,15 +93,15 @@ class Controller:
         # Creates the odom message
         odom_msg = Odometry()
 
-        data = bytearray(num_val)
+        data = bytearray(num_val * 4)
 
         # try:
         with self.i2c as i2c:
             while i2c.try_lock():
                 pass
-            data_pre_conv = i2c.readfrom_into(self.arduino,data)
+            i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
-        data = struct.unpack("f"*num_val, data[:])[0]
+        data = list(struct.unpack("f"*num_val, data[:]))
         # except Exception as e:
         #     print("Print reading: ",e)
         # finally:
