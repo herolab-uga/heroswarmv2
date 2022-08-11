@@ -101,7 +101,7 @@ class Controller:
         for index in range(len(data)):
             bytes = bytearray()
             for i in range(4):
-                bytes.append(data_pre_conv[:][4*index + i])
+                bytes.append(data[:][4*index + i])
             data[index] = struct.unpack('f', bytes)[0]
         # except Exception as e:
         #     print("Print reading: ",e)
