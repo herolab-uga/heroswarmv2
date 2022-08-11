@@ -1,10 +1,10 @@
 <launch>
-  <env name="all_sensors" value="False"/>
-  <env name="mic" value="False"/>
-  <env name="proximity" value="False"/>
-  <env name="light" value="False"/>
-  <env name="imu" value="False"/>
-  <env name="environment" value="False"/>
-  <env name="global_pos" value="False"/>
+  <param name="all_sensors" value="False"/>
+  <param name="mic" value="False"/>
+  <param name="proximity" value="False"/>
+  <param name="light" value="False"/>
+  <param name="imu" value="False"/>
+  <param name="environment" value="False"/>
+  <param name="global_pos" value="False"/>
   <node ns="$(env HOSTNAME)" name="controller" pkg="robot_controller" type="controller.py" output="screen"/>
 </launch>

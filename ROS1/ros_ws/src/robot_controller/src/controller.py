@@ -473,29 +473,29 @@ class Controller:
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if os.environ["environment"] == "True" or os.environ["all_sensors"] == "True":
+        if rospy.get_param("environment") == "True" or rospy.get_param("all_sensors") == "True":
             self.environment_pub = rospy.Publisher(
                 "environment", Environment, queue_size=1)
             # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
 
         # Creates a publisher for imu data
-        if os.environ["imu"] == "True" or os.environ["all_sensors"] == "True":
+        if rospy.get_param("imu") == "True" or rospy.get_param("all_sensors") == "True":
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
-        if os.environ["light"] == "True" or os.environ["all_sensors"] == "True":
+        if rospy.get_param("light") == "True" or rospy.get_param("all_sensors") == "True":
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_light)
 
         # Creates a publisher for a proximity sensor
-        if os.environ["proximity"] == "True" or os.environ["all_sensors"] == "True":
+        if rospy.get_param("proximity") == "True" or rospy.get_param("all_sensors") == "True":
             self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_proximity)
-        print(os.environ["mic"])
-        if os.environ["mic"] == "True" or os.environ["all_sensors"] == "True":
+        print(rospy.get_param("mic"))
+        if rospy.get_param("mic") == "True" or rospy.get_param("all_sensors") == "True":
             self.mic_pub = rospy.Publisher("mic", Float32, queue_size=1)
             self.mic_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_mic)
