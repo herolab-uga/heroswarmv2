@@ -92,21 +92,21 @@ class Controller:
 
         data = bytearray(7)
 
-        try:
-            with self.i2c as i2c:
-                while i2c.try_lock():
-                    pass
-                data_pre_conv = i2c.readfrom_into(self.arduino,data)
-            # Get odom data from arduino
-            for index in range(len(data)):
-                bytes = bytearray()
-                for i in range(4):
-                    bytes.append(data_pre_conv[4*index + i])
-                data[index] = struct.unpack('f', bytes)[0]
-        except Exception as e:
-            print("Print reading: ",e)
-        finally:
-            i2c.unlock()
+        # try:
+        with self.i2c as i2c:
+            while i2c.try_lock():
+                pass
+            data_pre_conv = i2c.readfrom_into(self.arduino,data)
+        # Get odom data from arduino
+        for index in range(len(data)):
+            bytes = bytearray()
+            for i in range(4):
+                bytes.append(data_pre_conv[4*index + i])
+            data[index] = struct.unpack('f', bytes)[0]
+        # except Exception as e:
+        #     print("Print reading: ",e)
+        # finally:
+        #     i2c.unlock()
 
         self.sensor_data["mic"] = data[6]
 
