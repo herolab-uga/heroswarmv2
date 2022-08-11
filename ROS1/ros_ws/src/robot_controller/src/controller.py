@@ -101,10 +101,9 @@ class Controller:
             self.i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
         except Exception as e:
-            print("Print reading: ",e)
+            print(e) #need to fix this
         finally:
             self.i2c.unlock()
-            print("unlocked")
 
         data = list(struct.unpack("f"*num_val, data[:]))
 
