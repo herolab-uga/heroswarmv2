@@ -95,17 +95,16 @@ class Controller:
 
         data = bytearray(num_val * 4)
 
-        with self.i2c as i2c:
-            try:
-                while i2c.try_lock():
-                    pass
-                i2c.readfrom_into(self.arduino,data)
-            # Get odom data from arduino
-            except Exception as e:
-                print("Print reading: ",e)
-            finally:
-                i2c.unlock()
-                print("unlocked")
+        try:
+            while self.i2c.try_lock():
+                pass
+            self.i2c.readfrom_into(self.arduino,data)
+        # Get odom data from arduino
+        except Exception as e:
+            print("Print reading: ",e)
+        finally:
+            self.i2c.unlock()
+            print("unlocked")
 
         data = list(struct.unpack("f"*num_val, data[:]))
 
@@ -307,12 +306,11 @@ class Controller:
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
         try:
-            with self.i2c as i2c:
-                while i2c.try_lock():
-                    pass
-                print("Lock acquired")
-                # Writes the values to the i2c
-                i2c.writeto(self.arduino, byteList[1:16], stop=False)
+            while self.i2c.try_lock():
+                pass
+            print("Lock acquired")
+            # Writes the values to the i2c
+            self.i2c.writeto(self.arduino, byteList[1:16], stop=False)
 
             if opcode == 0:
                 self.linear_x_velo = values[0]
@@ -325,7 +323,7 @@ class Controller:
             print("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
         finally:
-            i2c.unlock()
+            self.i2c.unlock()
             print("Lock released")
 
     def move_to_angle(self, angle):
