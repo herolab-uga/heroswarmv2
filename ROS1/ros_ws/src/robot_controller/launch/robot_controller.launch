@@ -1,12 +1,12 @@
 <launch>
   <group ns="$(env HOSTNAME)">
-    <param name="all_sensors" value="False"/>
-    <param name="mic" value="False"/>
-    <param name="proximity" value="False"/>
-    <param name="light" value="False"/>
-    <param name="imu" value="False"/>
-    <param name="environment" value="False"/>
-    <param name="global_pos" value="False"/>
+    <arg name="all_sensors" default="False"/>
+    <arg name="mic" default="False"/>
+    <arg name="proximity" default="False"/>
+    <arg name="light" default="False"/>
+    <arg name="imu" default="False"/>
+    <arg name="environment" default="False"/>
+    <arg name="global_pos" default="False"/>
     <node name="controller" pkg="robot_controller" type="controller.py" output="screen"/>
   </group>
 </launch>
