@@ -71,8 +71,8 @@ class Controller:
             if robot.child_frame_id == str(self.id):
                 self.position["x"] = robot.pose.pose.position.x
                 self.position["y"] = robot.pose.pose.position.y
-                self.position["orientation"] = - \
-                    self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
+                self.position["orientation"] = \
+                    -self.rpy_from_quaternion(robot.pose.pose.orientation)[2]
                 break
         # rospy.loginfo("Global {X: {x} Z: {z} Theta: {theta}"+"}".format(
             # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
@@ -397,18 +397,9 @@ class Controller:
         # Arduino Device Address
         self.arduino = 0x08
 
-        # Init smbus
-        # self.bus = smbus.SMBus(1)
-
-        # self.i2c_lock = threading.Lock()
-
         # Init the i2c bus
-        self.light_sensor = True
-        self.environment_sensor = False
-        self.imu_sensor = False
-        self.proximity_sensor = True
         self.global_pos = False
-        self.get_mic_data = True
+
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
@@ -448,7 +439,7 @@ class Controller:
         self.open_chargers = None
 
         # Creates subscribers for positions topics
-        if self.global_pos:
+        if os.environ["global_pos"] == "True":
             self.pos_sub_global = rospy.Subscriber(
                 "/positions", Robot_Pos, self.get_pos_global)
         else:
@@ -493,29 +484,29 @@ class Controller:
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if self.environment_sensor:
+        if os.environ["environment"] == "True" or os.environ["all_sensors"] == "True":
             self.environment_pub = rospy.Publisher(
                 "environment", Environment, queue_size=1)
             # self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
 
         # Creates a publisher for imu data
-        if self.imu_sensor:
+        if os.environ["imu"] == "True" or os.environ["all_sensors"] == "True":
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu)
 
         # Creates a publisher for the light sensor
-        if self.light_sensor:
+        if os.environ["light"] == "True" or os.environ["all_sensors"] == "True":
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_light)
 
         # Creates a publisher for a proximity sensor
-        if self.proximity_sensor:
+        if os.environ["proximity"] == "True" or os.environ["all_sensors"] == "True":
             self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_proximity)
 
-        if self.get_mic_data:
+        if os.environ["mic"] == "True" or os.environ["all_sensors"] == "True":
             self.mic_pub = rospy.Publisher("mic", Float32, queue_size=1)
             self.mic_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_mic)
