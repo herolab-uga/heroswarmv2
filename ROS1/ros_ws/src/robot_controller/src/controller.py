@@ -105,6 +105,7 @@ class Controller:
             print("Print reading: ",e)
         finally:
             i2c.unlock()
+            print("unlocked")
 
         data = list(struct.unpack("f"*num_val, data[:]))
 
