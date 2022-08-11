@@ -494,7 +494,7 @@ class Controller:
             self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
             self.environment_timer = rospy.Timer(
                 rospy.Duration(1/5), self.read_proximity)
-
+        print(os.environ["mic"])
         if os.environ["mic"] == "True" or os.environ["all_sensors"] == "True":
             self.mic_pub = rospy.Publisher("mic", Float32, queue_size=1)
             self.mic_timer = rospy.Timer(
