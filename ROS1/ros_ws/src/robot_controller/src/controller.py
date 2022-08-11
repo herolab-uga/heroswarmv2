@@ -295,16 +295,15 @@ class Controller:
         # Work around for demo remove later
         if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
             # Converts the values to bytes
-            byteList = list(struct.pack("f", opcode)) + \
-                list(struct.pack('fff', *values))
+            byteList = struct.pack("f", opcode) + \
+                struct.pack('fff', *values)
         else:
-            byteList = list(struct.pack('fff', *values))
+            byteList = struct.pack('fff', *values)
         # fails to send last byte over I2C, hence this needs to be added
         byteList.append(0)
         try:
             while self.i2c.try_lock():
                 pass
-            print("Lock acquired")
             # Writes the values to the i2c
             self.i2c.writeto(self.arduino, byteList[1:16], stop=False)
 
@@ -320,7 +319,7 @@ class Controller:
                 opcode=opcode, data=values))
         finally:
             self.i2c.unlock()
-            print("Lock released")
+
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
@@ -425,7 +424,7 @@ class Controller:
         self.open_chargers = None
 
         # Creates subscribers for positions topics
-        if rospy.get_param("global_pos") == True:
+        if rospy.get_param(self.name + "controller/global_pos") == True:
             self.pos_sub_global = rospy.Subscriber(
                 "/positions", Robot_Pos, self.get_pos_global)
         else:
