@@ -1,10 +1,12 @@
 <launch>
-  <param name="all_sensors" value="False"/>
-  <param name="mic" value="False"/>
-  <param name="proximity" value="False"/>
-  <param name="light" value="False"/>
-  <param name="imu" value="False"/>
-  <param name="environment" value="False"/>
-  <param name="global_pos" value="False"/>
-  <node ns="$(env HOSTNAME)" name="controller" pkg="robot_controller" type="controller.py" output="screen"/>
+  <group ns="$(env HOSTNAME)">
+    <param name="all_sensors" value="False"/>
+    <param name="mic" value="False"/>
+    <param name="proximity" value="False"/>
+    <param name="light" value="False"/>
+    <param name="imu" value="False"/>
+    <param name="environment" value="False"/>
+    <param name="global_pos" value="False"/>
+    <node name="controller" pkg="robot_controller" type="controller.py" output="screen"/>
+  </group>
 </launch>
