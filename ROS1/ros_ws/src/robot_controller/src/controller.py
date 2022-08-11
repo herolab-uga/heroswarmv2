@@ -101,7 +101,7 @@ class Controller:
                 pass
             data_pre_conv = i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
-        data = struct.unpack("f"*num_val, bytes)[0]
+        data = struct.unpack("f"*num_val, data[:])[0]
         # except Exception as e:
         #     print("Print reading: ",e)
         # finally:
