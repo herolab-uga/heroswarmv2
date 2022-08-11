@@ -235,7 +235,7 @@ class Controller:
                 sensor_data["prox"] = self.light.proximity
             finally:
                 self.i2c.unlock()
-            time.sleep(.25)
+                time.sleep(.25)
 
     def read_light(self, timer) -> None:
         # Creates the light message
@@ -463,9 +463,10 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber(
             "shutdown", String, self.shutdown_callback)
 
-        # self.sensor_read_thread = threading.Thread(
-        #     target=self.read_sensors, args=(self.sensor_data,),daemon=True)
-        # self.sensor_read_thread.start()
+        # Read sensors
+        self.sensor_read_thread = threading.Thread(
+            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
+        self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
 
