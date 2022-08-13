@@ -221,7 +221,6 @@ class Controller:
         self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
         self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
-        self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             try:
                 sensor_data["temp"] = self.bmp.temperature
@@ -388,6 +387,7 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
+        self.IMU = LSM6DS33(self.i2c)
         self.sensor_data = {
             "temp": 0.0,
             "pressure": 0.0,
@@ -476,7 +476,7 @@ class Controller:
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu) # not working
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu) # not working
 
         # Creates a publisher for the light sensor
         if rospy.get_param(self.name + "controller/light") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
