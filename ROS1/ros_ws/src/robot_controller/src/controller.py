@@ -96,7 +96,7 @@ class Controller:
         data = bytearray(num_val * 4)
 
         try:
-            while self.i2c.try_lock():
+            while not self.i2c.try_lock():
                 pass
             self.i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
@@ -224,8 +224,6 @@ class Controller:
         self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             try:
-                while self.i2c.try_lock():
-                    pass
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
                 sensor_data["humidity"] = self.humidity_sensor.relative_humidity
@@ -299,10 +297,10 @@ class Controller:
                 struct.pack('fff', *values)
         else:
             byteList = struct.pack('fff', *values)
-        # fails to send last byte over I2C, hence this needs to be added
-        byteList.append(0)
+        # # fails to send last byte over I2C, hence this needs to be added
+        # byteList.append(0)
         try:
-            while self.i2c.try_lock():
+            while not self.i2c.try_lock():
                 pass
             # Writes the values to the i2c
             self.i2c.writeto(self.arduino, byteList[1:16], stop=False)
