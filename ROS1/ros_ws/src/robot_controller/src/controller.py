@@ -226,7 +226,7 @@ class Controller:
             try:
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
@@ -252,7 +252,6 @@ class Controller:
         # Creates the environment message
         environ_msg = Environment()
 
-        print(self.sensor_data["humidity"])
         # Sets the temperature
         environ_msg.temp = self.sensor_data["temp"]
 
