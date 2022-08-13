@@ -2,12 +2,10 @@
 
 from concurrent.futures import thread
 import math
-from pickletools import float8
 import struct
 import threading
 import time
 import json
-import os
 import threading
 import multiprocessing as mp
 
@@ -17,15 +15,13 @@ import adafruit_sht31d
 import board
 import numpy as np
 import rospy
-import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_Pos, StringList
+from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
-from subprocess import call
 
 
 class Controller:
@@ -294,8 +290,6 @@ class Controller:
             # Converts the values to bytes
             byteList = struct.pack("f", opcode) + \
                 struct.pack('fff', *values)
-        else:
-            byteList = struct.pack('fff', *values)
         # # fails to send last byte over I2C, hence this needs to be added
         # byteList.append(0)
         try:
