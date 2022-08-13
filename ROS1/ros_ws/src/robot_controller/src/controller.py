@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from concurrent.futures import thread
 import math
 import struct
 import threading
@@ -198,23 +197,35 @@ class Controller:
         # Publishes the message
         self.imu_pub.publish(imu_msg)
 
-    def read_sensors(self, sensor_data):
+    def read_sensors(self,queue,i2c):
         rate = rospy.Rate(5)
         
         # Creates sensor objects
-        self.light = APDS9960(self.i2c)
+        self.light = APDS9960(i2c)
         self.light.enable_proximity = True
         self.light.enable_gesture = False
         self.light.enable_color = True
 
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+        self.magnetometer = adafruit_lis3mdl.LIS3MDL(i2c)
         # Creates the i2c interface for the bmp sensor
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(i2c)
 
         # Creates the i2c interface for the humidity sensor
         self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
         self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
         self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+
+        sensor_data = {
+            "temp": 0.0,
+            "pressure": 0.0,
+            "humidity": 0.0,
+            "altitude": 0.0,
+            "rgbw": [],
+            "gesture": 0,
+            "prox": 0,
+            "battery": None,
+            "mic":0
+        }
 
         while not rospy.is_shutdown():
             try:
@@ -225,6 +236,7 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
+                queue.put(sensor_data)
             except:
                 print("Could not read sensor")
 
@@ -381,17 +393,7 @@ class Controller:
         self.name = rospy.get_namespace()
 
         self.IMU = LSM6DS33(self.i2c)
-        self.sensor_data = {
-            "temp": 0.0,
-            "pressure": 0.0,
-            "humidity": 0.0,
-            "altitude": 0.0,
-            "rgbw": [],
-            "gesture": 0,
-            "prox": 0,
-            "battery": None,
-            "mic":0
-        }
+        self.sensor_queue = mp.Queue()
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -454,8 +456,8 @@ class Controller:
             "shutdown", String, self.shutdown_callback)
 
         # Read sensors
-        self.sensor_read_thread = threading.Thread(
-            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
+        self.sensor_read_thread = mp.Process(
+            target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
         self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
