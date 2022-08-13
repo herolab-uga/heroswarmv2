@@ -231,9 +231,9 @@ class Controller:
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-            finally:
-                self.i2c.unlock()
-                time.sleep(.25)
+            except:
+                print("Could not read sensor")
+            time.sleep(.25)
 
     def read_light(self, timer) -> None:
         # Creates the light message
