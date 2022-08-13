@@ -287,10 +287,10 @@ class Controller:
     def send_values(self, values=None, opcode=0):
         byteList = None
         # Work around for demo remove later
-        if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
-            # Converts the values to bytes
-            byteList = struct.pack("f", opcode) + \
-                struct.pack('fff', *values)
+        # if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
+        # Converts the values to bytes
+        byteList = struct.pack("f", opcode) + \
+            struct.pack('fff', *values)
         # # fails to send last byte over I2C, hence this needs to be added
         # byteList.append(0)
         try:
