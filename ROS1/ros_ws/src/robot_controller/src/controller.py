@@ -300,7 +300,7 @@ class Controller:
         # if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
         # Converts the values to bytes
         byteList = struct.pack("f", opcode) + \
-            struct.pack('fff', *values)
+            struct.pack('fff', *values) + struct.pack('f',0.0)
         # # fails to send last byte over I2C, hence this needs to be added
         # byteList.append(0)
         try:
@@ -321,7 +321,6 @@ class Controller:
                 opcode=opcode, data=values))
         finally:
             self.i2c.unlock()
-
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
