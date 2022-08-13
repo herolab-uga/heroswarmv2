@@ -295,7 +295,6 @@ class Controller:
     # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
-        byteList = None
         # Work around for demo remove later
         # if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
         # Converts the values to bytes
@@ -307,7 +306,7 @@ class Controller:
             while not self.i2c.try_lock():
                 pass
             # Writes the values to the i2c
-            self.i2c.writeto(self.arduino, byteList[1:16], stop=False)
+            self.i2c.writeto(self.arduino, byteList, stop=False)
 
             if opcode == 0:
                 self.linear_x_velo = values[0]
