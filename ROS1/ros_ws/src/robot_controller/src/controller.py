@@ -292,7 +292,7 @@ class Controller:
         # Publishes the message
         self.mic_pub.publish(mic_msg)
 
-     # Sending an float to the arduino
+    # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
         byteList = None
@@ -393,7 +393,11 @@ class Controller:
         self.name = rospy.get_namespace()
 
         self.IMU = LSM6DS33(self.i2c)
-        self.sensor_queue = mp.Queue()
+        # self.manager = mp.Manager()
+        # self.environment_queue = self.manager.Queue()
+        # self.light_queue = self.manager.Queue()
+        # self.prox_queue = self.manager.Queue()
+        # self.mic_queue = self.manager.Queue()
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -405,6 +409,18 @@ class Controller:
             "x": 0,
             "y": 0,
             "orientation": 0
+        }
+
+        self.sensor_data = {
+            "temp": 0.0,
+            "pressure": 0.0,
+            "humidity": 0.0,
+            "altitude": 0.0,
+            "rgbw": [],
+            "gesture": 0,
+            "prox": 0,
+            "battery": None,
+            "mic":0
         }
 
         self.linear_x_velo = None
@@ -458,7 +474,7 @@ class Controller:
         # Read sensors
         self.sensor_read_thread = mp.Process(
             target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
-        self.sensor_read_thread.start()
+        # self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
 
