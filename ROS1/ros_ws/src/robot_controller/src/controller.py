@@ -252,9 +252,9 @@ class Controller:
         # Creates the environment message
         environ_msg = Environment()
 
-        print(self.sensor_data["temp"])
+        print(self.sensor_data["humidity"])
         # Sets the temperature
-        environ_msg.temp = float(self.sensor_data["temp"])
+        environ_msg.temp = self.sensor_data["temp"]
 
         # Sets the pressure
         environ_msg.pressure = self.sensor_data["pressure"]
