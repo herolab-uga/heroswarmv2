@@ -472,8 +472,8 @@ class Controller:
             "shutdown", String, self.shutdown_callback)
 
         # Read sensors
-        self.sensor_read_thread = mp.Process(
-            target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
+        # self.sensor_read_thread = mp.Process(
+        #     target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
         # self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
