@@ -285,6 +285,7 @@ class Controller:
      # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
+        byteList = None
         # Work around for demo remove later
         if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
             # Converts the values to bytes
