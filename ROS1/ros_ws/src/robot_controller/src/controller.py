@@ -254,7 +254,7 @@ class Controller:
 
         print(self.sensor_data["temp"])
         # Sets the temperature
-        environ_msg.temp = self.sensor_data["temp"]
+        environ_msg.temp = float(self.sensor_data["temp"])
 
         # Sets the pressure
         environ_msg.pressure = self.sensor_data["pressure"]
