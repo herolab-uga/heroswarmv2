@@ -177,7 +177,6 @@ class Controller:
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
                     self.angular_z_velo = 0
-            time.sleep(.1)
 
     def read_imu(self, freq) -> None:
         # Creates the IMU message
@@ -228,7 +227,6 @@ class Controller:
                 sensor_data["prox"] = self.light.proximity
             except:
                 print("Could not read sensor")
-            time.sleep(.25)
 
     def read_light(self, timer) -> None:
         # Creates the light message
