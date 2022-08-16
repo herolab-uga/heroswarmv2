@@ -203,25 +203,32 @@ class Controller:
         # Publishes the message
         self.imu_pub.publish(imu_msg)
 
+    def init_sensors(self):
+        try:
+            # Creates sensor objects
+            self.light = APDS9960(self.i2c)
+            self.light.enable_proximity = True
+            self.light.enable_gesture = False
+            self.light.enable_color = True
+
+            self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
+            # Creates the i2c interface for the bmp sensor
+            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+
+            # Creates the i2c interface for the humidity sensor
+            self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
+            self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
+            self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
+
+            self.IMU = LSM6DS33(self.i2c)
+        except ValueError:
+            time.sleep(.1)
+            self.init_sensors()
+
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
-        
-        # Creates sensor objects
-        self.light = APDS9960(self.i2c)
-        self.light.enable_proximity = True
-        self.light.enable_gesture = False
-        self.light.enable_color = True
+        self.init_sensors()
 
-        self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
-        # Creates the i2c interface for the bmp sensor
-        self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
-
-        # Creates the i2c interface for the humidity sensor
-        self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
-        self.humidity_sensor.mode = adafruit_sht31d.MODE_PERIODIC
-        self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
-
-        self.IMU = LSM6DS33(self.i2c)
         while not rospy.is_shutdown():
             try:
                 while self.i2c.try_lock():
