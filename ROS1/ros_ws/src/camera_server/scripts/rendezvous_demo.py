@@ -31,10 +31,10 @@ def main_algorithm():
 	# print(current_pos_xy)
 
 	vels = []
-	for robot in range(num_robots):
+	for robot in range(wrapper.get_active()):
 		x_sum = 0
 		y_sum = 0
-		for i in range(num_robots):
+		for i in range(wrapper.get_active()):
 			x_sum += current_pos[i][0] - current_pos[robot][0]
 			y_sum += current_pos[i][1] - current_pos[robot][1]
 		vels.append([x_sum,y_sum])
@@ -59,10 +59,10 @@ for iteration in range(iterations):
 			# print(current_pos_xy)
 
 			vels = []
-			for robot in range(num_robots):
+			for robot in range(wrapper.get_active()):
 				x_sum = 0
 				y_sum = 0
-				for i in range(num_robots):
+				for i in range(wrapper.get_active()):
 					x_sum += current_pos[i][0] - current_pos[robot][0]
 					y_sum += current_pos[i][1] - current_pos[robot][1]
 				vels.append([x_sum,y_sum])
