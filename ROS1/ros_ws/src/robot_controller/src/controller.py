@@ -148,7 +148,7 @@ class Controller:
         else:
             z_angular = 0
         
-        self.stop_timer = threading.Timer(0.2,self.stop)
+        self.stop_timer = threading.Timer(0.5,self.stop)
         self.stop_timer.start()
 
         if not (x_velo == self.linear_x_velo and z_angular == self.angular_z_velo):
