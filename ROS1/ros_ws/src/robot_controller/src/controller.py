@@ -148,7 +148,6 @@ class Controller:
         else:
             z_angular = 0
         
-        print("Starting timer")
         self.stop_timer = threading.Timer(0.2,self.stop)
         self.stop_timer.start()
 
@@ -160,7 +159,6 @@ class Controller:
             self.send_values([x_velo, 0, z_angular])
 
     def stop(self):
-        print("stop")
         self.send_values([0, 0, 0])
         self.stop_timer = None
 
