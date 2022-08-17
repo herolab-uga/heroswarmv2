@@ -112,7 +112,8 @@ class ServerWrapper():
     def step(self,rate=10,time=1000):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
-            for robot in [x for x in (self.active_bots and not self.missing_bots)]:
+            for robot in self.active_bots:
+                # print("Stepping")
                 if type(robot) == str:
                     # self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
                     if self.active_bots[robot]["vel_control"]:
@@ -122,7 +123,7 @@ class ServerWrapper():
             pub_rate.sleep()
     
     def stop(self):
-        self.set_velocities([[0.0,0.0,]]*self.num_active_bots)
+        self.set_velocities([[0.0,0.0]]*self.num_active_bots)
         self.step()
             
     def set_velocities(self,vel_list):
@@ -130,6 +131,10 @@ class ServerWrapper():
             self.active_bots[index]["vel_control"] = True
             msg = Twist()
             msg.linear.x = vel[0]
+            msg.linear.y = 0.0
+            msg.linear.z = 0.0
+            msg.angular.x = 0.0
+            msg.angular.y = 0.0
             msg.angular.z = vel[1]
             self.active_bots[index]["cmd_vel"] = msg
 
@@ -182,16 +187,25 @@ class ServerWrapper():
     def get_active(self):
         return self.active_bots
 
+    def get_num_active(self):
+        return self.num_active_bots
+
     def remove_bots(self):
         while True:
+            #print(self.missing_bots)
             for index,id in enumerate(self.missing_bots):
-                if self.missing_bots[id] < time.time() - self.timeout:
-                    name = self.active_bots[id]["name"]
-                    self.active_bots.pop(id,None)
-                    self.active_bots.pop(name,None)
-                    self.missing_bots.pop(index,None)
-                    print("Bot {id} removed".format(id=id))
-            time.sleep(0.1)
+                try:
+                    if self.missing_bots[id] < time.time() - self.timeout and self.missing_bots[id] != None:
+                        #print(id)
+                        name = self.active_bots[id]["name"]
+                        self.active_bots.pop(id,None)
+                        self.active_bots.pop(name,None)
+                        self.missing_bots.pop(index,None)
+                        self.num_active_bots = self.num_active_bots - 1
+                        print("Bot {id} removed".format(id=id))
+                except TypeError:
+                    print("Read write error")
+            time.sleep(1)
 
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
@@ -204,8 +218,8 @@ class ServerWrapper():
 
         self.timeout = 0.1
 
-        self.missing_bots = threading.Thread(target=self.remove_bots,args=(),daemon=True)
-        self.missing_bots.start()
+        self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
+        self.missing_bots_thread.start()
     
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
