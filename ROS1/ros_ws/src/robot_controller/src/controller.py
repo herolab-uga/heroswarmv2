@@ -440,9 +440,9 @@ class Controller:
         # Creates the velocity lock for auto stop and velocity control
         self.velo_lock = threading.Lock()
 
-        # # Creates the auto-stop thread
-        # self.stop_thread = threading.Thread(target=self.auto_stop, args=())
-        # self.stop_thread.start()
+        # Creates the auto-stop thread
+        self.stop_thread = threading.Thread(target=self.auto_stop, args=())
+        self.stop_thread.start()
 
         # Creates the battery publisher
         self.battery_pub = rospy.Publisher("battery", Float32, queue_size=1)
