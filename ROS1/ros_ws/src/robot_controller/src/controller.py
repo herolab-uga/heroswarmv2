@@ -150,12 +150,12 @@ class Controller:
         
         self.stop_timer = threading.Timer(0.12,self.stop)
 
-        if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
+        if not (x_velo == self.linear_x_velo and z_angular == self.angular_z_velo):
             # Logs the data
             rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=y_velo, z=z_angular))
+                x=x_velo, y=0, z=z_angular))
             # Sends the velocity information to the feather board
-            self.send_values([x_velo, y_velo, z_angular])
+            self.send_values([x_velo, 0, z_angular])
 
     def stop(self):
         print("stop")
