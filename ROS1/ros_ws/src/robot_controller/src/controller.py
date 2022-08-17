@@ -130,8 +130,6 @@ class Controller:
         self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
-        x_velo = 0
-        z_angular = 0
         if self.stop_timer != None:
             self.stop_timer.cancel()
         # Reads ths twist message x linear velocity
@@ -141,9 +139,6 @@ class Controller:
                 (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
         else:
             x_velo = 0
-
-        # Reads the twist message y linear velocity
-        y_velo = 0
 
         # Reads the twist message z angular velocity
         if not msg.angular.z == 0:
