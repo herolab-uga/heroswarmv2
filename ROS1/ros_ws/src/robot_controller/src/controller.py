@@ -1,13 +1,10 @@
 #!/usr/bin/python3
 
-from concurrent.futures import thread
 import math
-from pickletools import float8
 import struct
 import threading
 import time
 import json
-import os
 import threading
 import multiprocessing as mp
 
@@ -17,15 +14,13 @@ import adafruit_sht31d
 import board
 import numpy as np
 import rospy
-import smbus
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_Pos, StringList
+from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
-from subprocess import call
 
 
 class Controller:
@@ -96,7 +91,7 @@ class Controller:
         data = bytearray(num_val * 4)
 
         try:
-            while self.i2c.try_lock():
+            while not self.i2c.try_lock():
                 pass
             self.i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
@@ -181,7 +176,6 @@ class Controller:
                     self.linear_x_velo = 0
                     self.linear_y_velo = 0
                     self.angular_z_velo = 0
-            time.sleep(.1)
 
     def read_imu(self, freq) -> None:
         # Creates the IMU message
@@ -231,18 +225,16 @@ class Controller:
 
         while not rospy.is_shutdown():
             try:
-                while self.i2c.try_lock():
-                    pass
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 # sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-            finally:
-                self.i2c.unlock()
-                time.sleep(.25)
+                queue.put(sensor_data)
+            except:
+                print("Could not read sensor")
 
     def read_light(self, timer) -> None:
         # Creates the light message
@@ -296,23 +288,21 @@ class Controller:
         # Publishes the message
         self.mic_pub.publish(mic_msg)
 
-     # Sending an float to the arduino
+    # Sending an float to the arduino
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
         # Work around for demo remove later
-        if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
-            # Converts the values to bytes
-            byteList = struct.pack("f", opcode) + \
-                struct.pack('fff', *values)
-        else:
-            byteList = struct.pack('fff', *values)
-        # fails to send last byte over I2C, hence this needs to be added
-        byteList.append(0)
+        # if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
+        # Converts the values to bytes
+        byteList = struct.pack("f", opcode) + \
+            struct.pack('fff', *values) + struct.pack('f',0.0)
+        # # fails to send last byte over I2C, hence this needs to be added
+        # byteList.append(0)
         try:
-            while self.i2c.try_lock():
+            while not self.i2c.try_lock():
                 pass
             # Writes the values to the i2c
-            self.i2c.writeto(self.arduino, byteList[1:16], stop=False)
+            self.i2c.writeto(self.arduino, byteList, stop=False)
 
             if opcode == 0:
                 self.linear_x_velo = values[0]
@@ -326,7 +316,6 @@ class Controller:
                 opcode=opcode, data=values))
         finally:
             self.i2c.unlock()
-
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
@@ -397,17 +386,12 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.sensor_data = {
-            "temp": 0.0,
-            "pressure": 0.0,
-            "humidity": 0.0,
-            "altitude": 0.0,
-            "rgbw": [],
-            "gesture": 0,
-            "prox": 0,
-            "battery": None,
-            "mic":0
-        }
+        self.IMU = LSM6DS33(self.i2c)
+        # self.manager = mp.Manager()
+        # self.environment_queue = self.manager.Queue()
+        # self.light_queue = self.manager.Queue()
+        # self.prox_queue = self.manager.Queue()
+        # self.mic_queue = self.manager.Queue()
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -419,6 +403,18 @@ class Controller:
             "x": 0,
             "y": 0,
             "orientation": 0
+        }
+
+        self.sensor_data = {
+            "temp": 0.0,
+            "pressure": 0.0,
+            "humidity": 0.0,
+            "altitude": 0.0,
+            "rgbw": [],
+            "gesture": 0,
+            "prox": 0,
+            "battery": None,
+            "mic":0
         }
 
         self.linear_x_velo = None
@@ -470,9 +466,9 @@ class Controller:
             "shutdown", String, self.shutdown_callback)
 
         # Read sensors
-        self.sensor_read_thread = threading.Thread(
-            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
-        self.sensor_read_thread.start()
+        # self.sensor_read_thread = mp.Process(
+        #     target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
+        # self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
 
@@ -485,7 +481,7 @@ class Controller:
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            # self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu) # not working
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu) # not working
 
         # Creates a publisher for the light sensor
         if rospy.get_param(self.name + "controller/light") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
