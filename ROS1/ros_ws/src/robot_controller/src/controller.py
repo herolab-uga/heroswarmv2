@@ -5,7 +5,6 @@ import struct
 import threading
 import time
 import json
-import threading
 import multiprocessing as mp
 
 import adafruit_bmp280
@@ -161,14 +160,10 @@ class Controller:
             rospy.loginfo("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
                 x=x_velo, y=y_velo, z=z_angular))
             # Sends the velocity information to the feather board
-            with self.velo_lock:
-                self.last_call["time"] = time.time()
             self.send_values([x_velo, y_velo, z_angular])
-            self.linear_x_velo = x_velo
-            self.linear_y_velo = y_velo
-            self.angular_z_velo = z_angular
 
     def stop(self):
+        print("stop")
         self.send_values([0, 0, 0])
         self.stop_timer = None
 
@@ -432,10 +427,7 @@ class Controller:
         # Creates the twist publisher
         self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
 
-        # Creates the velocity lock for auto stop and velocity control
-        self.velo_lock = threading.Lock()
-
-        # Creates the auto-stop thread
+        # Creates the auto-stop timer
         self.stop_timer = None
 
         # Creates the battery publisher
