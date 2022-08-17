@@ -133,8 +133,8 @@ class Controller:
     def read_twist(self, msg, event=None) -> None:
         x_velo = 0
         z_angular = 0
-        with self.velo_lock:
-            self.last_call["time"] = time.time()
+        if self.stop_timer != None:
+            self.stop_timer.cancel()
         # Reads ths twist message x linear velocity
         if not msg.linear.x == 0:
             direction_lin = msg.linear.x / abs(msg.linear.x)
@@ -153,6 +153,8 @@ class Controller:
                 (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
         else:
             z_angular = 0
+        
+        self.stop_timer = threading.Timer(0.12,self.stop)
 
         if not (x_velo == self.linear_x_velo and y_velo == self.linear_y_velo and z_angular == self.angular_z_velo):
             # Logs the data
@@ -166,16 +168,9 @@ class Controller:
             self.linear_y_velo = y_velo
             self.angular_z_velo = z_angular
 
-    def auto_stop(self):
-        while True:
-            if self.last_call["time"] == None:
-                continue
-            elif time.time() - self.last_call["time"] > 0.12:
-                if not (self.linear_x_velo == 0 and self.linear_y_velo == 0 and self.angular_z_velo == 0):
-                    self.send_values([0.0, 0.0, 0.0])
-                    self.linear_x_velo = 0
-                    self.linear_y_velo = 0
-                    self.angular_z_velo = 0
+    def stop(self):
+        self.send_values([0, 0, 0])
+        self.stop_timer = None
 
     def read_imu(self, freq) -> None:
         # Creates the IMU message
@@ -441,8 +436,7 @@ class Controller:
         self.velo_lock = threading.Lock()
 
         # Creates the auto-stop thread
-        self.stop_thread = threading.Thread(target=self.auto_stop, args=())
-        self.stop_thread.start()
+        self.stop_timer = None
 
         # Creates the battery publisher
         self.battery_pub = rospy.Publisher("battery", Float32, queue_size=1)
