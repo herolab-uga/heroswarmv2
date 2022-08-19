@@ -102,8 +102,6 @@ class Controller:
         finally:
             self.i2c.unlock()
 
-        print(data)
-
         data = list(struct.unpack("f"*num_val, data[:]))
 
         self.sensor_data["mic"] = data[6]
