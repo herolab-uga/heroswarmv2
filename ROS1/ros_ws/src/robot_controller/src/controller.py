@@ -6,6 +6,7 @@ import threading
 import time
 import json
 import multiprocessing as mp
+import subprocess
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -21,6 +22,8 @@ from robot_msgs.msg import Environment, Light, Robot_Pos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 
+shutdown = False
+restart = False
 
 class Controller:
 
@@ -95,9 +98,11 @@ class Controller:
             self.i2c.readfrom_into(self.arduino,data)
         # Get odom data from arduino
         except Exception as e:
-            print(e) #need to fix this
+            rospy.loginfo(e) #need to fix this
         finally:
             self.i2c.unlock()
+
+        print(data)
 
         data = list(struct.unpack("f"*num_val, data[:]))
 
@@ -162,7 +167,7 @@ class Controller:
         self.send_values([0, 0, 0])
         self.stop_timer = None
 
-    def read_imu(self, freq) -> None:
+    def pub_imu(self, freq) -> None:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor
@@ -182,6 +187,8 @@ class Controller:
         # Publishes the message
         self.imu_pub.publish(imu_msg)
 
+# move sensor data gathering to the feather sense
+# change i2c baud to 400 khz
     def init_sensors(self):
         try:
             # Creates sensor objects
@@ -215,13 +222,13 @@ class Controller:
                 sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
-                # sensor_data["gesture"] = self.light.gesture()
+                sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                queue.put(sensor_data)
+                # queue.put(sensor_data)
             except:
                 print("Could not read sensor")
 
-    def read_light(self, timer) -> None:
+    def pub_light(self, timer) -> None:
         # Creates the light message
         light_msg = Light()
 
@@ -234,7 +241,7 @@ class Controller:
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def read_environment(self, timer) -> None:
+    def pub_environment(self, timer) -> None:
         # Creates the environment message
         environ_msg = Environment()
 
@@ -253,7 +260,7 @@ class Controller:
         # Publishes the message
         self.environment_pub.publish(environ_msg)
 
-    def read_proximity(self, timer, ) -> None:
+    def pub_proximity(self, timer, ) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
 
@@ -263,7 +270,7 @@ class Controller:
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
 
-    def read_mic(self,timer):
+    def pub_mic(self,timer):
         # Creates the mic message
         mic_msg = Float32()
 
@@ -277,12 +284,10 @@ class Controller:
     # Message format [msgid , args]
     def send_values(self, values=None, opcode=0):
         # Work around for demo remove later
-        # if self.name == "/swarmpaddy1/" or self.name == "/swarmstarburst1/" or self.name == "/swarmstarapril1/" or self.name == "/swarmcoral1/":
         # Converts the values to bytes
         byteList = struct.pack("f", opcode) + \
             struct.pack('fff', *values) + struct.pack('f',0.0)
-        # # fails to send last byte over I2C, hence this needs to be added
-        # byteList.append(0)
+        # fails to send last byte over I2C, hence this needs to be added
         try:
             while not self.i2c.try_lock():
                 pass
@@ -296,8 +301,8 @@ class Controller:
 
                 self.angular_z_velo = values[2]
         except OSError as e:
-            print(e)
-            print("Could not send message: {opcode} {data}".format(
+            rospy.loginfo(e)
+            rospy.loginfo("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
         finally:
             self.i2c.unlock()
@@ -349,8 +354,14 @@ class Controller:
             self.send_values([v, 0, omega])
 
     def shutdown_callback(self, msg):
-        rospy.loginfo("Shutting Down")
-        rospy.signal_shutdown("Rasperry Pi shutting down")
+        if msg.data == "shutdown":
+            rospy.loginfo("Shutting Down")
+            rospy.signal_shutdown("Rasperry Pi shutting down")
+            shutdown = True
+        else:
+            rospy.loginfo("Restarting")
+            rospy.signal_shutdown("Rasperry Pi restarting")
+            restart = True
             
 
     def neopixel_callback(self, msg):
@@ -362,7 +373,6 @@ class Controller:
         self.battery_pub.publish(battery_msg)
 
     def __init__(self):
-        # print("Start")
         rospy.init_node("robot_controller", anonymous=True)
 
         # Arduino Device Address
@@ -405,7 +415,6 @@ class Controller:
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        self.last_call = {"time": None}
         self.v_max = 0.1
         self.omega_max = 1.0
 
@@ -457,29 +466,29 @@ class Controller:
         if rospy.get_param(self.name + "controller/environment") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.environment_pub = rospy.Publisher(
                 "environment", Environment, queue_size=1)
-            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.read_environment)
+            self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.pub_environment)
 
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.read_imu) # not working
+            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
         if rospy.get_param(self.name + "controller/light") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.light_pub = rospy.Publisher('light', Light, queue_size=1)
             self.light_timer = rospy.Timer(
-                rospy.Duration(1/5), self.read_light)
+                rospy.Duration(1/5), self.pub_light)
 
         # Creates a publisher for a proximity sensor
         if rospy.get_param(self.name + "controller/proximity") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.prox_pub = rospy.Publisher("proximity", Int16, queue_size=1)
             self.environment_timer = rospy.Timer(
-                rospy.Duration(1/5), self.read_proximity)
+                rospy.Duration(1/5), self.pub_proximity)
 
         if rospy.get_param(self.name + "controller/mic") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.mic_pub = rospy.Publisher("mic", Float32, queue_size=1)
             self.mic_timer = rospy.Timer(
-                rospy.Duration(1/5), self.read_mic)
+                rospy.Duration(1/5), self.pub_mic)
 
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
@@ -491,5 +500,8 @@ if __name__ == '__main__':
     controller = Controller()
     while not rospy.is_shutdown():
         continue
-    # call("sudo shutdown -h 0", shell=True)
+    if shutdown == True:
+        subprocess.call("sudo shutdown 0", shell=True)
+    elif restart == True:
+        subprocess.call("sudo shutdown -r 0", shell=True)
 
