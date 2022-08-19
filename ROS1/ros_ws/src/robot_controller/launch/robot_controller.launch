@@ -1,7 +1,7 @@
 <launch>
   <group ns="$(env HOSTNAME)">
     <arg name="all_sensors" default="False"/>
-    <arg name="mic" default="False"/>
+    <arg name="mic" default="True"/>
     <arg name="proximity" default="False"/>
     <arg name="light" default="False"/>
     <arg name="imu" default="False"/>
