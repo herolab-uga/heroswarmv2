@@ -71,14 +71,14 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
 
     //Linear Velocity PID Constants
     lKp = 2;
-    lKi = 1;
+    lKi = 0;
     lKd = 0;
     linearIntegral = 0;
     linearDerivative = 0;
     linearLastError = 0;
 
     //Angular Velocity PID Constants
-    aVKp = 15.0;   //0.06
+    aVKp = 5.0;   //0.06
     aVKi = 0.0; //0.001
     aVKd = 0.0;
     angleVelIntegral = 0;
@@ -87,12 +87,13 @@ SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte left
 
     //LeftMotor Velocity PID Constants
     lmFF = 165; //165 - everyone else
-    //lmFF = 155 // April
+    lmFB = 195;
     leftMotorLastError = 0;
     leftMotorLastSpeed = 0;
 
     //RightMotor
-    rmFF = 155; //155 - everyone else
+    rmFF = 160; //155 - everyone else
+    rmFB = 195;
     rightMotorLastError = 0;
     rightMotorLastSpeed = 0;
 
@@ -181,6 +182,16 @@ float SwarmBot::getAngularVel()
 float SwarmBot::getMaxSpeed()
 {
     return maxSpeed;
+}
+
+float SwarmBot::getRightFeedForward()
+{
+    return this->rmFF;
+}
+
+float SwarmBot::getLeftFeedForward()
+{
+    return this->lmFF;
 }
 
 void SwarmBot::setPIDSetpoint(float linear, float angular)
@@ -409,18 +420,21 @@ void SwarmBot::printOdom(bool mode, float a, float b)
 
 void SwarmBot::setLeftMotorSpeed(float speed)
 {
-    float outputLeft = abs(speed) + lmFF;
     // Serial.print("Output Left: ");
-    // Serial.println(outputLeft);
+
     if (speed > 0)
     {
-        analogWrite(leftMotorIN1, 1);
+        float outputLeft = abs(speed) + lmFF;
+        // Serial.println(outputLeft);
+        analogWrite(leftMotorIN1, 0);
         analogWrite(leftMotorIN2, outputLeft);
     }
     else if (speed < 0)
     {
+        float outputLeft = abs(speed) + lmFB;
+        // Serial.println(outputLeft);
         analogWrite(leftMotorIN1, outputLeft);
-        analogWrite(leftMotorIN2, 1);
+        analogWrite(leftMotorIN2, 0);
     }
     else
     {
@@ -430,18 +444,20 @@ void SwarmBot::setLeftMotorSpeed(float speed)
 }
 void SwarmBot::setRightMotorSpeed(float speed)
 {
-    float outputRight = abs(speed) + rmFF;
     // Serial.print("Output Right: ");
-    // Serial.println(outputRight);
     if (speed > 0)
     {
-        analogWrite(rightMotorIN1, 1);
+        float outputRight = abs(speed) + rmFF;
+        // Serial.println(outputRight);
+        analogWrite(rightMotorIN1, 0);
         analogWrite(rightMotorIN2, outputRight);
     }
     else if (speed < 0)
     {
+        float outputRight = abs(speed) + rmFB;
+        // Serial.println(outputRight);
         analogWrite(rightMotorIN1, outputRight);
-        analogWrite(rightMotorIN2, 1);
+        analogWrite(rightMotorIN2, 0);
     }
     else
     {
@@ -490,8 +506,6 @@ void SwarmBot::updateVel(float velocity, float omega){
     float angularOutput = angularVelocityPID(omega);
     float leftMotorOut = leftMotorLastSpeed + linearOutput - angularOutput;
     float rightMotorOut = rightMotorLastSpeed + linearOutput + angularOutput;
-
-    // Serial.prin
 
     leftMotorLastSpeed = leftMotorOut;
     rightMotorLastSpeed = rightMotorOut;
