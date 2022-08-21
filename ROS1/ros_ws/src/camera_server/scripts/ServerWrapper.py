@@ -2,6 +2,7 @@ from __future__ import division
 
 import time
 import rospy
+import threading
 import numpy as np
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
@@ -69,13 +70,15 @@ class ServerWrapper():
         try:
             self.active_bots[id]["light_sensor"]["proximity"] = msg.data
         except KeyError:
-            print("Id {id} not found".format(id=id))
+            self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+            # print("Id {id} not found".format(id=id))
 
     def light_callback(self,msg,id):
         try:
             self.active_bots[id]["light_sensor"]["rgbw"] = msg.rgbw
         except KeyError:
-            print("Id {id} not found".format(id=id))
+            self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+            # print("Id {id} not found".format(id=id))
         
     def odom_callback(self,msg,id):
         x_vel = msg.twist.twist.linear.x
@@ -90,31 +93,36 @@ class ServerWrapper():
             self.active_bots[id]["vel"] = [x_vel,y_vel,omega]
             self.active_bots[id]["odom_pos"] = [x_pos,y_pos,theta]
         except KeyError:
-            print("Id {id} not found".format(id=id))
+            self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+            # print("Id {id} not found".format(id=id))
 
     def global_position_callback(self,msg,active_bots):
-        for i in range(0,self.num_active_bots):
+        for id in range(0,self.num_active_bots):
             try:
-                name = self.active_bots[i]["name"]
-                x = msg.robot_pos[i].pose.pose.position.x
-                y = msg.robot_pos[i].pose.pose.position.y
-                theta = -self.rpy_from_quaternion(msg.robot_pos[i].pose.pose.orientation)[2]
+                name = self.active_bots[id]["name"]
+                x = msg.robot_pos[id].pose.pose.position.x
+                y = msg.robot_pos[id].pose.pose.position.y
+                theta = -self.rpy_from_quaternion(msg.robot_pos[id].pose.pose.orientation)[2]
             except KeyError:
-                print("Key {key} not found".format(key=i))
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Key {key} not found".format(key=id))
                 continue
             except IndexError:
-                print("Index {index} out of bounds".format(index=i))
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Index {index} out of bounds".format(index=id))
                 continue
             try:
-                active_bots[name]["global_pos"] = [x,y,theta]
+                active_bots[id]["global_pos"] = [x,y,theta]
             except KeyError:
-                print("Key {key} not found".format(key=name))
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Key {key} not found".format(key=name))
                 continue
                 
     def step(self,rate=10,time=1000):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
+                # print("Stepping")
                 if type(robot) == str:
                     # self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
                     if self.active_bots[robot]["vel_control"]:
@@ -124,7 +132,7 @@ class ServerWrapper():
             pub_rate.sleep()
     
     def stop(self):
-        self.set_velocities([[0.0,0.0,]]*self.num_active_bots)
+        self.set_velocities([[0.0,0.0]]*self.num_active_bots)
         self.step()
             
     def set_velocities(self,vel_list):
@@ -132,6 +140,10 @@ class ServerWrapper():
             self.active_bots[index]["vel_control"] = True
             msg = Twist()
             msg.linear.x = vel[0]
+            msg.linear.y = 0.0
+            msg.linear.z = 0.0
+            msg.angular.x = 0.0
+            msg.angular.y = 0.0
             msg.angular.z = vel[1]
             self.active_bots[index]["cmd_vel"] = msg
 
@@ -191,13 +203,40 @@ class ServerWrapper():
     def get_active(self):
         return self.active_bots
 
+    def get_num_active(self):
+        return self.num_active_bots
+
+    def remove_bots(self):
+        while True:
+            #print(self.missing_bots)
+            for index,id in enumerate(self.missing_bots):
+                try:
+                    if self.missing_bots[id] < time.time() - self.timeout and self.missing_bots[id] != None:
+                        #print(id)
+                        name = self.active_bots[id]["name"]
+                        self.active_bots.pop(id,None)
+                        self.active_bots.pop(name,None)
+                        self.missing_bots.pop(index,None)
+                        self.num_active_bots = self.num_active_bots - 1
+                        print("Bot {id} removed".format(id=id))
+                except TypeError:
+                    print("Read write error")
+            time.sleep(1)
+
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
         self.selected_bots = selected_bots
         self.active_bots = {}
-        self.velocity_subs = []
-        self.obom_subs = []
         self.num_active_bots = 0
+        self.missing_bots = {
+
+        }
+
+        self.timeout = 0.1
+
+        self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
+        self.missing_bots_thread.start()
+    
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
