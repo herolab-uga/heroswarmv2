@@ -45,7 +45,7 @@ for iteration in range(iterations):
     print(iteration)
     try:
         # Get the position of the robots using the camera server
-        current_pos = np.asarray(wrapper.get_position_global())
+        current_pos = np.asarray(wrapper.get_data("gloabal_position"))
         current_pos_xy = np.asarray([x[:2] for x in current_pos]).transpose()
         # print(current_pos_xy)
 
