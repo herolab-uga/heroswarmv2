@@ -132,6 +132,8 @@ void interpretData()
     break;
   case 1:
     steve.setColor(inputArray[1], inputArray[2], inputArray[3]);
+  case 2:
+    steve.callibrateOdometery(inputArray[1]);
   default:
     break;
   }
@@ -190,11 +192,14 @@ void setup()
   Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
 
+
+  // interrupting twice on 01 -> 10 and 11 -> 00?
   attachInterrupt(steve.getLeftEncoderA(), leftInterrupt, CHANGE);
   attachInterrupt(steve.getLeftEncoderB(), leftInterrupt, CHANGE);
 
   attachInterrupt(steve.getRightEncoderA(), rightInterrupt, CHANGE);
   attachInterrupt(steve.getRightEncoderB(), rightInterrupt, CHANGE);
+
   steve.initializePorts();
 
   pinMode(A6, INPUT);

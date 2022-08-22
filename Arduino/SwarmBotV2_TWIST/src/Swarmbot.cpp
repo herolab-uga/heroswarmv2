@@ -194,6 +194,16 @@ float SwarmBot::getLeftFeedForward()
     return this->lmFF;
 }
 
+float SwarmBot::getRightFeedback()
+{
+    return this->rmFB;
+}
+
+float SwarmBot::getLeftFeedback()
+{
+    return this->lmFB;
+}
+
 void SwarmBot::setPIDSetpoint(float linear, float angular)
 {
     rightMotorLastSpeed = ((linear + angular * wheelBase * .5) / 0.29) * (100);
@@ -277,12 +287,10 @@ void SwarmBot::updateWheels()
     //Left Motor
     leftDeltaTicks = leftEncoderValue - leftLastEncoderValue;
     leftDeltaRevolutions = leftDeltaTicks / (encoderCPP * gearRatio);
-    leftDeltaDegrees = leftDeltaRevolutions * 360;
 
     //Right Motor
     rightDeltaTicks = rightEncoderValue - rightLastEncoderValue;
     rightDeltaRevolutions = rightDeltaTicks / (encoderCPP * gearRatio);
-    rightDeltaDegrees = rightDeltaRevolutions * 360;
 
     //Archive Values
     leftLastEncoderValue = leftEncoderValue;
@@ -512,11 +520,9 @@ void SwarmBot::updateVel(float velocity, float omega){
     setMotorSpeed(leftMotorOut, rightMotorOut);
 }
 
-void SwarmBot::callibrateOdometery(float inputArray[3])
+void SwarmBot::callibrateOdometery(float theta)
 {
-    X = inputArray[0];
-    Y = inputArray[1];
-    thetaRadOdom = toRadians * inputArray[2];
+    thetaRadOdom = theta;
 }
 
 float SwarmBot::setLinVel(float velocity)
