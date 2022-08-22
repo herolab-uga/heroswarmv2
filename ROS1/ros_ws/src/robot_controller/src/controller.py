@@ -284,7 +284,7 @@ class Controller:
         # Work around for demo remove later
         # Converts the values to bytes
         byteList = struct.pack("f", opcode) + \
-            struct.pack('fff', *values) + struct.pack('f',0.0)
+            struct.pack('f'*len(values), *values) + struct.pack('f',0.0)
         # fails to send last byte over I2C, hence this needs to be added
         try:
             while not self.i2c.try_lock():
