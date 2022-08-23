@@ -491,7 +491,7 @@ class Controller:
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
 
-        self.send_values([self.position["orientation"]],2)
+        # self.send_values([self.position["orientation"]],2)
 
         rospy.loginfo("Ready")
 
