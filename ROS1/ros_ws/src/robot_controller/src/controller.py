@@ -222,7 +222,7 @@ class Controller:
                     self.z_gyro_avg += self.IMU.gyro[2]
 
                     self.x_avg += self.IMU.acceleration[0]
-                    self.y_avg += self.IMU.acceleration[1]
+                    # self.y_avg += self.IMU.acceleration[1]
                     self.z_avg += self.IMU.acceleration[2]
 
             self.x_avg = self.x_avg / 500
