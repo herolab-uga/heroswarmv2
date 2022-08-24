@@ -173,6 +173,7 @@ class Controller:
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
         imu_msg.header.stamp = rospy.Time.now()
+        imu_msg.header.frame_id = self.id
 
         # Sets the angular velocity parameters
         imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
