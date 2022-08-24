@@ -466,8 +466,8 @@ class Controller:
             self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.pub_environment)
 
         # Creates a publisher for imu data
-        if rospy.get_param(self.name + "controller/imu/data_raw") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
-            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
+        if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
+            self.imu_pub = rospy.Publisher("imu/data_raw", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
