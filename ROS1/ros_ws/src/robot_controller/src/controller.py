@@ -211,7 +211,6 @@ class Controller:
 
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
-        self.init_sensors()
 
         while not rospy.is_shutdown():
             try:
@@ -489,6 +488,8 @@ class Controller:
 
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
+
+        self.init_sensors()
 
         rospy.loginfo("Ready")
 
