@@ -382,11 +382,11 @@ class Controller:
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             rospy.loginfo("Shutting Down")
-            rospy.signal_shutdown("Rasperry Pi shutting down")
+            rospy.signal_shutdown("Raspberry Pi shutting down")
             shutdown = True
         else:
             rospy.loginfo("Restarting")
-            rospy.signal_shutdown("Rasperry Pi restarting")
+            rospy.signal_shutdown("Raspberry Pi restarting")
             restart = True
             
 
@@ -412,6 +412,8 @@ class Controller:
         # self.light_queue = self.manager.Queue()
         # self.prox_queue = self.manager.Queue()
         # self.mic_queue = self.manager.Queue()
+
+        self.id = None
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
