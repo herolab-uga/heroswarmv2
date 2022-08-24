@@ -216,21 +216,21 @@ class Controller:
             self.z_gyro_avg = 0.0
 
             for i in range(0,1000):
-                x_gyro_avg += self.IMU.gyro[0]
-                y_gyro_avg += self.IMU.gyro[1]
-                z_gyro_avg += self.IMU.gyro[2]
+                self.x_gyro_avg += self.IMU.gyro[0]
+                self.y_gyro_avg += self.IMU.gyro[1]
+                self.z_gyro_avg += self.IMU.gyro[2]
 
-                x_avg += self.IMU.acceleration[0]
-                y_avg += self.IMU.acceleration[1]
-                z_avg += self.IMU.acceleration[2]
+                self.x_avg += self.IMU.acceleration[0]
+                self.y_avg += self.IMU.acceleration[1]
+                self.z_avg += self.IMU.acceleration[2]
 
-            self.x_avg = x_avg / 1000
-            self.y_avg = y_avg / 1000
-            self.z_avg = z_avg / 1000
+            self.x_avg = self.x_avg / 1000
+            self.y_avg = self.y_avg / 1000
+            self.z_avg = self.z_avg / 1000
 
-            self.x_gyro_avg = x_gyro_avg / 1000
-            self.y_gyro_avg = y_gyro_avg / 1000
-            self.z_gyro_avg = z_gyro_avg / 1000
+            self.x_gyro_avg = self.x_gyro_avg / 1000
+            self.y_gyro_avg = self.y_gyro_avg / 1000
+            self.z_gyro_avg = self.z_gyro_avg / 1000
 
         except ValueError:
             time.sleep(.1)
