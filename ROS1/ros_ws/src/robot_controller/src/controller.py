@@ -175,14 +175,14 @@ class Controller:
         imu_msg.header.stamp = rospy.Time.now()
 
         # Sets the angular velocity parameters
-        imu_msg.angular_velocity.x = gyro_x
-        imu_msg.angular_velocity.y = gyro_y
-        imu_msg.angular_velocity.z = gyro_z
+        imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
+        imu_msg.angular_velocity.y = gyro_y - self.y_gyro_avg
+        imu_msg.angular_velocity.z = gyro_z - self.z_gyro_avg
 
         # Sets the linear acceleration parameters
-        imu_msg.linear_acceleration.x = acc_x
-        imu_msg.linear_acceleration.y = acc_y
-        imu_msg.linear_acceleration.z = acc_z
+        imu_msg.linear_acceleration.x = acc_x - self.x_avg
+        imu_msg.linear_acceleration.y = acc_y - self.y_avg
+        imu_msg.linear_acceleration.z = acc_z - self.z_avg
 
         # Publishes the message
         self.imu_pub.publish(imu_msg)
@@ -207,6 +207,31 @@ class Controller:
             self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
             self.IMU = LSM6DS33(self.i2c)
+            self.x_avg = 0.0
+            self.y_avg = 0.0
+            self.z_avg = 0.0
+
+            self.x_gyro_avg = 0.0
+            self.y_gyro_avg = 0.0
+            self.z_gyro_avg = 0.0
+
+            for i in range(0,1000):
+                x_gyro_avg += self.IMU.gyro[0]
+                y_gyro_avg += self.IMU.gyro[1]
+                z_gyro_avg += self.IMU.gyro[2]
+
+                x_avg += self.IMU.acceleration[0]
+                y_avg += self.IMU.acceleration[1]
+                z_avg += self.IMU.acceleration[2]
+
+            self.x_avg = x_avg / 1000
+            self.y_avg = y_avg / 1000
+            self.z_avg = z_avg / 1000
+
+            self.x_gyro_avg = x_gyro_avg / 1000
+            self.y_gyro_avg = y_gyro_avg / 1000
+            self.z_gyro_avg = z_gyro_avg / 1000
+
         except ValueError:
             time.sleep(.1)
             self.init_sensors()
