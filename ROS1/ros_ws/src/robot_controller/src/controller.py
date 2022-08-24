@@ -169,8 +169,13 @@ class Controller:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor
+        while not self.i2c.try_lock():
+                pass
+
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
+
+        self.i2c.unlock()
 
         imu_msg.header.stamp = rospy.Time.now()
         imu_msg.header.frame_id = self.id
