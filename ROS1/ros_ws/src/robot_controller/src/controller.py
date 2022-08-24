@@ -215,7 +215,7 @@ class Controller:
             self.y_gyro_avg = 0.0
             self.z_gyro_avg = 0.0
 
-            for i in range(0,1000):
+            for i in range(0,100):
                 self.x_gyro_avg += self.IMU.gyro[0]
                 self.y_gyro_avg += self.IMU.gyro[1]
                 self.z_gyro_avg += self.IMU.gyro[2]
