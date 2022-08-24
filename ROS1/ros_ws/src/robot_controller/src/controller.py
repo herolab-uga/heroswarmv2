@@ -451,6 +451,8 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber(
             "shutdown", String, self.shutdown_callback)
 
+        self.init_sensors()
+
         # Read sensors
         # self.sensor_read_thread = mp.Process(
         #     target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
@@ -488,8 +490,6 @@ class Controller:
 
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
-
-        self.init_sensors()
 
         rospy.loginfo("Ready")
 
