@@ -379,7 +379,6 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.IMU = LSM6DS33(self.i2c)
         # self.manager = mp.Manager()
         # self.environment_queue = self.manager.Queue()
         # self.light_queue = self.manager.Queue()
@@ -467,7 +466,7 @@ class Controller:
             self.environment_timer = rospy.Timer(rospy.Duration(1/10),self.pub_environment)
 
         # Creates a publisher for imu data
-        if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
+        if rospy.get_param(self.name + "controller/imu/data_raw") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
             self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.pub_imu) # not working
 
@@ -490,8 +489,6 @@ class Controller:
 
         self.neopixel_subscriber = rospy.Subscriber(
             "neopixel", Int16MultiArray, self.neopixel_callback)
-
-        # self.send_values([self.position["orientation"]],2)
 
         rospy.loginfo("Ready")
 
