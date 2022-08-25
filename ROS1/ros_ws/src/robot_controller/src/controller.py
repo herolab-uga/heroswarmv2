@@ -173,8 +173,6 @@ class Controller:
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        self.i2c.unlock()
-
         imu_msg.header.stamp = rospy.Time.now()
         imu_msg.header.frame_id = self.id
 
