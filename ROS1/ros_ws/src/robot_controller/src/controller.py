@@ -239,6 +239,8 @@ class Controller:
             self.y_gyro_avg = self.y_gyro_avg / 500
             self.z_gyro_avg = self.z_gyro_avg / 500
 
+            rospy.loginfo("Done calibrating")
+
         except ValueError:
             time.sleep(.1)
             self.init_sensors()
