@@ -168,9 +168,7 @@ class Controller:
     def pub_imu(self, freq) -> None:
         # Creates the IMU message
         imu_msg = Imu()
-        # Read the sensor
-        while not self.i2c.try_lock():
-                pass
+        # Read the sensor data
 
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
@@ -453,6 +451,7 @@ class Controller:
         self.omega_max = 1.0
 
         self.open_chargers = None
+        self.IMU = None
 
         # Creates subscribers for positions topics
         if rospy.get_param(self.name + "controller/global_pos") == True:
