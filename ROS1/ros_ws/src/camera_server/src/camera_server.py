@@ -18,6 +18,8 @@ from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, Relea
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 
+# Look into using apriltag 3
+# Calculate tag size
 
 class CameraServer():
 
@@ -37,7 +39,7 @@ class CameraServer():
             if image_queue.empty():
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 
-                image_queue.put(self.detector.detect(gray, return_image = True))
+                image_queue.put(self.detector.detect(gray))
 
     def connection_manager(self):
         prev_active = []
@@ -56,18 +58,23 @@ class CameraServer():
         while True:
             if not image_queue.empty():
 
-                detections, dimg = image_queue.get()
+                detections = image_queue.get()
                 
-                dimg1 = dimg
+                # dimg1 = dimg
 
                 self.positions = Robot_Pos()
                 
                 if self.transform_matrix == None:
                     try:
                         # Gets the x and y positions.robot_pos of the reference tags
-                        self.ref_x = detections[self.reference_tags[1]].center
-                        self.ref_y = detections[self.reference_tags[2]].center
-                        self.orig = detections[self.reference_tags[0]].center
+                        self.ref_x = detections[self.reference_tags[1]]["center"]
+                        self.ref_y = detections[self.reference_tags[2]]["center"]
+                        self.orig = detections[self.reference_tags[0]]["center"]
+
+                        if self.debugging:
+                            print("Ref X: ",self.ref_x)
+                            print("Ref Y: ",self.ref_y)
+                            print("Ref Origin: ",self.orig)
 
                         self.transform_matrix = [(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0])),
                                                     (np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))]
@@ -82,16 +89,16 @@ class CameraServer():
                 # print(detections)
                 for detection in detections:
 
-                    center = detection.center
+                    center = detection["center"]
                     
                     # Gets the center of the tag in inches and rotated accordingly
 
                     center_transform = self.transform(center)
 
                     # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
-                    if detection.tag_id in self.charger_tags and not detection.tag_id in self.close_chargers:
+                    if detection["id"] in self.charger_tags and not detection["id"] in self.close_chargers:
                         
-                        (forward_dif,angle) = self.heading_dir(detection.corners,center)
+                        (forward_dif,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
 
                         temp = Pose()
                         
@@ -107,19 +114,22 @@ class CameraServer():
                         temp.orientation.w = q[3]
 
                         
-                        self.charger_tags[detection.tag_id] = temp
+                        self.charger_tags[detection["id"]] = temp
 
-                    elif not detection.tag_id in self.reference_tags:
+                    elif not detection["id"] in self.reference_tags:
                         # Gets the forward direction
-                        (forward_dir, angle) = self.heading_dir(detection.corners, center)
+                        (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
 
 
                         self.positions.robot_pos.append(Odometry())
                         robot_names.data.append(String())
-                        self.positions.robot_pos[-1].child_frame_id = str(detection.tag_id)
+                        self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
 
-                        active_dict[str(detection.tag_id)] = self.robot_dictionary[str(detection.tag_id)]
-                        robot_names.data[-1].data = self.robot_dictionary[str(detection.tag_id)]
+                        try:
+                            active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"])]
+                            robot_names.data[-1].data = self.robot_dictionary[str(detection["id"])]
+                        except KeyError:
+                            continue
 
                         self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
                         self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
@@ -220,6 +230,8 @@ class CameraServer():
         return ReleaseChargerResponse(True)
 
     def __init__(self):
+        
+        self.debugging = False
 
         self.ref_x = None
         self.ref_y = None
@@ -233,26 +245,28 @@ class CameraServer():
         self.open_chargers = {}
         self.closed_chargers = []
 
-        self.x_distance = 2.413
-        self.y_distance = 1.74625 #67.5 #1.7145
+        self.x_distance = 2.284
+        self.y_distance = 1.721
 
         rospy.init_node("camera_server",anonymous=True)
 
-        self.parser = ArgumentParser(description='test apriltag Python bindings')
+        # self.parser = ArgumentParser(description='test apriltag Python bindings')
 
-        self.parser.add_argument('device_or_movie', 
-                                    metavar='INPUT', 
-                                    nargs='?', 
-                                    default=0, 
-                                    help='Movie to load or integer ID of camera device')
+        # self.parser.add_argument('device_or_movie', 
+        #                             metavar='INPUT', 
+        #                             nargs='?', 
+        #                             default=0, 
+        #                             help='Movie to load or integer ID of camera device')
 
-        apriltag.add_arguments(self.parser)
-        self.options = self.parser.parse_args()
+        # apriltag.add_arguments(self.parser)
+        # self.options = self.parser.parse_args()
         
-        self.detector = apriltag.Detector(
-            self.options,
-            searchpath=apriltag._get_demo_searchpath()
-        )
+        # self.detector = apriltag.Detector(
+        #     self.options,
+        #     searchpath=apriltag._get_demo_searchpath()
+        # )
+
+        self.detector = apriltag.apriltag("tagStandard41h12")
 
         self.font = cv2.FONT_HERSHEY_SIMPLEX
         self.fontScale              = 0.3
