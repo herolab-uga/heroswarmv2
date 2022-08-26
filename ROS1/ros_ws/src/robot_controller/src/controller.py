@@ -168,19 +168,23 @@ class Controller:
     def pub_imu(self, freq) -> None:
         # Creates the IMU message
         imu_msg = Imu()
-        # Read the sensor
+        # Read the sensor data
+
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
+        imu_msg.header.stamp = rospy.Time.now()
+        imu_msg.header.frame_id = self.id
+
         # Sets the angular velocity parameters
-        imu_msg.angular_velocity.x = gyro_x
-        imu_msg.angular_velocity.y = gyro_y
-        imu_msg.angular_velocity.z = gyro_z
+        imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
+        imu_msg.angular_velocity.y = gyro_y - self.y_gyro_avg
+        imu_msg.angular_velocity.z = gyro_z - self.z_gyro_avg
 
         # Sets the linear acceleration parameters
-        imu_msg.linear_acceleration.x = acc_x
-        imu_msg.linear_acceleration.y = acc_y
-        imu_msg.linear_acceleration.z = acc_z
+        imu_msg.linear_acceleration.x = acc_x - self.x_avg
+        imu_msg.linear_acceleration.y = acc_y - self.y_avg
+        imu_msg.linear_acceleration.z = acc_z - self.z_avg
 
         # Publishes the message
         self.imu_pub.publish(imu_msg)
@@ -205,13 +209,40 @@ class Controller:
             self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
             self.IMU = LSM6DS33(self.i2c)
+            self.x_avg = 0.0
+            self.y_avg = 0.0
+            self.z_avg = 0.0
+
+            self.x_gyro_avg = 0.0
+            self.y_gyro_avg = 0.0
+            self.z_gyro_avg = 0.0
+
+            for i in range(0,1000):
+                if i < 499:
+                    self.x_gyro_avg += self.IMU.gyro[0]
+                    self.y_gyro_avg += self.IMU.gyro[1]
+                    self.z_gyro_avg += self.IMU.gyro[2]
+
+                    self.x_avg += self.IMU.acceleration[0]
+                    # self.y_avg += self.IMU.acceleration[1]
+                    self.z_avg += self.IMU.acceleration[2]
+
+            self.x_avg = self.x_avg / 500
+            self.y_avg = self.y_avg / 500
+            self.z_avg = self.z_avg / 500
+
+            self.x_gyro_avg = self.x_gyro_avg / 500
+            self.y_gyro_avg = self.y_gyro_avg / 500
+            self.z_gyro_avg = self.z_gyro_avg / 500
+
+            rospy.loginfo("Done calibrating")
+
         except ValueError:
             time.sleep(.1)
             self.init_sensors()
 
     def read_sensors(self, sensor_data):
         rate = rospy.Rate(5)
-        self.init_sensors()
 
         while not rospy.is_shutdown():
             try:
@@ -284,7 +315,7 @@ class Controller:
         # Work around for demo remove later
         # Converts the values to bytes
         byteList = struct.pack("f", opcode) + \
-            struct.pack('fff', *values) + struct.pack('f',0.0)
+            struct.pack('f'*len(values), *values) + struct.pack('f',0.0)
         # fails to send last byte over I2C, hence this needs to be added
         try:
             while not self.i2c.try_lock():
@@ -354,11 +385,11 @@ class Controller:
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             rospy.loginfo("Shutting Down")
-            rospy.signal_shutdown("Rasperry Pi shutting down")
+            rospy.signal_shutdown("Raspberry Pi shutting down")
             shutdown = True
         else:
             rospy.loginfo("Restarting")
-            rospy.signal_shutdown("Rasperry Pi restarting")
+            rospy.signal_shutdown("Raspberry Pi restarting")
             restart = True
             
 
@@ -379,12 +410,13 @@ class Controller:
         self.i2c = board.I2C()
         self.name = rospy.get_namespace()
 
-        self.IMU = LSM6DS33(self.i2c)
         # self.manager = mp.Manager()
         # self.environment_queue = self.manager.Queue()
         # self.light_queue = self.manager.Queue()
         # self.prox_queue = self.manager.Queue()
         # self.mic_queue = self.manager.Queue()
+
+        self.id = None
 
         with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/src/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -417,6 +449,7 @@ class Controller:
         self.omega_max = 1.0
 
         self.open_chargers = None
+        self.IMU = None
 
         # Creates subscribers for positions topics
         if rospy.get_param(self.name + "controller/global_pos") == True:
@@ -453,6 +486,8 @@ class Controller:
         self.shutdown_sub = rospy.Subscriber(
             "shutdown", String, self.shutdown_callback)
 
+        self.init_sensors()
+
         # Read sensors
         # self.sensor_read_thread = mp.Process(
         #     target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
@@ -468,8 +503,8 @@ class Controller:
 
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
-            self.imu_pub = rospy.Publisher("imu", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/60),self.pub_imu) # not working
+            self.imu_pub = rospy.Publisher("imu/data_raw", Imu, queue_size=1)
+            self.imu_timer = rospy.Timer(rospy.Duration(1/20),self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
         if rospy.get_param(self.name + "controller/light") == True or rospy.get_param(self.name + "controller/all_sensors") == True:

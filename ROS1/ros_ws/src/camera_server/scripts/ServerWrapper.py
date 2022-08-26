@@ -7,7 +7,7 @@ import numpy as np
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import StringList, Robot_Pos,Light
-from std_msgs.msg import Int16, Int16MultiArray
+from std_msgs.msg import Int16, Int16MultiArray, Float32
 
 class ServerWrapper():
     
@@ -44,6 +44,8 @@ class ServerWrapper():
                 "cmd_vel":[0,0,0],
                 "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
                 "point":[0,0],
+                "mic_sub":rospy.Subscriber("/{robot_name}/mic".format(robot_name=name),Float32,self.mic_callback,(i)),
+                "mic":0.0,
                 "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1),
                 "light_sub":rospy.Subscriber("/{robot_name}/light".format(robot_name=name),Light,self.light_callback,(i)),
                 "prox_sub":rospy.Subscriber("/{robot_name}/proximity".format(robot_name=name),Int16,self.prox_callback,(i)),
@@ -65,6 +67,12 @@ class ServerWrapper():
             self.active_bots[id]["pos"][2]= 0
         except KeyError:
             print("Id {id} not found".format(id=id))
+    def mic_callback(self,msg,id):
+        try:
+            self.active_bots[id]["mic"] = msg.data
+        except KeyError:
+            self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+            # print("Id {id} not found".format(id=id))
 
     def prox_callback(self,msg,id):
         try:
@@ -158,47 +166,16 @@ class ServerWrapper():
             if not value == None:
                 self.active_bots[index]["neopixel"] = Int16MultiArray(data=value)
 
-    def get_odom_pos(self):
-        odom_pos = []
+    def get_data(self,sensor):
+        data = []
         for active_bot in self.active_bots:
             if type(active_bot) == str:
-                odom_pos.append(self.active_bots[active_bot]["odom_pos"])
-        return odom_pos
-    
-    def get_position_global(self):
-        positions = []
-        for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                positions.append(self.active_bots[active_bot]["global_pos"])
-        return positions
-    
-    def get_position(self):
-        positions = []
-        for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                positions.append(self.active_bots[active_bot]["pos"])
-        return positions
-
-    def get_velocity(self):
-        velocities = []
-        for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                velocities.append(self.active_bots[active_bot]["vel"])
-        return velocities
-
-    def get_light(self):
-        light = []
-        for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                light.append(self.active_bots[active_bot]["light_sensor"]["rgbw"])
-        return light
-
-    def get_proximity(self):
-        prox = []
-        for active_bot in self.active_bots:
-            if type(active_bot) == str:
-                prox.append(self.active_bots[active_bot]["proximity"])
-        return prox
+                try:
+                    data.append(self.active_bots[active_bot][sensor])
+                except KeyError:
+                    print("Invalid sensor {sensor}".format(sensor=sensor))
+                    break
+        return data
 
     def get_active(self):
         return self.active_bots
