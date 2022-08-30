@@ -121,7 +121,7 @@ class Controller:
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
-        
+        odom_msg.header.frame_id = "base_footprint"
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
         odom_msg.twist.twist.linear.y = data[4]
@@ -184,7 +184,7 @@ class Controller:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor data
-
+        imu_msg.header.frame_id = "base_footprint"
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
