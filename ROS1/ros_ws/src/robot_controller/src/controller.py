@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import math
-from statistics import covariance
 import struct
 import threading
 import time
