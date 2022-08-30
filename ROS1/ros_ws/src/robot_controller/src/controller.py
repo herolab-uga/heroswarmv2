@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import math
+from statistics import covariance
 import struct
 import threading
 import time
@@ -24,6 +25,26 @@ from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 
 shutdown = False
 restart = False
+
+ODOM_COVARIANCE_MATRIX = [1e-2, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    1e-2, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    1e-2, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    1e-2, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    1e-2, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    1e-2, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-2, 0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-2, 0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-2, 0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-2,  0.0,     0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     1e-2,  0.0,     0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     1e-2,  0.0,    0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     1e-2, 0.0,    0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    1e-2, 0.0,
+                            0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    1e-2]
+
+IMU_COVARIANCE_MATRIX = [1e-2 , 0, 0
+                        , 0, 1e-2, 0
+                        , 0, 0, 1e-2]
 
 class Controller:
 
@@ -110,6 +131,7 @@ class Controller:
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
+        
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
         odom_msg.twist.twist.linear.y = data[4]
@@ -129,6 +151,9 @@ class Controller:
         odom_msg.pose.pose.orientation.y = quaternion[1]
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
+
+        odom_msg.pose.covariance = ODOM_COVARIANCE_MATRIX
+        odom_msg.twist.covariance = ODOM_COVARIANCE_MATRIX    
 
         self.odom_pub.publish(odom_msg)
 
@@ -185,6 +210,10 @@ class Controller:
         imu_msg.linear_acceleration.x = acc_x - self.x_avg
         imu_msg.linear_acceleration.y = acc_y - self.y_avg
         imu_msg.linear_acceleration.z = acc_z - self.z_avg
+
+        imu_msg.orientation_covariance = IMU_COVARIANCE_MATRIX
+        imu_msg.angular_velocity_covariance = IMU_COVARIANCE_MATRIX
+        imu_msg.linear_acceleration_covariance = IMU_COVARIANCE_MATRIX
 
         # Publishes the message
         self.imu_pub.publish(imu_msg)
