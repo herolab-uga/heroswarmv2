@@ -184,12 +184,11 @@ class Controller:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor data
-        imu_msg.header.frame_id = "base_footprint"
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
         imu_msg.header.stamp = rospy.Time.now()
-        imu_msg.header.frame_id = self.id
+        imu_msg.header.frame_id = "base_footprint"
 
         # Sets the angular velocity parameters
         imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
