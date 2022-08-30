@@ -121,6 +121,7 @@ class Controller:
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
+        odom_msg.header.stamp = rospy.Time.now()
         odom_msg.header.frame_id = "base_footprint"
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
