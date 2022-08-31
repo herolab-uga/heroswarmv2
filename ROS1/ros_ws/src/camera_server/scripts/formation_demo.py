@@ -10,7 +10,7 @@ from rps.utilities.controllers import *
 
 
 
-num_robots = 4
+num_robots = 5
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 
@@ -19,15 +19,16 @@ si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 
 
 # Some gains for this experiment.  These aren't incredibly relevant.
-d = 0.5
-ddiag = np.sqrt(num_robots - 1)*d
+d = 0.25
+ddiag = .4
 formation_control_gain = 2
 
 # Weight matrix to control inter-agent distances
-weights = np.array([[0, d, d, ddiag], 
-                    [d, 0, ddiag, d], 
-                    [d, ddiag, 0, d], 
-                    [ddiag, d, d, 0]
+weights = np.array([[0, d, ddiag, ddiag,d], 
+                    [d, 0, d, ddiag,ddiag], 
+                    [ddiag, d, 0, d,ddiag], 
+                    [ddiag, ddiag, d, 0,d],
+                    [d, ddiag, ddiag, d,0]
                     ])
 
 wrapper = ServerWrapper(num_robots)
@@ -42,7 +43,7 @@ signal.signal(signal.SIGINT, signal_handler)
 iterations = 50
 
 for iteration in range(iterations):
-    print(iteration)
+    # print(iteration)
     try:
         # Get the position of the robots using the camera server
         current_pos = np.asarray(wrapper.get_data("gloabal_position"))

@@ -201,10 +201,10 @@ class ServerWrapper():
 
         }
 
-        self.timeout = 0.1
+        self.timeout = 1.0
 
-        self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
-        self.missing_bots_thread.start()
+        # self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
+        # self.missing_bots_thread.start()
     
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
