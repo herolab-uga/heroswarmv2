@@ -14,7 +14,7 @@ float targetX = 0, targetY = 0, linearVelocity = 0, angularVelocity = 0;
 float inputArray[4];
 float scaleFactor = 0;
 float measuredvbat = 0;
-float sum = 0;
+float max_val = 0;
 unsigned long lastTime = 0;
 
 // buffer to read samples into, each sample is 16-bits
@@ -79,12 +79,16 @@ void receiveEvent(int byteCount)
 void sendEvent()
 {
   if (samplesRead) {
-    sum = 0;
+    int max_val_temp = 0;
     // print samples to the serial monitor or plotter
     for (int i = 0; i < samplesRead; i++) {
-      sum = sum + sampleBuffer[i];
+      if (max_val_temp < sampleBuffer[i]) {
+        max_val_temp = sampleBuffer[i];
+      }
     }
     // clear the read count
+    max_val = max_val_temp;
+    samplesRead = 0;
   }
 
   measuredvbat = analogRead(A6);
@@ -99,7 +103,7 @@ void sendEvent()
   data[3] = steve.getLinearVel();
   data[4] = steve.getAngularVel();
   data[5] = measuredvbat;
-  data[6] = sum/samplesRead;
+  data[6] = max_val;
   Wire.write((byte *)data, sizeof(data));
   samplesRead = 0;
 }
@@ -212,7 +216,7 @@ void setup()
     Serial.println("Failed to start PDM!");
     while (1) yield();
   }
-
+  PDM.setGain(.75);
   steve.setPIDSetpoint(0, 0);
   steve.setVelocity(0, 0);
   // steve.updateOdometery();
