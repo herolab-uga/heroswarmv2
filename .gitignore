@@ -4,3 +4,4 @@
 # # Ignores everything in the root directroy
 /gesture_sensor/*
 .vscode
+data
