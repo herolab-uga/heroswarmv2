@@ -2,9 +2,10 @@
 #ifndef SWARMBOT_H
 #define SWARMBOT_H
     #include <Arduino.h>
-    #include <IMU.h>
+    #include <Adafruit_NeoPixel.h>
+    // #include <IMU.h>
 
-    extern imu IMU;
+    // extern imu IMU;
     
     class SwarmBot{
         //Motor Driver and Encoder Definitions 
@@ -68,8 +69,8 @@
         float velocityX;
         float velocityY;
 
-        float targetX;
-        float targetY;
+        float targetVel;
+        float targetAngularVel;
 
         float thetaRadOdom;
         float thetaDegOdom;
@@ -109,6 +110,7 @@
         float lmKi;
         float lmKd;
         float lmFF;
+        float lmFB;
         float leftMotorIntegral;
         float leftMotorDerivative;
         float leftMotorLastError;
@@ -118,15 +120,17 @@
         float rmKi;
         float rmKd;
         float rmFF;
+        float rmFB;
         float rightMotorIntegral;
         float rightMotorDerivative;
         float rightMotorLastError;
         float rightMotorLastSpeed;
+        Adafruit_NeoPixel pixels = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
 
         public:
 
             //SwarmBot Constructor
-            SwarmBot(byte leftIN1 = 13, byte leftIN2 = 12, byte leftA = A2, byte leftB = A1, byte leftPWR = A3, byte leftGND = A0, byte rightIN1 = 11, byte rightIN2 = 10, byte rightA = 5, byte rightB = 6, byte rightPWR = A4, byte rightGND = A5, byte mode = 9, int CPP = 28, int ratio = 50, float wheelDiameter = 0.0325, float wheelBase = 0.073);
+            SwarmBot(byte leftIN1 = 13, byte leftIN2 = 12, byte leftA = A2, byte leftB = A1, byte leftPWR = A3, byte leftGND = A0, byte rightIN1 = 11, byte rightIN2 = 10, byte rightA = 5, byte rightB = 6, byte rightPWR = A4, byte rightGND = A5, byte mode = 9, int CPP = 28, int ratio = 100, float wheelDiameter = 0.0325, float wheelBase = 0.073);
             void initializePorts();
             byte getLeftEncoderA();
             byte getLeftEncoderB();
@@ -149,6 +153,10 @@
             float getLinearVel();
             float getAngularVel();
             float getMaxSpeed();
+            float getRightFeedForward();
+            float getLeftFeedForward();
+            float getRightFeedback();
+            float getLeftFeedback();
 
             void tunePID(float p, float i, float d);
             //Base Motor Control
@@ -162,15 +170,15 @@
             float angleWrap(float angle, bool isRad = true);
             float angleWrap2(float angle, bool isRad = true);
             void updateOdometery();
-            void callibrateOdometery(float inputArray[3]);
+            void callibrateOdometery(float theta);
 
             //Chassis Movement
             float linearVelocityPID(float velocity);
             float angularVelocityPID(float omega);
             void setVelocity(float velocity, float omega);
+            void updateVel(float velocity, float omega);
             float distancePID(float distance);
             float anglePID(float theta);
-            void moveToPoint(float targetX, float targetY);
             void setMotorSpeed(float leftMotorSpeed, float rightMotorSpeed);
             float setLinVel(float velocity);
             float setAngVel(float omega);
@@ -179,6 +187,7 @@
             //Output
             void printOdom(bool driveMode, float a, float b);
             void obstacleAvoidance();
+            void setColor(int,int,int);
     };
 
 #endif
