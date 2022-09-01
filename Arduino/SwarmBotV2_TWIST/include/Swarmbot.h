@@ -110,6 +110,7 @@
         float lmKi;
         float lmKd;
         float lmFF;
+        float lmFB;
         float leftMotorIntegral;
         float leftMotorDerivative;
         float leftMotorLastError;
@@ -119,6 +120,7 @@
         float rmKi;
         float rmKd;
         float rmFF;
+        float rmFB;
         float rightMotorIntegral;
         float rightMotorDerivative;
         float rightMotorLastError;
@@ -151,6 +153,10 @@
             float getLinearVel();
             float getAngularVel();
             float getMaxSpeed();
+            float getRightFeedForward();
+            float getLeftFeedForward();
+            float getRightFeedback();
+            float getLeftFeedback();
 
             void tunePID(float p, float i, float d);
             //Base Motor Control
@@ -164,7 +170,7 @@
             float angleWrap(float angle, bool isRad = true);
             float angleWrap2(float angle, bool isRad = true);
             void updateOdometery();
-            void callibrateOdometery(float inputArray[3]);
+            void callibrateOdometery(float theta);
 
             //Chassis Movement
             float linearVelocityPID(float velocity);

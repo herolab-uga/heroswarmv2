@@ -9,26 +9,12 @@ from rps.utilities.misc import *
 from rps.utilities.controllers import *
 
 
-
 num_robots = 4
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 
 # Create SI to UNI dynamics tranformation
 si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
-
-
-# Some gains for this experiment.  These aren't incredibly relevant.
-d = 0.5
-ddiag = np.sqrt(num_robots - 1)*d
-formation_control_gain = 2
-
-# Weight matrix to control inter-agent distances
-weights = np.array([[0, d, d, ddiag], 
-                    [d, 0, ddiag, d], 
-                    [d, ddiag, 0, d], 
-                    [ddiag, d, d, 0]
-                    ])
 
 wrapper = ServerWrapper(num_robots)
 
@@ -39,27 +25,33 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-iterations = 50
+iterations = 100    
 
 for iteration in range(iterations):
     print(iteration)
     try:
         # Get the position of the robots using the camera server
-        current_pos = np.asarray(wrapper.get_data("gloabal_position"))
+        current_pos = np.asarray(wrapper.get_data("global_pos"))
         current_pos_xy = np.asarray([x[:2] for x in current_pos]).transpose()
-        # print(current_pos_xy)
 
-        # Initialize a velocity vector
-        dxi = np.zeros((2, num_robots))
+        mic_data = wrapper.get_data("mic")
+        print(mic_data)
+        max_index = np.argmax(mic_data)
+        print(max_index)
+
+        dxi = []
         for robot in range(wrapper.get_num_active()):
+            x_sum = 0
+            y_sum = 0
             for i in range(wrapper.get_num_active()):
-                error = current_pos_xy[:2,i] - current_pos_xy[:2,robot]
-                dxi[:, robot] += formation_control_gain*(np.power(np.linalg.norm(error), 2)- np.power(weights[robot, i], 2)) * error
+                x_sum += current_pos[max_index][0] - current_pos[robot][0]
+                y_sum += current_pos[max_index][1] - current_pos[robot][1]
+            dxi.append([x_sum, y_sum])
 
         # passing current pos remove theta
-        dxi = si_barrier_cert(dxi,current_pos_xy)
+        dxi = si_barrier_cert(np.asarray(dxi).transpose(), current_pos_xy)
         # vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
-        dxu= si_to_uni_dyn(dxi, current_pos.transpose())
+        dxu = si_to_uni_dyn(dxi, current_pos.transpose())
 
         # print(vels)
 
