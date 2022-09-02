@@ -118,7 +118,7 @@ class ServerWrapper():
                 # print("Key {key} not found".format(key=name))
                 continue
                 
-    def step(self,rate=2,time=500):
+    def step(self,rate=10,time=100):
         pub_rate = rospy.Rate(rate)
         for i in range(0,int(rate*(time/1000))):
             for robot in self.active_bots:
