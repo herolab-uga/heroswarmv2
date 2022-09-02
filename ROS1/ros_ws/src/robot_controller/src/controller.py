@@ -25,6 +25,17 @@ from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 shutdown = False
 restart = False
 
+ODOM_COVARIANCE_MATRIX = [1e-2, 0, 0, 0, 0, 0,
+                          0, 1e-2, 0, 0, 0, 0,
+                          0, 0, 1e-2, 0, 0, 0,
+                          0, 0, 0, 1e-2, 0, 0,
+                          0, 0, 0, 0, 1e-2, 0,
+                          0, 0, 0, 0, 0, 1e-2]
+
+IMU_COVARIANCE_MATRIX = [1e-2 , 0, 0
+                        , 0, 1e-2, 0
+                        , 0, 0, 1e-2]
+
 class Controller:
 
     def __del__(self):
@@ -110,6 +121,8 @@ class Controller:
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
+        odom_msg.header.stamp = rospy.Time.now()
+        odom_msg.header.frame_id = "base_footprint"
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
         odom_msg.twist.twist.linear.y = data[4]
@@ -129,6 +142,9 @@ class Controller:
         odom_msg.pose.pose.orientation.y = quaternion[1]
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
+
+        odom_msg.pose.covariance = ODOM_COVARIANCE_MATRIX
+        odom_msg.twist.covariance = ODOM_COVARIANCE_MATRIX    
 
         self.odom_pub.publish(odom_msg)
 
@@ -151,7 +167,7 @@ class Controller:
         else:
             z_angular = 0
         
-        self.stop_timer = threading.Timer(0.5,self.stop)
+        # self.stop_timer = threading.Timer(0.5,self.stop)
         # self.stop_timer.start()
 
         if not (x_velo == self.linear_x_velo and z_angular == self.angular_z_velo):
@@ -169,12 +185,11 @@ class Controller:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor data
-
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
         imu_msg.header.stamp = rospy.Time.now()
-        imu_msg.header.frame_id = self.id
+        imu_msg.header.frame_id = "base_footprint"
 
         # Sets the angular velocity parameters
         imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
@@ -185,6 +200,10 @@ class Controller:
         imu_msg.linear_acceleration.x = acc_x - self.x_avg
         imu_msg.linear_acceleration.y = acc_y - self.y_avg
         imu_msg.linear_acceleration.z = acc_z - self.z_avg
+
+        imu_msg.orientation_covariance = IMU_COVARIANCE_MATRIX
+        imu_msg.angular_velocity_covariance = IMU_COVARIANCE_MATRIX
+        imu_msg.linear_acceleration_covariance = IMU_COVARIANCE_MATRIX
 
         # Publishes the message
         self.imu_pub.publish(imu_msg)
@@ -473,7 +492,7 @@ class Controller:
 
         # Creates timer to read data from arduino
         self.read_arduino_data_timer = rospy.Timer(
-            rospy.Duration(1/10), self.read_arduino_data)
+            rospy.Duration(1/20), self.read_arduino_data)
 
         # Publish the batterry level on the battery topic with at 5hz
         self.battery_timer = rospy.Timer(rospy.Duration(1/5), self.pub_battery)
@@ -504,7 +523,7 @@ class Controller:
         # Creates a publisher for imu data
         if rospy.get_param(self.name + "controller/imu") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
             self.imu_pub = rospy.Publisher("imu/data_raw", Imu, queue_size=1)
-            self.imu_timer = rospy.Timer(rospy.Duration(1/20),self.pub_imu) # not working
+            self.imu_timer = rospy.Timer(rospy.Duration(1/10),self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
         if rospy.get_param(self.name + "controller/light") == True or rospy.get_param(self.name + "controller/all_sensors") == True:
