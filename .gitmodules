@@ -1,3 +1,6 @@
 [submodule "ROS1/ros_ws/src/camera_server/src/apriltag"]
 	path = ROS1/ros_ws/src/camera_server/src/apriltag
 	url = https://github.com/AprilRobotics/apriltag.git
+[submodule "ROS1/ros_ws/src/vision_opencv"]
+	path = ROS1/ros_ws/src/vision_opencv
+	url = https://github.com/ros-perception/vision_opencv.git
