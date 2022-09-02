@@ -479,7 +479,7 @@ class Controller:
                 "position", Odometry, self.get_pos)
 
         # Creates the twist publisher
-        self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist)
+        self.twist_sub = rospy.Subscriber("cmd_vel", Twist, self.read_twist,queue_size=1)
 
         # Creates the auto-stop timer
         self.stop_timer = None
