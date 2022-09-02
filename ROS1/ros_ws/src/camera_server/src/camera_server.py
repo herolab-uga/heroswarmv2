@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 from __future__ import division, print_function
+from concurrent.futures import thread
 
 import json
 import math
@@ -17,15 +18,26 @@ from robot_msgs.msg import Robot_Pos, StringList
 from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
-
+from datetime import datetime
+import signal
+import sys
 # Look into using apriltag 3
 # Calculate tag size
 
 class CameraServer():
 
-    def read_frame(self,image_queue):
+    def display(self,display_queue,out,out_lock):
+        while True:
+            if not display_queue.empty():
+                img = display_queue.get()
+                img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+                with out_lock:
+                    out.write(cv2.resize(img,(1600,900),interpolation = cv2.INTER_AREA))
+                cv2.imshow("Augmented View", cv2.resize(img,(1600,900),interpolation = cv2.INTER_AREA))
+                cv2.waitKey(60)
+
+    def read_frame(self,image_queue,capture):
         try:
-            capture = cv2.VideoCapture(-1)
             W, H = 4096, 2160
             capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
             capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
@@ -37,9 +49,9 @@ class CameraServer():
         while True:
             _, frame = capture.read()
             if image_queue.empty():
-                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+                grey = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 
-                image_queue.put(self.detector.detect(gray))
+                image_queue.put((self.detector.detect(grey),frame))
 
     def connection_manager(self):
         prev_active = []
@@ -55,12 +67,18 @@ class CameraServer():
             prev_active = active_dict
 
     def get_positions(self,image_queue):
+        font                   = cv2.FONT_HERSHEY_SIMPLEX
+        fontScale              = 0.3
+        fontColor              = (0,0,255)
+        lineType               = 1
         while True:
             if not image_queue.empty():
 
-                detections = image_queue.get()
+                temp = image_queue.get()
+
+                detections = temp[0]
                 
-                # dimg1 = dimg
+                dimg1 = temp[1]
 
                 self.positions = Robot_Pos()
                 
@@ -88,14 +106,14 @@ class CameraServer():
                 active_dict = {}
                 # print(detections)
                 for detection in detections:
-
+                    dimg1 = self.draw(dimg1,detection["lb-rb-rt-lt"])
                     center = detection["center"]
                     
                     # Gets the center of the tag in inches and rotated accordingly
 
                     center_transform = self.transform(center)
 
-                    # posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
+                    posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
                     if detection["id"] in self.charger_tags and not detection["id"] in self.close_chargers:
                         
                         (forward_dif,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
@@ -124,6 +142,7 @@ class CameraServer():
                         self.positions.robot_pos.append(Odometry())
                         robot_names.data.append(String())
                         self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
+                        self.positions.robot_pos[-1].header.stamp = rospy.Time.now()
 
                         try:
                             active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"])]
@@ -141,11 +160,15 @@ class CameraServer():
                         self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
                         self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
                         self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                    #     dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
+                    # cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),font,fontScale,(255,0,0),lineType)
+                    # cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),font,0.8,(0,0,0),2)
                         
                 self.active_dict = active_dict
 
                 self.pos_pub.publish(self.positions)
                 self.active_pub.publish(robot_names)
+                # self.display_queue.put(dimg1)
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
@@ -229,9 +252,19 @@ class CameraServer():
         self.closed_chargers.remove(req.id)
         return ReleaseChargerResponse(True)
 
+    def signal_handler(self,signal,frame):
+        try:
+            self.read_frame.join()
+            self.display_process.join()
+            self.out.release()
+        finally:
+            self.video_stream.release
+            sys.exit(0)
+
     def __init__(self):
         
         self.debugging = False
+        display = False
 
         self.ref_x = None
         self.ref_y = None
@@ -274,6 +307,7 @@ class CameraServer():
         self.lineType               = 1
 
         self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=1)
+        self.video_stream = cv2.VideoCapture(-1)
 
         self.robot_dictionary = None
         with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/src/robots.json") as file:
@@ -291,12 +325,21 @@ class CameraServer():
         self.connection_manager_thread.start()
         
         self.image_queue = Queue(maxsize=1)
+        self.display_queue = Queue(maxsize=1)
         
-        self.camera_process = Process(target=self.read_frame,args=(self.image_queue,))
+        self.camera_process = Process(target=self.read_frame,args=(self.image_queue,self.video_stream))
         self.camera_process.start()
 
         self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue,),daemon=True)
         self.position_tracking_thread.start()
+
+        signal.signal(signal.SIGINT, self.signal_handler)
+
+        if display:
+            self.out_lock = threading.Lock()
+            self.out = cv2.VideoWriter('/home/michaelstarks/Videos/outpy_{time}.avi'.format(time=datetime.now()),cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1600,900))
+            self.display_process = Process(target=self.display,args=(self.display_queue,self.out,self.out_lock))
+            self.display_process.start()
 
 if __name__ == '__main__':
         try:
