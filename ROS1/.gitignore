@@ -6,3 +6,4 @@ ros_ws/src/camera_server/scripts/__pycache__/*
 ros_ws/src/camera_server/scripts/rps/__pycache__/*
 ros_ws/src/camera_server/scripts/rps/utilities/__pycache__/*
 ROS1/ros_ws/src/camera_server/scripts/data/*
+ros_ws/data

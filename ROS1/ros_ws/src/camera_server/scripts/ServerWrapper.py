@@ -52,12 +52,21 @@ class ServerWrapper():
                 "light_sensor": {"rgbw":None,
                                  "proximity":None},
                 "neopixel_color":None,
-                "neopixel_pub":rospy.Publisher("/{robot_name}/neopixel".format(robot_name=name),Int16MultiArray,queue_size=1)
+                "neopixel_pub":rospy.Publisher("/{robot_name}/neopixel".format(robot_name=name),Int16MultiArray,queue_size=1),
+                "pos_sub":rospy.Subscriber("/{robot_name}/position".format(robot_name=name),Odometry,self.pos_callback,(i)),
+                "pos":[0,0,0]
             }
             
             self.active_bots[i] = dict_entry
             self.active_bots[name] = dict_entry
 
+    def pos_callback(self,msg,id):
+        try:
+            self.active_bots[id]["pos"][0]= msg.pose.pose.position.x
+            self.active_bots[id]["pos"][1]= msg.pose.pose.position.y
+            self.active_bots[id]["pos"][2]= 0
+        except KeyError:
+            print("Id {id} not found".format(id=id))
     def mic_callback(self,msg,id):
         try:
             self.active_bots[id]["mic"] = msg.data
@@ -79,7 +88,6 @@ class ServerWrapper():
             self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
             # print("Id {id} not found".format(id=id))
         
-    
     def odom_callback(self,msg,id):
         x_vel = msg.twist.twist.linear.x
         y_vel = msg.twist.twist.linear.y
@@ -96,7 +104,7 @@ class ServerWrapper():
             self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
             # print("Id {id} not found".format(id=id))
 
-    def position_callback(self,msg,active_bots):
+    def global_position_callback(self,msg,active_bots):
         for id in range(0,self.num_active_bots):
             try:
                 name = self.active_bots[id]["name"]
@@ -128,7 +136,7 @@ class ServerWrapper():
                     if self.active_bots[robot]["vel_control"]:
                         self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
                     else:
-                        self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["point"])
+                        self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["to_point"])
             pub_rate.sleep()
     
     def stop(self):
@@ -208,6 +216,5 @@ class ServerWrapper():
     
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
-
-        self.global_position = rospy.Subscriber("positions",Robot_Pos,self.position_callback,(self.active_bots))
+        self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
