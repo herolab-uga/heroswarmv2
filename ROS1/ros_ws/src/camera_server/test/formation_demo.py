@@ -8,8 +8,6 @@ from rps.utilities.barrier_certificates import *
 from rps.utilities.misc import *
 from rps.utilities.controllers import *
 
-
-
 num_robots = 5
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
@@ -40,13 +38,13 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-iterations = 50
+iterations = 1000
 
 for iteration in range(iterations):
     # print(iteration)
     try:
         # Get the position of the robots using the camera server
-        current_pos = np.asarray(wrapper.get_data("gloabal_position"))
+        current_pos = np.asarray(wrapper.get_data("global_pos"))
         current_pos_xy = np.asarray([x[:2] for x in current_pos]).transpose()
         # print(current_pos_xy)
 
@@ -65,7 +63,7 @@ for iteration in range(iterations):
         # print(vels)
 
         wrapper.set_velocities(dxu.transpose())
-        wrapper.step(rate=10, time=500)
+        wrapper.step(rate=2, time=500)
 
     except Exception as e:
         print(e)

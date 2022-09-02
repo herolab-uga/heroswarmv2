@@ -54,7 +54,7 @@ for iteration in range(iterations):
 
 
 		wrapper.set_velocities(vels.transpose())
-		wrapper.step(rate=40,time=250)
+		wrapper.step(rate=10,time=100)
 
 	except Exception as e:
 		print(e)
