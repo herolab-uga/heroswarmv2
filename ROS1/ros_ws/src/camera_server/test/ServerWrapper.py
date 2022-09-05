@@ -126,18 +126,17 @@ class ServerWrapper():
                 # print("Key {key} not found".format(key=name))
                 continue
                 
-    def step(self,rate=10,time=100):
+    def step(self,rate=60):
         pub_rate = rospy.Rate(rate)
-        for i in range(0,int(rate*(time/1000))):
-            for robot in self.active_bots:
-                # print("Stepping")
-                if type(robot) == str:
-                    # self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
-                    if self.active_bots[robot]["vel_control"]:
-                        self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
-                    else:
-                        self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["to_point"])
-            pub_rate.sleep()
+        for robot in self.active_bots:
+            # print("Stepping")
+            if type(robot) == str:
+                # self.active_bots[robot]["neopixel_pub"].publish(self.active_bots[robot]["neopixel_color"])
+                if self.active_bots[robot]["vel_control"]:
+                    self.active_bots[robot]["cmd_vel_pub"].publish(self.active_bots[robot]["cmd_vel"])
+                else:
+                    self.active_bots[robot]["to_point_pub"].publish(self.active_bots[robot]["to_point"])
+        pub_rate.sleep()
     
     def stop(self):
         self.set_velocities([[0.0,0.0]]*self.num_active_bots)
