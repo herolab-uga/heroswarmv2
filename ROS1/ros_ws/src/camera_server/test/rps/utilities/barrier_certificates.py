@@ -19,7 +19,7 @@ options['reltol'] = 1e-2 # was e-2
 options['feastol'] = 1e-2 # was e-4
 options['maxiters'] = 50 # default is 100
 
-def create_single_integrator_barrier_certificate(barrier_gain=100, safety_radius=0.17, magnitude_limit=0.2):
+def create_single_integrator_barrier_certificate(barrier_gain=75, safety_radius=0.2, magnitude_limit=0.1):
     """Creates a barrier certificate for a single-integrator system.  This function
     returns another function for optimization reasons.
 

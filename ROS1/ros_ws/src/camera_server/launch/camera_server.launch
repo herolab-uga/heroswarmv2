@@ -1,0 +1,8 @@
+<launch>
+    <arg name="image_raw" default="True"/>
+    <arg name="image_detections" default="True"/>
+    <node name="camera_server" pkg="camera_server" type="camera_server.py" output="screen">
+        <param name="image_raw" value="$(arg image_raw)"/>
+        <param name="image_detections" value="$(arg image_detections)"/>
+    </node>
+</launch>

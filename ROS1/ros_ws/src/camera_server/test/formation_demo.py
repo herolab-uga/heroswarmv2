@@ -8,7 +8,7 @@ from rps.utilities.barrier_certificates import *
 from rps.utilities.misc import *
 from rps.utilities.controllers import *
 
-num_robots = 5
+num_robots = 4
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 
@@ -18,27 +18,35 @@ si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 
 # Some gains for this experiment.  These aren't incredibly relevant.
 d = 0.25
-ddiag = .4
+ddiag_pentagon = .4
+ddiag_square = d *np.sqrt(2)
 formation_control_gain = 2
 
 # Weight matrix to control inter-agent distances
-weights = np.array([[0, d, ddiag, ddiag,d], 
-                    [d, 0, d, ddiag,ddiag], 
-                    [ddiag, d, 0, d,ddiag], 
-                    [ddiag, ddiag, d, 0,d],
-                    [d, ddiag, ddiag, d,0]
+weights_pentagon = np.array([[0, d, ddiag_pentagon, ddiag_pentagon,d], 
+                    [d, 0, d, ddiag_pentagon,ddiag_pentagon], 
+                    [ddiag_pentagon, d, 0, d,ddiag_pentagon], 
+                    [ddiag_pentagon, ddiag_pentagon, d, 0,d],
+                    [d, ddiag_pentagon, ddiag_pentagon, d,0]
                     ])
+
+weights_square = np.array([[0,d, ddiag_square, d], 
+                           [d, 0, d, ddiag_square], 
+                           [ddiag_square, d, 0, d], 
+                           [d, ddiag_square, d, 0],
+                        ])
 
 wrapper = ServerWrapper(num_robots)
 
 
 def signal_handler(sig, frame):
     wrapper.stop()
+    sys.exit()
 
 
 signal.signal(signal.SIGINT, signal_handler)
 
-iterations = 1000
+iterations = 100000
 
 for iteration in range(iterations):
     # print(iteration)
@@ -53,7 +61,7 @@ for iteration in range(iterations):
         for robot in range(wrapper.get_num_active()):
             for i in range(wrapper.get_num_active()):
                 error = current_pos_xy[:2,i] - current_pos_xy[:2,robot]
-                dxi[:, robot] += formation_control_gain*(np.power(np.linalg.norm(error), 2)- np.power(weights[robot, i], 2)) * error
+                dxi[:, robot] += formation_control_gain*(np.power(np.linalg.norm(error), 2)- np.power(weights_square[robot, i], 2)) * error
 
         # passing current pos remove theta
         dxi = si_barrier_cert(dxi,current_pos_xy)
@@ -63,7 +71,7 @@ for iteration in range(iterations):
         # print(vels)
 
         wrapper.set_velocities(dxu.transpose())
-        wrapper.step(rate=2, time=500)
+        wrapper.step(60)
 
     except Exception as e:
         print(e)
