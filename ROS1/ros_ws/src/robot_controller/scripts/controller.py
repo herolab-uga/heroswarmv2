@@ -494,7 +494,7 @@ class Controller:
         self.read_arduino_data_timer = rospy.Timer(
             rospy.Duration(1/20), self.read_arduino_data)
 
-        # Publish the batterry level on the battery topic with at 5hz
+        # Publish the battery level on the battery topic with at 5hz
         self.battery_timer = rospy.Timer(rospy.Duration(1/5), self.pub_battery)
 
         # Creates position control topic
