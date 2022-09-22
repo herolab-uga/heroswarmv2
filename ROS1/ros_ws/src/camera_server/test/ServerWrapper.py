@@ -8,6 +8,9 @@ from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import StringList, Robot_Pos,Light
 from std_msgs.msg import Int16, Int16MultiArray, Float32
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
 
 class ServerWrapper():
     
@@ -176,6 +179,20 @@ class ServerWrapper():
                     break
         return data
 
+    def image_detections_callback(self,msg):
+        img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        dst = cv2.addWeighted(img,1,self.intensity_map,2,0)
+        self.image_intensity.publish(self.bridge.cv2_to_imgmsg(dst, "bgr8"))
+        # self.image_intensity.publish(self.bridge.cv2_to_imgmsg(self.intensity_map, "bgr8"))
+
+    def set_intensity(self,intensity,height=720,width=1080,max_intensity=25):
+        self.intensity_map = np.zeros((height,width,3),dtype=np.uint8)
+        for i in range(0,len(intensity)):
+            x_len = len(intensity)
+            for j in range(0,len(intensity[i])):
+                y_len = len(intensity[i])
+                self.intensity_map = cv2.circle(self.intensity_map,(int(i*width/x_len),int((height/y_len)*j)),1,(0,0,255*(intensity[i][j]/max_intensity)),-1)
+                
     def get_active(self):
         return self.active_bots
 
@@ -199,6 +216,9 @@ class ServerWrapper():
                     print("Read write error")
             time.sleep(1)
 
+    def set_num_robots(self,num):
+        self.selected_bots = num
+
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
         self.selected_bots = selected_bots
@@ -212,8 +232,13 @@ class ServerWrapper():
 
         # self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
         # self.missing_bots_thread.start()
-    
+
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
+
+        self.bridge = CvBridge()
+        self.image_detections = rospy.Subscriber("/camera/image_detections",Image,self.image_detections_callback,queue_size=1)
+        self.intensity_map = None
+        self.image_intensity = rospy.Publisher("/camera/image_intensity",Image,queue_size=1)
