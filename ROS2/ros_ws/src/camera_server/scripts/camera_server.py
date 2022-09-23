@@ -3,7 +3,6 @@ from __future__ import division, print_function
 
 import json
 import math
-import queue
 import threading
 from argparse import ArgumentParser
 from multiprocessing import Process, Queue
@@ -13,9 +12,10 @@ import apriltag
 import cv2
 import numpy as np
 import distributed_controller as distributed_controller 
-import rospy
+import rclpy
+from rclpy import Node
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Robot_Pos, StringList
+from robot_msgs.msg import RobotPos, StringList
 from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
@@ -24,7 +24,7 @@ from cv_bridge import CvBridge
 import time
 
 
-class CameraServer():
+class CameraServer(Node):
 
     def read_frame(self,image_queue):
         try:
@@ -67,7 +67,7 @@ class CameraServer():
 
                 dimg1 = frame
             
-                self.positions = Robot_Pos()
+                self.positions = RobotPos()
                 
                 if self.transform_matrix == None:
                     try:
@@ -239,15 +239,15 @@ class CameraServer():
 
     def __init__(self):
 
-        rospy.init_node("camera_server",anonymous=True)
+        super().__init__("camera_server",anonymous=True)
 
         self.ref_x = None
         self.ref_y = None
         self.orig = None
         self.rotation_matrix = None
         self.transform_matrix = None
-        self.display_raw = rospy.get_param("camera_server/image_raw")
-        self.display_detections = rospy.get_param("camera_server/image_detections")
+        self.display_raw = self.get_param("camera_server/image_raw")
+        self.display_detections = self.get_param("camera_server/image_detections")
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
         self.charger_tags = [500]
@@ -265,21 +265,21 @@ class CameraServer():
         self.fontColor              = (0,0,255)
         self.lineType               = 1
 
-        self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=1)
+        self.pos_pub = self.Publisher(RobotPos,"/positions",queue_size=1)
         self.bridge = CvBridge()
 
         self.robot_dictionary = None
-        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
+        with open("../includes/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
-        self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
+        self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
+        self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
-        self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
+        self.active_pub = self.Publisher(StringList,"active_robots",queue_size=1)
         if self.display_raw:
-            self.image_pub = rospy.Publisher("/camera/image_raw",Image,queue_size=10)
+            self.image_pub = self.Publisher(Image,"/camera/image_raw",queue_size=10)
         if self.display_detections:
-            self.detections_pub = rospy.Publisher("/camera/image_detections",Image,queue_size=1)
+            self.detections_pub = self.Publisher(Image,"/camera/image_detections",queue_size=1)
 
         self.positions = None
         self.active_dict = {}
@@ -297,7 +297,5 @@ class CameraServer():
         self.position_tracking_thread.start()
 
 if __name__ == '__main__':
-        try:
-            server = CameraServer()
-        except rospy.ROSInterruptException:
-            pass
+    server = CameraServer()
+    rclpy.spin(server)
