@@ -3,9 +3,6 @@
 #define SWARMBOT_H
     #include <Arduino.h>
     #include <Adafruit_NeoPixel.h>
-    // #include <IMU.h>
-
-    // extern imu IMU;
     
     class SwarmBot{
         //Motor Driver and Encoder Definitions 
@@ -13,17 +10,11 @@
         byte leftMotorIN2;
         byte leftEncoderA;
         byte leftEncoderB;
-        byte leftEncoderPWR;
-        byte leftEncoderGND;
 
         byte rightMotorIN1;
         byte rightMotorIN2;
         byte rightEncoderA;
         byte rightEncoderB;
-        byte rightEncoderPWR;
-        byte rightEncoderGND;
-
-        byte driverMode;
 
         //Physical Constants
         int encoderCPP;
@@ -130,7 +121,21 @@
         public:
 
             //SwarmBot Constructor
-            SwarmBot(byte leftIN1 = 13, byte leftIN2 = 12, byte leftA = A2, byte leftB = A1, byte leftPWR = A3, byte leftGND = A0, byte rightIN1 = 11, byte rightIN2 = 10, byte rightA = 5, byte rightB = 6, byte rightPWR = A4, byte rightGND = A5, byte mode = 9, int CPP = 28, int ratio = 100, float wheelDiameter = 0.0325, float wheelBase = 0.073);
+            SwarmBot(
+                     byte leftIN1 = 13, 
+                     byte leftIN2 = 12, 
+                     byte leftA = A1, 
+                     byte leftB = A0, 
+                     byte rightIN1 = 10,
+                     byte rightIN2 = 9, 
+                     byte rightA = A3, 
+                     byte rightB = A2, 
+                     int CPP = 28, 
+                     int ratio = 100, 
+                     float wheelDiameter = 0.0325, 
+                     float wheelBase = 0.083
+                    );
+
             void initializePorts();
             byte getLeftEncoderA();
             byte getLeftEncoderB();
@@ -140,7 +145,6 @@
             byte getLeftIn2();
             byte getRightIn1();
             byte getRightIn2();
-            byte getMode();
 
             void setPIDSetpoint(float,float);
             
@@ -155,8 +159,6 @@
             float getMaxSpeed();
             float getRightFeedForward();
             float getLeftFeedForward();
-            float getRightFeedback();
-            float getLeftFeedback();
 
             void tunePID(float p, float i, float d);
             //Base Motor Control
@@ -170,7 +172,7 @@
             float angleWrap(float angle, bool isRad = true);
             float angleWrap2(float angle, bool isRad = true);
             void updateOdometery();
-            void callibrateOdometery(float theta);
+            void callibrateOdometery(float inputArray[3]);
 
             //Chassis Movement
             float linearVelocityPID(float velocity);

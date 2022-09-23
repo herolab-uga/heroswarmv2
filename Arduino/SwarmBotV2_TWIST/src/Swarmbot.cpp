@@ -1,24 +1,31 @@
 
 #include <Swarmbot.h>
 
-SwarmBot::SwarmBot(byte leftIN1, byte leftIN2, byte leftA, byte leftB, byte leftPWR, byte leftGND, byte rightIN1, byte rightIN2, byte rightA, byte rightB, byte rightPWR, byte rightGND, byte mode, int CPP, int ratio, float wheelDiameterM, float wheelBaseM)
+SwarmBot::SwarmBot(
+                    byte leftIN1, 
+                    byte leftIN2, 
+                    byte leftA, 
+                    byte leftB, 
+                    byte rightIN1, 
+                    byte rightIN2, 
+                    byte rightA, 
+                    byte rightB,  
+                    int CPP, 
+                    int ratio, 
+                    float wheelDiameterM, 
+                    float wheelBaseM
+                )
 {
     //Motor Driver and Encoder Definitions
     leftMotorIN1 = leftIN1;
     leftMotorIN2 = leftIN2;
     leftEncoderA = leftA;
     leftEncoderB = leftB;
-    leftEncoderPWR = leftPWR;
-    leftEncoderGND = leftGND;
 
     rightMotorIN1 = rightIN1;
     rightMotorIN2 = rightIN2;
     rightEncoderA = rightA;
     rightEncoderB = rightB;
-    rightEncoderPWR = rightPWR;
-    rightEncoderGND = rightGND;
-
-    driverMode = mode;
 
     //Physical Constants
     encoderCPP = CPP;
@@ -134,10 +141,6 @@ byte SwarmBot::getRightIn2()
 {
     return rightMotorIN2;
 }
-byte SwarmBot::getMode()
-{
-    return driverMode;
-}
 
 float SwarmBot::getX()
 {
@@ -194,16 +197,6 @@ float SwarmBot::getLeftFeedForward()
     return this->lmFF;
 }
 
-float SwarmBot::getRightFeedback()
-{
-    return this->rmFB;
-}
-
-float SwarmBot::getLeftFeedback()
-{
-    return this->lmFB;
-}
-
 void SwarmBot::setPIDSetpoint(float linear, float angular)
 {
     rightMotorLastSpeed = ((linear + angular * wheelBase * .5) / 0.29) * (100);
@@ -222,27 +215,16 @@ void SwarmBot::tunePID(float p, float i, float d)
 
 void SwarmBot::initializePorts()
 {
-    digitalWrite(leftEncoderPWR, HIGH);
-    digitalWrite(leftEncoderGND, LOW);
-    pinMode(leftEncoderGND, OUTPUT);
-    pinMode(leftEncoderPWR, OUTPUT);
 
     pinMode(leftEncoderA, INPUT_PULLUP);
     pinMode(leftEncoderB, INPUT_PULLUP);
     digitalWrite(leftEncoderA, HIGH);
     digitalWrite(leftEncoderB, HIGH);
 
-    digitalWrite(rightEncoderPWR, HIGH);
-    digitalWrite(rightEncoderGND, LOW);
-    pinMode(rightEncoderGND, OUTPUT);
-    pinMode(rightEncoderPWR, OUTPUT);
-
     pinMode(rightEncoderA, INPUT_PULLUP);
     pinMode(rightEncoderB, INPUT_PULLUP);
     digitalWrite(rightEncoderA, HIGH);
     digitalWrite(rightEncoderB, HIGH);
-
-    digitalWrite(driverMode, LOW);
 
     this->pixels.begin();
     this->pixels.clear();
@@ -287,10 +269,12 @@ void SwarmBot::updateWheels()
     //Left Motor
     leftDeltaTicks = leftEncoderValue - leftLastEncoderValue;
     leftDeltaRevolutions = leftDeltaTicks / (encoderCPP * gearRatio);
+    leftDeltaDegrees = leftDeltaRevolutions * 360;
 
     //Right Motor
     rightDeltaTicks = rightEncoderValue - rightLastEncoderValue;
     rightDeltaRevolutions = rightDeltaTicks / (encoderCPP * gearRatio);
+    rightDeltaDegrees = rightDeltaRevolutions * 360;
 
     //Archive Values
     leftLastEncoderValue = leftEncoderValue;
@@ -341,7 +325,6 @@ void SwarmBot::updateOdometery()
     thetaRadOdom += dPhi;
     X += dCenter * cos(thetaRadOdom);
     Y += dCenter * sin(thetaRadOdom);
-
     ////Velocity
     long currentTime = millis();
     if (currentTime < lastTime)
@@ -428,19 +411,16 @@ void SwarmBot::printOdom(bool mode, float a, float b)
 
 void SwarmBot::setLeftMotorSpeed(float speed)
 {
-    // Serial.print("Output Left: ");
-
+    Serial.print("Output Left: ");
+    float outputLeft = abs(speed) + lmFF;
+    Serial.println(outputLeft);
     if (speed > 0)
     {
-        float outputLeft = abs(speed) + lmFF;
-        // Serial.println(outputLeft);
         analogWrite(leftMotorIN1, 0);
         analogWrite(leftMotorIN2, outputLeft);
     }
     else if (speed < 0)
     {
-        float outputLeft = abs(speed) + lmFB;
-        // Serial.println(outputLeft);
         analogWrite(leftMotorIN1, outputLeft);
         analogWrite(leftMotorIN2, 0);
     }
@@ -452,18 +432,16 @@ void SwarmBot::setLeftMotorSpeed(float speed)
 }
 void SwarmBot::setRightMotorSpeed(float speed)
 {
-    // Serial.print("Output Right: ");
+    float outputRight = abs(speed) + rmFF;
+    Serial.print("Output Right: ");
+    Serial.println(outputRight);
     if (speed > 0)
     {
-        float outputRight = abs(speed) + rmFF;
-        // Serial.println(outputRight);
         analogWrite(rightMotorIN1, 0);
         analogWrite(rightMotorIN2, outputRight);
     }
     else if (speed < 0)
     {
-        float outputRight = abs(speed) + rmFB;
-        // Serial.println(outputRight);
         analogWrite(rightMotorIN1, outputRight);
         analogWrite(rightMotorIN2, 0);
     }
@@ -520,9 +498,11 @@ void SwarmBot::updateVel(float velocity, float omega){
     setMotorSpeed(leftMotorOut, rightMotorOut);
 }
 
-void SwarmBot::callibrateOdometery(float theta)
+void SwarmBot::callibrateOdometery(float inputArray[3])
 {
-    thetaRadOdom = theta;
+    X = inputArray[0];
+    Y = inputArray[1];
+    thetaRadOdom = toRadians * inputArray[2];
 }
 
 float SwarmBot::setLinVel(float velocity)

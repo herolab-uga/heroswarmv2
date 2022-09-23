@@ -79,16 +79,16 @@ void receiveEvent(int byteCount)
 void sendEvent()
 {
   if (samplesRead) {
-    int max_val_temp = 0;
+    max_val = 0;
     // print samples to the serial monitor or plotter
     for (int i = 0; i < samplesRead; i++) {
-      if (max_val_temp < sampleBuffer[i]) {
-        max_val_temp = sampleBuffer[i];
+      if (sampleBuffer[i] > max_val) {
+        if (max_val < sampleBuffer[i]) {
+          max_val = sampleBuffer[i];
+        }
       }
     }
     // clear the read count
-    max_val = max_val_temp;
-    samplesRead = 0;
   }
 
   measuredvbat = analogRead(A6);
@@ -118,10 +118,6 @@ void interpretData()
     angularVelocity = inputArray[3];
     steve.setPIDSetpoint(linearVelocity, angularVelocity);
     steve.setVelocity(linearVelocity, angularVelocity);
-    // Serial.print("Linear: ");
-    // Serial.println(linearVelocity);
-    // Serial.print("Angular: ");
-    // Serial.println(angularVelocity);
     if (abs(linearVelocity) < .001 && abs(angularVelocity) < .001)
     {
         stop();
@@ -136,8 +132,6 @@ void interpretData()
     break;
   case 1:
     steve.setColor(inputArray[1], inputArray[2], inputArray[3]);
-  case 2:
-    steve.callibrateOdometery(inputArray[1]);
   default:
     break;
   }
@@ -196,14 +190,11 @@ void setup()
   Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
 
-
-  // interrupting twice on 01 -> 10 and 11 -> 00?
   attachInterrupt(steve.getLeftEncoderA(), leftInterrupt, CHANGE);
   attachInterrupt(steve.getLeftEncoderB(), leftInterrupt, CHANGE);
 
   attachInterrupt(steve.getRightEncoderA(), rightInterrupt, CHANGE);
   attachInterrupt(steve.getRightEncoderB(), rightInterrupt, CHANGE);
-
   steve.initializePorts();
 
   pinMode(A6, INPUT);
@@ -216,7 +207,7 @@ void setup()
     Serial.println("Failed to start PDM!");
     while (1) yield();
   }
-  PDM.setGain(.75);
+
   steve.setPIDSetpoint(0, 0);
   steve.setVelocity(0, 0);
   // steve.updateOdometery();
