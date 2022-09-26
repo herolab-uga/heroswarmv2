@@ -17,6 +17,7 @@ from rclpy import Node
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import RobotPos, StringList
 from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
+from issa
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import Image
@@ -25,23 +26,6 @@ import time
 
 
 class CameraServer(Node):
-
-    def read_frame(self,image_queue):
-        try:
-            capture = cv2.VideoCapture(-1)
-            W, H = 4096, 2160
-            capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
-            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
-            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-            capture.set(cv2.CAP_PROP_FPS, 60)
-        except ValueError:
-            self.cap = cv2.VideoCapture(self.options.device_or_movie)
-
-        while True:
-            _, frame = capture.read()
-            if image_queue.empty():
-                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-                image_queue.put((self.detector.detect(gray),frame))
                 
     def connection_manager(self):
         prev_active = []
@@ -56,104 +40,98 @@ class CameraServer(Node):
                 count = count + 1
             prev_active = active_dict
 
-    def get_positions(self,image_queue):
-        while True:
-            if not image_queue.empty():
+    def get_image(self,msg):
+        self.image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
-                detections, frame = image_queue.get()
-
-                if self.display_raw:
-                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(frame,(1080,720)), "bgr8"))
-
-                dimg1 = frame
+    def get_positions(self,image_queue,msg):
+            self.positions = RobotPos()
             
-                self.positions = RobotPos()
+            if self.transform_matrix == None:
+                try:
+                    # Gets the x and y positions.robot_pos of the reference tags
+                    self.ref_x = detections[self.reference_tags[1]]["center"]
+                    self.ref_y = detections[self.reference_tags[2]]["center"]
+                    self.orig = detections[self.reference_tags[0]]["center"]
+
+                    self.transform_matrix = [(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0])),
+                                                (np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))]
+
+                    # Creates the rotation matrix
+                    self.rotation_matrix = np.array([[0, 1], [-1, 0]])
+                except IndexError:
+                    print("Reference tags not found")
+                    return
                 
-                if self.transform_matrix == None:
-                    try:
-                        # Gets the x and y positions.robot_pos of the reference tags
-                        self.ref_x = detections[self.reference_tags[1]]["center"]
-                        self.ref_y = detections[self.reference_tags[2]]["center"]
-                        self.orig = detections[self.reference_tags[0]]["center"]
+            robot_names = StringList()
+            active_dict = {}
+            # print(detections)
+            for detection in detections:
 
-                        self.transform_matrix = [(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0])),
-                                                    (np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))]
+                self.image = self.draw(frame,detection["lb-rb-rt-lt"])
 
-                        # Creates the rotation matrix
-                        self.rotation_matrix = np.array([[0, 1], [-1, 0]])
-                    except IndexError:
-                        continue
-                    
-                robot_names = StringList()
-                active_dict = {}
-                # print(detections)
-                for detection in detections:
-
-                    dimg1 = self.draw(frame,detection["lb-rb-rt-lt"])
-
-                    center = detection["center"]
-                    
-                    # Gets the center of the tag in inches and rotated accordingly
-
-                    center_transform = self.transform(center)
-
-                    cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
-
-                    posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
-                    if detection["id"] in self.charger_tags and not detection["id"]in self.close_chargers:
-                        posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
-                        
-                        (forward_dir,angle) = self.heading_dir(detection.corners,center)
-                        dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
-                        cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
-                        temp = Pose()
-                        
-                        temp.position.x = center_transform[0]
-                        temp.position.y = center_transform[1]
-                        temp.position.z = 0.0
-
-                        q = self.quaternion_from_rpy(0,0,angle)
-
-                        temp.orientation.x = q[0]
-                        temp.orientation.y = q[1]
-                        temp.orientation.z = q[2]
-                        temp.orientation.w = q[3]
-
-                        
-                        self.charger_tags[detection["id"]] = temp
-
-                    elif not detection["id"] in self.reference_tags:
-                        # Gets the forward direction
-                        (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
-                        posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
-                        dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
-                        cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
-
-                        self.positions.robot_pos.append(Odometry())
-                        robot_names.data.append(String())
-                        self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
-
-                        active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"])]
-                        robot_names.data[-1].data = self.robot_dictionary[str(detection["id"])]
-
-                        self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                        self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
-                        self.positions.robot_pos[-1].pose.pose.position.z = 0.0
-
-                        q = self.quaternion_from_rpy(0,0,angle)
-
-                        self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                        self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                        self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                        self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
-                        
-                self.active_dict = active_dict
-
-                self.pos_pub.publish(self.positions)
-                self.active_pub.publish(robot_names)
+                center = detection["center"]
                 
-                if self.display_detections:
-                    self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(dimg1,(1080,720)), "bgr8"))
+                # Gets the center of the tag in inches and rotated accordingly
+
+                center_transform = self.transform(center)
+
+                cv2.putText(self.image,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
+
+                posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
+                if detection["id"] in self.charger_tags and not detection["id"]in self.close_chargers:
+                    posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                    
+                    (forward_dir,angle) = self.heading_dir(detection.corners,center)
+                    self.image=self.draw1(self.image,forward_dir,center,(0,0,255))
+                    cv2.putText(self.image,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
+                    temp = Pose()
+                    
+                    temp.position.x = center_transform[0]
+                    temp.position.y = center_transform[1]
+                    temp.position.z = 0.0
+
+                    q = self.quaternion_from_rpy(0,0,angle)
+
+                    temp.orientation.x = q[0]
+                    temp.orientation.y = q[1]
+                    temp.orientation.z = q[2]
+                    temp.orientation.w = q[3]
+
+                    
+                    self.charger_tags[detection["id"]] = temp
+
+                elif not detection["id"] in self.reference_tags:
+                    # Gets the forward direction
+                    (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
+                    posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                    self.image=self.draw1(self.image,forward_dir,center,(0,0,255))
+                    cv2.putText(self.image,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
+
+                    self.positions.robot_pos.append(Odometry())
+                    robot_names.data.append(String())
+                    self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
+
+                    active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"])]
+                    robot_names.data[-1].data = self.robot_dictionary[str(detection["id"])]
+
+                    self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                    self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
+                    self.positions.robot_pos[-1].pose.pose.position.z = 0.0
+
+                    q = self.quaternion_from_rpy(0,0,angle)
+
+                    self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                    self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                    self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                    self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                    
+            self.active_dict = active_dict
+
+            self.pos_pub.publish(self.positions)
+            self.active_pub.publish(robot_names)
+            
+            if self.display_detections:
+                self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(self.image,(1080,720)), "bgr8"))
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
@@ -246,7 +224,6 @@ class CameraServer(Node):
         self.orig = None
         self.rotation_matrix = None
         self.transform_matrix = None
-        self.display_raw = self.get_param("camera_server/image_raw")
         self.display_detections = self.get_param("camera_server/image_detections")
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
@@ -257,13 +234,13 @@ class CameraServer(Node):
 
         self.x_distance = 2.413
         self.y_distance = 1.74625 #67.5 #1.7145
-        
-        self.detector = apriltag.apriltag("tagStandard41h12")
 
         self.font = cv2.FONT_HERSHEY_SIMPLEX
         self.fontScale              = 0.3
         self.fontColor              = (0,0,255)
         self.lineType               = 1
+
+        self.bridge = CvBridge()
 
         self.pos_pub = self.Publisher(RobotPos,"/positions",queue_size=1)
         self.bridge = CvBridge()
@@ -275,9 +252,9 @@ class CameraServer(Node):
         self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
         self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
+        self.image_pub = self.Subscriber(Image,"/camera/image",queue_size=1)
         self.active_pub = self.Publisher(StringList,"active_robots",queue_size=1)
-        if self.display_raw:
-            self.image_pub = self.Publisher(Image,"/camera/image_raw",queue_size=10)
+
         if self.display_detections:
             self.detections_pub = self.Publisher(Image,"/camera/image_detections",queue_size=1)
 
