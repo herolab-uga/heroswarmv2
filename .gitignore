@@ -10,3 +10,4 @@ ROS1/ros_ws/src/camera_server/scripts/2022-08-31-11-45-13.bag
 ROS1/ros_ws/src/camera_server/test/*.csv
 **/__pychache__
 **/*.bag
+ROS2
