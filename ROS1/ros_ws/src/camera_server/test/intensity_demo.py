@@ -18,7 +18,7 @@ si_barrier_cert = create_single_integrator_barrier_certificate()
 si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 
 
-num_robots = 3
+num_robots = 5
 wrapper = ServerWrapper(num_robots)
 
 time.sleep(5)
@@ -51,6 +51,7 @@ def pop_sensor(sensor_array):
             else:
                 sensor_array[int((i*100)/BOARD_SIZE_X)][int((j*100)/BOARD_SIZE_Y)] = (luminosity/(4 * np.pi * (distance ** 2)))
     wrapper.set_intensity(intensity=sensor_array,max_intensity=luminosity)
+    return sensor_array
 
 def get_sensor_reading(robot_pos,sensor_array):
     intensity = []
@@ -64,7 +65,8 @@ def get_sensor_reading(robot_pos,sensor_array):
 
 iterations = 10000
 
-pop_sensor(sensor_array)
+sensor_array = pop_sensor(sensor_array)
+print("Running")
 
 # print(sensor_array)
 
@@ -79,7 +81,6 @@ for iteration in range(iterations):
         intensity = get_sensor_reading(current_pos,sensor_array)
         # print(intensity)    
         max_index = np.argmax(intensity)
-        max_pos = current_pos[max_index][:2]
         # print(max_pos)
         # print(max_index)
         
@@ -89,12 +90,13 @@ for iteration in range(iterations):
             dxi.append([current_pos[max_index][0] - current_pos[robot][0], current_pos[max_index][1] - current_pos[robot][1]])
 
         dxi = np.asarray(dxi).transpose()
+        # print(dxi)
         # passing current pos remove theta
         dxi = si_barrier_cert(dxi,current_pos_xy)
         # vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
         dxu= si_to_uni_dyn(dxi, current_pos.transpose())
 
-        # print(vels)
+        print(dxu)
 
         wrapper.set_velocities(dxu.transpose())
         wrapper.step(60)

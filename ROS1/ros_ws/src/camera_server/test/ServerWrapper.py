@@ -181,17 +181,20 @@ class ServerWrapper():
 
     def image_detections_callback(self,msg):
         img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-        dst = cv2.addWeighted(img,1,self.intensity_map,2,0)
-        self.image_intensity.publish(self.bridge.cv2_to_imgmsg(dst, "bgr8"))
-        # self.image_intensity.publish(self.bridge.cv2_to_imgmsg(self.intensity_map, "bgr8"))
+        try:
+            dst = cv2.addWeighted(img,.75,self.intensity_map,.5,0)
+            self.image_intensity.publish(self.bridge.cv2_to_imgmsg(dst, "bgr8"))
+            # self.image_intensity.publish(self.bridge.cv2_to_imgmsg(self.intensity_map, "bgr8"))
+        except Exception as e:
+            self.image_intensity.publish(msg)
 
     def set_intensity(self,intensity,height=720,width=1080,max_intensity=25):
         self.intensity_map = np.zeros((height,width,3),dtype=np.uint8)
         for i in range(0,len(intensity)):
             x_len = len(intensity)
-            for j in range(0,len(intensity[i])):
-                y_len = len(intensity[i])
-                self.intensity_map = cv2.circle(self.intensity_map,(int(i*width/x_len),int((height/y_len)*j)),1,(0,0,255*(intensity[i][j]/max_intensity)),-1)
+            for j in range(0,len(intensity[-i+x_len-1])):
+                y_len = len(intensity[-i+x_len-1])
+                self.intensity_map = cv2.circle(self.intensity_map,(int(i*width/x_len),int((height/y_len)*j)),1,(0,0,int(255*(intensity[i][j]/max_intensity))),-1)
                 
     def get_active(self):
         return self.active_bots
