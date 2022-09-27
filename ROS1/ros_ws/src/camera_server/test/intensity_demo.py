@@ -48,12 +48,12 @@ sensor_array = np.zeros((rows,cols))
 
 def pop_sensor(sensor_array):
     for i in np.arange(0,BOARD_SIZE_X,BOARD_SIZE_X/cols):
-        for j in np.arange(0,BOARD_SIZE_Y,BOARD_SIZE_Y/rows):
+        for j in np.arange(BOARD_SIZE_Y,0,BOARD_SIZE_Y/rows):
             distance = (np.sqrt(np.square(i - light_source[0]) + np.square(j - light_source[1])))*scale
             if distance < 0.001:
                 sensor_array[int((i*rows)/BOARD_SIZE_X)][int((j*cols)/BOARD_SIZE_Y)] = luminosity
             else:
-                sensor_array[int((i*rows)/BOARD_SIZE_X)][int((j*cols)/BOARD_SIZE_Y)] = luminosity - 20*decay*math.log(distance) #(luminosity/(4 * np.pi * (distance ** 2)))
+                sensor_array[int((i*rows)/BOARD_SIZE_X)][BOARD_SIZE_Y - int((j*cols)/BOARD_SIZE_Y)] = luminosity - 20*decay*math.log(distance) #(luminosity/(4 * np.pi * (distance ** 2)))
     wrapper.set_intensity(intensity=sensor_array,max_intensity=luminosity)
     return sensor_array
 
@@ -62,7 +62,7 @@ def get_sensor_reading(robot_pos,sensor_array):
     for robot in robot_pos:
         # print("X Pos: {x} Y Pos: {y}".format(x=robot[0],y=robot[1]))
         x_pos = int(((robot[0]*rows)/BOARD_SIZE_X))
-        y_pos = int(((robot[1]*cols)/BOARD_SIZE_Y))
+        y_pos = BOARD_SIZE_Y - int(((robot[1]*cols)/BOARD_SIZE_Y))
         # print("X Pos: {x} Y Pos: {y}".format(x=x_pos,y=y_pos))
         intensity.append(sensor_array[x_pos][y_pos])
     return intensity
