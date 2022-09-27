@@ -22,7 +22,7 @@ si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 num_robots = 1
 wrapper = ServerWrapper(num_robots)
 
-time.sleep(5)
+time.sleep(1)
 
 
 def signal_handler(sig, frame):
@@ -72,23 +72,21 @@ for iteration in range(iterations):
         # Initialize a velocity vector
         dxi = []
         for robot in range(num_robots):
-            # c_x = 0
-            # c_y = 0
-            # w_xy = 0
-            # for xi in range(0,cols):
-            #     for yi in range(0,rows):
-            #         c_x += (xi * BOARD_SIZE_X/cols) * sensor_array[yi][xi] 
-            #         c_y += (yi * BOARD_SIZE_Y/rows) * sensor_array[yi][xi] 
-            #         w_xy += sensor_array[yi][xi]
-            # c_x = c_x/w_xy
-            # c_y = c_y/w_xy
-            # # print c_x and c_y
-            # print("Cx: {} | Cy: {}".format(c_x,c_y))
+            c_x = 0
+            c_y = 0
+            w_xy = 0
+            for xi in range(0,cols,10):
+                for yi in range(0,rows,10):
+                    c_x += (xi * BOARD_SIZE_X/cols) * sensor_array[yi][xi] 
+                    c_y += (yi * BOARD_SIZE_Y/rows) * sensor_array[yi][xi] 
+                    w_xy += sensor_array[yi][xi]
+            c_x = c_x/w_xy
+            c_y = c_y/w_xy
+            # print c_x and c_y
+            print("Cx: {} | Cy: {}".format(c_x,c_y))
             print("Robot current pos: {} ".format(current_pos[robot]))
 
-            dxi.append([1.1996164397641877 - current_pos[robot][0], 0.848802872381533 - current_pos[robot][1]])
-
-            pass
+            dxi.append([c_x - current_pos[robot][0], c_y - current_pos[robot][1]])
 
         dxi = np.asarray(dxi).transpose()
         # print(dxi)
