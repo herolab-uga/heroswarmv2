@@ -191,6 +191,7 @@ class ServerWrapper():
     def set_intensity(self,intensity,height=720,width=1080,max_intensity=25):
         self.intensity_map = cv2.normalize(intensity, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         self.image_intensity_map = cv2.applyColorMap(self.intensity_map,cv2.COLORMAP_JET)
+        self.image_intensity_map = np.rot90(self.image_intensity_map)
         #self.image_intensity_map = cv2.flip(self.image_intensity_map, 1)
         # print(intensity/max_intensity)
         #self.image_intensity_map = cv2.flip(self.image_intensity_map, 0)
