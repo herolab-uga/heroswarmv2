@@ -25,6 +25,9 @@ class ReadCamera(Node):
     def __init__(self):
         super().__init__('ReadCamera')
         self.get_logger().info('ReadCamera node has been started')
-        self.image_pub = self.publisher(Image, '/camera/image', 1)
+        self.image_pub = self.publisher(Image, '/image', 1)
         while True:
             self.read_camera()
+
+def main():
+    ReadCamera()
