@@ -7,3 +7,6 @@
 [submodule "ROS2/ros_ws/src/isaac_ros_apriltag"]
 	path = ROS2/ros_ws/src/isaac_ros_apriltag
 	url = git@github.com:NVIDIA-ISAAC-ROS/isaac_ros_apriltag.git
+[submodule "ROS2/ros_ws/src/ros2_usb_camera"]
+	path = ROS2/ros_ws/src/ros2_usb_camera
+	url = git@github.com:shinkansan/ros2_logitech_brio_publisher.git
