@@ -27,5 +27,5 @@
         <param name="publish_tag_detections_image" type="bool" value="true" />      <!-- default: false -->
     </node>
 
-    <!-- <node name="camera_server" pkg="camera_server" type="camera_server.py" output="screen"></node> -->
+    <node name="camera_server" pkg="camera_server" type="camera_server.py" output="screen"></node>
 </launch>

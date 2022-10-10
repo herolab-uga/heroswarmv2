@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 from __future__ import division, print_function
+from email.mime import image
 
 import json
 import math
@@ -26,22 +27,10 @@ import time
 
 class CameraServer():
 
-    def read_frame(self,image_queue):
-        try:
-            capture = cv2.VideoCapture(-1)
-            W, H = 4096, 2160
-            capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
-            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
-            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-            capture.set(cv2.CAP_PROP_FPS, 60)
-        except ValueError:
-            self.cap = cv2.VideoCapture(self.options.device_or_movie)
-
-        while True:
-            _, frame = capture.read()
-            if image_queue.empty():
-                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-                image_queue.put((self.detector.detect(gray),frame))
+    def read_frame(self,image):
+        frame = self.bridge.imgmsg_to_cv2(image)
+        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        self.image_queue.put((self.detector.detect(gray),frame))
                 
     def connection_manager(self):
         prev_active = []
@@ -56,17 +45,11 @@ class CameraServer():
                 count = count + 1
             prev_active = active_dict
 
-    def get_positions(self,image_queue):
+    def get_positions(self,):
         while True:
-            if not image_queue.empty():
-
-                detections, frame = image_queue.get()
-
-                if self.display_raw:
-                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(frame,(1080,720)), "bgr8"))
-
+            if not self.image_queue.empty():
+                detections,frame = self.image_queue.get()
                 dimg1 = frame
-            
                 self.positions = Robot_Pos()
                 
                 if self.transform_matrix == None:
@@ -82,7 +65,7 @@ class CameraServer():
                         # Creates the rotation matrix
                         self.rotation_matrix = np.array([[0, 1], [-1, 0]])
                     except IndexError:
-                        continue
+                        return
                     
                 robot_names = StringList()
                 active_dict = {}
@@ -246,8 +229,8 @@ class CameraServer():
         self.orig = None
         self.rotation_matrix = None
         self.transform_matrix = None
-        self.display_raw = rospy.get_param("camera_server/image_raw")
-        self.display_detections = rospy.get_param("camera_server/image_detections")
+
+        self.display_detections = True
 
         self.reference_tags = [0, 1, 2] # List that holds the ids of the reference tags
         self.charger_tags = [500]
@@ -269,35 +252,27 @@ class CameraServer():
         self.bridge = CvBridge()
 
         self.robot_dictionary = None
-        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
+        with open("/home/michael/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
         self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
         self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
 
         self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
-        if self.display_raw:
-            self.image_pub = rospy.Publisher("/camera/image_raw",Image,queue_size=10)
         if self.display_detections:
             self.detections_pub = rospy.Publisher("/camera/image_detections",Image,queue_size=1)
 
         self.positions = None
         self.active_dict = {}
         self.thread_dict = {}
-        
-        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=())
-        self.connection_manager_thread.start()
-        
-        self.image_queue = Queue(maxsize=1)
-        
-        self.camera_process = Process(target=self.read_frame,args=(self.image_queue,))
-        self.camera_process.start()
 
-        self.position_tracking_thread = threading.Thread(target=self.get_positions,args=(self.image_queue,),daemon=True)
-        self.position_tracking_thread.start()
+        self.image_queue = queue.Queue(10)
+
+        self.image_sub = rospy.Subscriber("/usb_cam/image_raw",Image,self.read_frame)
+
+        self.pos_process = threading.Thread(target=self.get_positions,args=(),daemon=True)
+        self.pos_process.start()
 
 if __name__ == '__main__':
-        try:
-            server = CameraServer()
-        except rospy.ROSInterruptException:
-            pass
+    server = CameraServer()
+    rospy.spin()
