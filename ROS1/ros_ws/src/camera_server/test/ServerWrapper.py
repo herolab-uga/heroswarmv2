@@ -6,6 +6,7 @@ import threading
 import numpy as np
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
+from apriltag_ros.msg import AprilTagDetectionArray, AprilTagDetection
 from robot_msgs.msg import StringList, Robot_Pos,Light
 from std_msgs.msg import Int16, Int16MultiArray, Float32
 from sensor_msgs.msg import Image
@@ -111,9 +112,9 @@ class ServerWrapper():
         for id in range(0,self.num_active_bots):
             try:
                 name = self.active_bots[id]["name"]
-                x = msg.robot_pos[id].pose.pose.position.x
-                y = msg.robot_pos[id].pose.pose.position.y
-                theta = -self.rpy_from_quaternion(msg.robot_pos[id].pose.pose.orientation)[2]
+                x = msg.detections[id].pose.pose.pose.position.x
+                y = msg.detections[id].pose.pose.pose.position.y
+                theta = -self.rpy_from_quaternion(msg.detections[id].pose.pose.pose.orientation)[2]
             except KeyError:
                 self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
                 # print("Key {key} not found".format(key=id))
@@ -239,7 +240,7 @@ class ServerWrapper():
 
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
-        self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
+        self.global_position = rospy.Subscriber("positions",AprilTagDetectionArray,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
 
         self.bridge = CvBridge()

@@ -10,7 +10,7 @@ import itertools
 import numpy as np
 from scipy.special import comb
 
-from rps.utilities.transformations import *
+from utilities.transformations import *
 
 # Disable output of CVXOPT
 options['show_progress'] = False

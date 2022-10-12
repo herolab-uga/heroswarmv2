@@ -114,7 +114,7 @@ for iteration in range(iterations):
         # print(vels)
 
         wrapper.set_velocities(dxu.transpose())
-        wrapper.step(60)
+        wrapper.step(100)
 
     except Exception as e:
         print(e)

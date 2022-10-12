@@ -1,1 +1,1 @@
-nav_msgs/Odometry[] robot_pos
+geometry_msgs/PoseWithCovarianceStamped[] robot_pos
