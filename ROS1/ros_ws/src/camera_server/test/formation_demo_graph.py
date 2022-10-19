@@ -8,14 +8,14 @@ from utilities.barrier_certificates import *
 from utilities.misc import *
 from utilities.controllers import *
 
-si_barrier_cert = create_single_integrator_barrier_certificate(safety_radius=0.15)
+si_barrier_cert = create_single_integrator_barrier_certificate()
 
 # Create SI to UNI dynamics tranformation
 si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
 
 
 # Some gains for this experiment.  These aren't incredibly relevant.
-d = 0.5
+d = 0.25
 k = 1.0
 
 ddiag_rect = np.sqrt(d**2 + k**2)
@@ -31,17 +31,11 @@ center_six_pentagon = 0.425628265379
 
 u_long_ddiag = .965925826289
 
-d_nine_square_long = np.sqrt((2*d)**2+d**2)
+d_nine_square_long = np.sqrt(d**2+(2*d)**2)
 
 d_nine_square_short = d * np.sqrt(2)
 
-formation_control_gain = 2.0
-
-triangle = [
-    [0,d,d],
-    [d,0,d],
-    [d,d,0]
-]
+formation_control_gain = 10.0
 
 # Weight matrix to control inter-agent distances
 weights_five_pentagon = np.array([[0, d, ddiag_five_pentagon, ddiag_five_pentagon,d], 
@@ -87,11 +81,15 @@ weights_nine_square = [
     [2*d,d,0,d,2*d,d_nine_square_long,2*d*np.sqrt(2),d_nine_square_long,d_nine_square_short],
 
     [d_nine_square_long,d_nine_square_short,d,0,d,d_nine_square_short,d_nine_square_long,2*d,d],
-    
+
     [2*d*np.sqrt(2),d_nine_square_long,2*d,d,0,d,2*d,d_nine_square_long,d_nine_square_short],
+
     [d_nine_square_long,2*d,d_nine_square_long,d_nine_square_short,d,0,d,d_nine_square_short,d],
+
     [2*d,d_nine_square_long,2*d*np.sqrt(2),d_nine_square_long,2*d,d,0,d,d_nine_square_short],
+
     [d,d_nine_square_short,d_nine_square_long,2*d,d_nine_square_long,d_nine_square_short,d,0,d],
+
     [d_nine_square_short,d,d_nine_square_short,d,d_nine_square_short,d,d_nine_square_short,d,0]
 ]
 
@@ -110,9 +108,10 @@ weigths_ten = [
 
 shapes = [weights_five_pentagon, weights_square, weights_hexagon, weights_rect, weights_six_pentagon]
 
-demo = weights_five_pentagon
+demo = weights_hexagon
 
-num_robots = len(demo)
+# num_robots = len(demo)
+num_robots = 9
 wrapper = ServerWrapper(num_robots)
 
 time.sleep(1)
@@ -128,37 +127,42 @@ signal.signal(signal.SIGINT, signal_handler)
 # for shape in shapes:
 iterations = 10000
 # print(num_robots)
+
+G = cycle_GL(num_robots)
+
 time.sleep(1)
 
 for iteration in range(iterations):
     # print(iteration)
-    try:
-        # Get the position of the robots using the camera server
-        current_pos = np.asarray(wrapper.get_data("global_pos"))
-        current_pos_xy = np.asarray([x[:2] for x in current_pos]).transpose()
-        # print(current_pos_xy)
+    # try:
+    # Get the position of the robots using the camera server
+    current_pos = np.asarray(wrapper.get_data("global_pos"))
+    current_pos_xy = np.asarray([x[:2] for x in current_pos]).transpose()
+    # print(current_pos_xy)
 
-        # Initialize a velocity vector
-        dxi = np.zeros((2, num_robots))
-        for robot in range(num_robots):
-            for i in range(num_robots):
-                error = current_pos_xy[:2,i] - current_pos_xy[:2,robot]
-                dxi[:, robot] += formation_control_gain*(np.power(np.linalg.norm(error), 2)- np.power(demo[robot][i], 2)) * error
+    # Initialize a velocity vector
+    dxi = np.zeros((2, num_robots))
+    for robot in range(num_robots):
+        j = topological_neighbors(G,robot)
+        # print(j)
+        for i in j:
+            error = current_pos_xy[:2,i] - current_pos_xy[:2,robot]
+            dxi[:, robot] += formation_control_gain*(np.power(np.linalg.norm(error), 2)- np.power(.5, 2)) * error
 
-        # passing current pos remove theta
-        dxi = si_barrier_cert(dxi,current_pos_xy)
-        # vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
-        dxu= si_to_uni_dyn(dxi, current_pos.transpose())
+    # passing current pos remove theta
+    dxi = si_barrier_cert(dxi,current_pos_xy)
+    # vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
+    dxu= si_to_uni_dyn(dxi, current_pos.transpose())
 
-        # print(vels)
+    # print(len(dxu.transpose()))
 
-        wrapper.set_velocities(dxu.transpose())
-        wrapper.step(15)
+    wrapper.set_velocities(dxu.transpose())
+    wrapper.step(30)
 
-    except Exception as e:
-        print(e)
-        print("Exiting Code")
-        wrapper.stop()
-        break
+    # except Exception as e:
+    #     print(e)
+    #     print("Exiting Code")
+    #     wrapper.stop()
+    #     break
 
 wrapper.stop()

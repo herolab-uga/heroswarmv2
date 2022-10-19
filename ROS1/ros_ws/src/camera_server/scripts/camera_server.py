@@ -43,16 +43,17 @@ class CameraServer():
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 image_queue.put((self.detector.detect(gray),frame))
                 
-    def connection_manager(self):
+    def connection_manager(self,active_dict,robot_dictionary):
         prev_active = []
         count = 0
+        thread_dict = None
         while True:
-            active_dict = list(self.active_dict)
+            active_dict = list(active_dict)
             add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
             for new_robot in add:
-                self.thread_dict[new_robot] = threading.Thread(target=distributed_controller.DistributedController, args=(new_robot, 
-                                                            self.robot_dictionary[new_robot]),daemon=True)
-                self.thread_dict[new_robot].start()
+                thread_dict[new_robot] = threading.Thread(target=distributed_controller.DistributedController, args=(new_robot, 
+                                                            robot_dictionary[new_robot]),daemon=True)
+                thread_dict[new_robot].start()
                 count = count + 1
             prev_active = active_dict
 
@@ -63,7 +64,7 @@ class CameraServer():
                 detections, frame = image_queue.get()
 
                 if self.display_raw:
-                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(frame,(1080,720)), "bgr8"))
+                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
 
                 dimg1 = frame
             
@@ -269,7 +270,7 @@ class CameraServer():
         self.bridge = CvBridge()
 
         self.robot_dictionary = None
-        with open("/home/michaelstarks/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
+        with open("/home/michael/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
         self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
@@ -285,8 +286,8 @@ class CameraServer():
         self.active_dict = {}
         self.thread_dict = {}
         
-        self.connection_manager_thread = threading.Thread(target=self.connection_manager,args=())
-        self.connection_manager_thread.start()
+        # self.connection_manager_thread = Process(target=self.connection_manager,args=(self,self.active_dict,self.robot_dictionary))
+        # self.connection_manager_thread.start()
         
         self.image_queue = Queue(maxsize=1)
         
