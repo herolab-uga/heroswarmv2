@@ -5,4 +5,5 @@
         <param name="image_raw" value="$(arg image_raw)"/>
         <param name="image_detections" value="$(arg image_detections)"/>
     </node>
+    test
 </launch>
