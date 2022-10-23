@@ -11,13 +11,12 @@ from time import time
 import apriltag
 import cv2
 import numpy as np
-import distributed_controller as distributed_controller 
 import rclpy
-from rclpy import Node
+from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import RobotPos, StringList
-from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
-from isaac_ros_apriltag.msg import AprilTagDetectionArray
+# from robot_msgs.srv import GetCharger, GetChargerResponse, ReleaseCharger, ReleaseChargerResponse 
+# from isaac_ros_apriltag.msg import AprilTagDetectionArray
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import Image
@@ -26,11 +25,22 @@ import time
 
 
 class CameraServer(Node):
+    def read_frame(self,image_queue):
+        try:
+            capture = cv2.VideoCapture(-1)
+            W, H = 4096, 2160
+            capture.set(cv2.CAP_PROP_FRAME_WIDTH, W)
+            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
+            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+            capture.set(cv2.CAP_PROP_FPS, 60)
+        except ValueError:
+            self.cap = cv2.VideoCapture(self.options.device_or_movie)
 
-    def read_frame(self,image):
-        frame = self.bridge.imgmsg_to_cv2(image)
-        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        self.image_queue.put((self.detector.detect(gray),frame))
+        while True:
+            _, frame = capture.read()
+            if image_queue.empty():
+                gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+                image_queue.put((self.detector.detect(gray),frame))
                 
     def connection_manager(self,active_dict,robot_dictionary):
         prev_active = []
@@ -46,17 +56,18 @@ class CameraServer(Node):
                 count = count + 1
             prev_active = active_dict
 
-    def get_positions(self,):
+    def get_positions(self,image_queue):
         while True:
             if not image_queue.empty():
 
                 detections, frame = image_queue.get()
 
-                if self.display_raw:
-                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
+                # if True:
+                #     self.image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
 
                 dimg1 = frame
-                self.positions = Robot_Pos()
+            
+                self.positions = RobotPos()
                 
                 if self.transform_matrix == None:
                     try:
@@ -71,7 +82,7 @@ class CameraServer(Node):
                         # Creates the rotation matrix
                         self.rotation_matrix = np.array([[0, 1], [-1, 0]])
                     except IndexError:
-                        return
+                        continue
                     
                 robot_names = StringList()
                 active_dict = {}
@@ -214,21 +225,21 @@ class CameraServer(Node):
         newmidPt = cMidPt + center
         return (newmidPt, theta)
 
-    # Get a charger
-    def handle_get_charger(self,req):
-        open_charger = list(self.open_chargers)[0]
-        self.closed_chargers.append(open_charger)
-        return GetChargerResponse(id = open_charger, position=open_charger)
+    # # Get a charger
+    # def handle_get_charger(self,req):
+    #     open_charger = list(self.open_chargers)[0]
+    #     self.closed_chargers.append(open_charger)
+    #     return GetChargerResponse(id = open_charger, position=open_charger)
 
-    # Release the charger when done charging
-    def handle_release_charger(self,req):
+    # # Release the charger when done charging
+    # def handle_release_charger(self,req):
 
-        self.closed_chargers.remove(req.id)
-        return ReleaseChargerResponse(True)
+    #     self.closed_chargers.remove(req.id)
+    #     return ReleaseChargerResponse(True)
 
     def __init__(self):
-
-        super().__init__("camera_server",anonymous=True)
+        rclpy.init()
+        super().__init__("camera_server")
 
         self.ref_x = None
         self.ref_y = None
@@ -254,19 +265,19 @@ class CameraServer(Node):
         self.fontColor              = (0,0,255)
         self.lineType               = 1
 
-        self.pos_pub = self.Publisher(Robot_Pos,"/positions",queue_size=1)
+        self.pos_pub = self.create_publisher(RobotPos,"/positions",1)
         self.bridge = CvBridge()
 
         self.robot_dictionary = None
-        with open("/home/michael/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
+        with open("/home/michael/Documents/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
         # self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
         # self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
-        self.active_pub = self.Publisher(StringList,"active_robots",queue_size=1)
+        self.active_pub = self.create_publisher(StringList,"active_robots",1)
         if self.display_detections:
-            self.detections_pub = self.Publisher("/camera/image_detections",Image,queue_size=1)
+            self.detections_pub = self.create_publisher(Image,"/camera/image_detections",1)
 
         self.positions = None
         self.active_dict = {}
@@ -277,11 +288,11 @@ class CameraServer(Node):
         self.camera_process = Process(target=self.read_frame,args=(self.image_queue,))
         self.camera_process.start()
 
-        self.image_sub = self.Subscriber(Image,"/usb_cam/image_raw",self.read_frame)
+        # self.image_sub = self.create_subscription(Image,"/usb_cam/image_raw",self.read_frame,1)
 
-        self.pos_process = threading.Thread(target=self.get_positions,args=(),daemon=True)
+        self.pos_process = threading.Thread(target=self.get_positions,args=(self.image_queue,),daemon=True)
         self.pos_process.start()
 
-if __name__ == '__main__':
+def main():
     server = CameraServer()
-    rclpy.spin()
+    rclpy.spin(server)
