@@ -15,4 +15,5 @@
   <export>
     <build_type>ament_python</build_type>
   </export>
+   <exec_depend>robot_msgs</exec_depend>
 </package>
