@@ -68,6 +68,7 @@ class CameraServer():
                 dimg1 = frame
             
                 self.positions = Robot_Pos()
+                pixel_pos = Robot_Pos()
                 
                 if self.transform_matrix == None:
                     try:
@@ -95,6 +96,11 @@ class CameraServer():
                     
                     # Gets the center of the tag in inches and rotated accordingly
 
+
+                    pixel_pos.robot_pos.append(Odometry())
+                    pixel_pos.robot_pos[-1].pose.pose.position.x = center[0]
+                    pixel_pos.robot_pos[-1].pose.pose.position.y = center[1]
+                    pixel_pos.robot_pos[-1].pose.pose.position.z = 0
                     center_transform = self.transform(center)
 
                     cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
@@ -151,6 +157,7 @@ class CameraServer():
 
                 self.pos_pub.publish(self.positions)
                 self.active_pub.publish(robot_names)
+                self.pixel_pub(pixel_pos)
                 
                 if self.display_detections:
                     self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(dimg1,(1080,720)), "bgr8"))
@@ -208,10 +215,6 @@ class CameraServer():
 
     # Uses the rotation matrix above to rotate points
     def rotate(self, matrix):
-        self.ref_x
-        self.ref_y
-        self.orig
-        self.rotation_matrix
         return np.flip(np.matmul(matrix, self.rotation_matrix))
 
     def heading_dir(self, corners, center):
@@ -266,6 +269,8 @@ class CameraServer():
         self.lineType               = 1
 
         self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=1)
+        self.pixel_pub = rospy.Publisher("/camera/pixel_pos",Robot_Pos,queue_size=1)
+
         self.bridge = CvBridge()
 
         self.robot_dictionary = None
@@ -276,6 +281,7 @@ class CameraServer():
         self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
 
         self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
+
         if self.display_raw:
             self.image_pub = rospy.Publisher("/camera/image_raw",Image,queue_size=10)
         if self.display_detections:
