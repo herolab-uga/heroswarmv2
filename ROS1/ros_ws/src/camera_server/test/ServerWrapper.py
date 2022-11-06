@@ -8,6 +8,8 @@ from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from robot_msgs.msg import StringList, Robot_Pos,Light
 from std_msgs.msg import Int16, Int16MultiArray, Float32
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
 class ServerWrapper():
     
@@ -38,6 +40,7 @@ class ServerWrapper():
                 "name":name,
                 "vel_control":None,
                 "global_pos":[0,0,0],
+                "pixel_pos":[0,0,0],
                 "vel":[0,0,0],
                 "odom_pos":[0,0,0],
                 "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
@@ -125,6 +128,27 @@ class ServerWrapper():
                 self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
                 # print("Key {key} not found".format(key=name))
                 continue
+
+    def pixel_position_callback(self,msg,active_bots):
+        for id in range(0,self.num_active_bots):
+            try:
+                name = self.active_bots[id]["name"]
+                x = int(msg.robot_pos[id].pose.pose.position.x)
+                y = int(msg.robot_pos[id].pose.pose.position.y)
+            except KeyError:
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Key {key} not found".format(key=id))
+                continue
+            except IndexError:
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Index {index} out of bounds".format(index=id))
+                continue
+            try:
+                active_bots[id]["pixel_pos"] = [x,y,0]
+            except KeyError:
+                self.missing_bots[id] = time.time() if id not in self.missing_bots.keys() else None
+                # print("Key {key} not found".format(key=name))
+                continue
                 
     def step(self,rate=60):
         pub_rate = rospy.Rate(rate)
@@ -199,21 +223,39 @@ class ServerWrapper():
                     print("Read write error")
             time.sleep(1)
 
+    def raw_image_callback(self,msg):
+        self.image["image"] = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+
+    def get_image(self):
+        return self.image["image"]
+
+    def pub_image(self, image):
+        # print("pub")
+        self.image_pub.publish(self.bridge.cv2_to_imgmsg(image, "bgr8"))
+        # self.image_pub.publish(self.bridge.cv2_to_imgmsg(self.image.get("image"), "bgr8"))
+
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
         self.selected_bots = selected_bots
         self.active_bots = {}
         self.num_active_bots = 0
-        self.missing_bots = {
-
-        }
+        self.missing_bots = {}
 
         self.timeout = 1.0
 
+        self.image = {}
+
+        self.bridge = CvBridge()
+
         # self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
         # self.missing_bots_thread.start()
-    
+
+
+        self.raw_image = rospy.Subscriber("/camera/image_raw",Image,self.raw_image_callback)
+        self.image_pub = rospy.Publisher("/experiment_image",Image,queue_size=1)
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         time.sleep(.5)
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
+        self.global_pixel_position = rospy.Subscriber("/camera/pixel_pos",Robot_Pos,self.pixel_position_callback,(self.active_bots))
+        time.sleep(1)

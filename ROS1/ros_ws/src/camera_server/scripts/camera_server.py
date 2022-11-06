@@ -63,7 +63,7 @@ class CameraServer():
                 detections, frame = image_queue.get()
 
                 if self.display_raw:
-                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(frame,(1080,720)), "bgr8"))
+                    self.image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
 
                 dimg1 = frame
             
