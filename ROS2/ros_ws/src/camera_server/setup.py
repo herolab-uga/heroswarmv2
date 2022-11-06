@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'camera_server = camera_server.camera_server:main'
+            'camera_server = camera_server.camera_server:main',
+	        'opencv_publisher = camera_server.openCV_publisher:main'
         ],
     },
 )
