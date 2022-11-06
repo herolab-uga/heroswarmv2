@@ -9,7 +9,7 @@ from utilities.misc import *
 from utilities.controllers import *
 
 
-num_robots = 5
+num_robots = 9
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 

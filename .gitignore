@@ -11,3 +11,4 @@ ROS1/ros_ws/src/camera_server/test/*.csv
 **/__pychache__
 **/*.bag
 ROS2
+**/test/videos/**
