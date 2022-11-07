@@ -22,7 +22,7 @@ class openCV_practice(Node):
             if not self.cap.isOpened():
                 print("Can't read frame, exiting...")
                 break
-            self.get_logger().info('Publishing Video Frame')
+            # self.get_logger().info('Publishing Video Frame')
             
         
 def main(args=None):
