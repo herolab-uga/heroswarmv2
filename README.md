@@ -1,6 +1,14 @@
 # heroswarmv2 - Fully-Capable Swarm robot design
 This repository contains the open-sourced codes and hardware designs of the Swarm Robot (heroswarmv2) designed at the Heterogeneous Robotics Research Lab (HeRoLab) at the University of Georgia.
 
+<p align="center">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/rendered.png" width="400">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-white.png" width="330">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-gray.png" width="250">
+</p>
+
+
+## Capability
 The robot is fully-capable in the following sense.
 
     ### Sensing: Multiple sensors such as proximity, RGB, sound, Inertial (IMU) altitude, and humidity and pressure measurements to capture local information; 
@@ -11,19 +19,30 @@ The robot is fully-capable in the following sense.
     
 
 # Citation
-Preprint of the paper available at https://arxiv.org/abs/2211.03014
+A preprint of the paper focusing on the robot architecture is available at https://arxiv.org/abs/2211.03014
 
 Cite the paper as "Starks M, Gupta A, Oruganti S, Parasuraman R. Design of a high strength multi-steering climbing robot for steel bridge inspection. In 2023 IEEE/SICE International Symposium on System Integration (SII) 2023. IEEE."
 
+# Implementation Examples
 
+Running a Conventional Multi-Robot Rendezvous Algorithm with HeRoSwarmV2 robots. Here, the robots are meeting into one place in a distributed manner.
+
+<p align="center">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/rendezvous_gif.gif" width="600">
+</p>
+
+
+Running a Conventional Multi-Robot Formation Control Algorithm with HeRoSwarmV2 robots. Here, the robots are organizing into a square-like pattern with 9 robots.
+
+<p align="center">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/formation_gif.gif" width="600">
+</p>
+
+
+# Instructions
 
 Go to the [Wiki page](https://github.com/herolab-uga/heroswarmv2/wiki) for mode details.
 
-<p align="center">
-<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/rendered.png" width="400">
-<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-white.png" width="330">
-<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-gray.png" width="250">
-</p>
 
 
 ## Core contributors
