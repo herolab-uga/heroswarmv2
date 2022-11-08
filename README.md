@@ -1,5 +1,21 @@
-# heroswarmv2
+# heroswarmv2 - Fully-Capable Swarm robot design
 This repository contains the open-sourced codes and hardware designs of the Swarm Robot (heroswarmv2) designed at the Heterogeneous Robotics Research Lab (HeRoLab) at the University of Georgia.
+
+The robot is fully-capable in the following sense.
+
+    ### Sensing: Multiple sensors such as proximity, RGB, sound, Inertial (IMU) altitude, and humidity and pressure measurements to capture local information; 
+    ### Communication: Explicit data communication modalities such as Wi-Fi and Bluetooth; 
+    ### Computing: High C1-level \cite{trenkwalder2019computational} computing through a Raspberry Pi Zero-based computing module that can support ROS and advanced programming; 
+    ### Motion: Multi-level motor control with onboard wheel odometry aided by a microcontroller; 
+    ### Power: Dedicated power management with different recharging variants such as inductive wireless charging or magnetic coupling. 
+    
+
+# Citation
+Preprint of the paper available at (https://arxiv.org/abs/2211.03014)
+
+Cite the paper as "Starks M, Gupta A, Oruganti S, Parasuraman R. Design of a high strength multi-steering climbing robot for steel bridge inspection. In 2023 IEEE/SICE International Symposium on System Integration (SII) 2023. IEEE."
+
+
 
 Go to the [Wiki page](https://github.com/herolab-uga/heroswarmv2/wiki) for mode details.
 
