@@ -11,7 +11,7 @@ The robot is fully-capable in the following sense.
     
 
 # Citation
-Preprint of the paper available at (https://arxiv.org/abs/2211.03014)
+Preprint of the paper available at https://arxiv.org/abs/2211.03014
 
 Cite the paper as "Starks M, Gupta A, Oruganti S, Parasuraman R. Design of a high strength multi-steering climbing robot for steel bridge inspection. In 2023 IEEE/SICE International Symposium on System Integration (SII) 2023. IEEE."
 
