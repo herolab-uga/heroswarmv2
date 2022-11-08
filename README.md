@@ -5,8 +5,8 @@ Go to the [Wiki page](https://github.com/herolab-uga/heroswarmv2/wiki) for mode 
 
 <p align="center">
 <img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/rendered.png" width="400">
-<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-white.png" width="340">
-<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-gray.png" width="260">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-white.png" width="330">
+<img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/heroswarmv2-gray.png" width="250">
 </p>
 
 
