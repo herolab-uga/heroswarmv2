@@ -3,6 +3,13 @@ This repository contains the open-sourced codes and hardware designs of the Swar
 
 Go to the [Wiki page](https://github.com/herolab-uga/heroswarmv2/wiki) for mode details.
 
+<p align="center">
+<img src="http://hero.uga.edu/wp-content/uploads/2021/04/rendered.png" width="300">
+<img src="http://hero.uga.edu/wp-content/uploads/2021/04/heroswarmv2-white.png" width="300">
+<img src="http://hero.uga.edu/wp-content/uploads/2021/04/heroswarmv2-gray.png" width="300">
+</p>
+
+
 ## Core contributors
 
 * **Michael Starks** - undergraduate student researcher at HeRoLab (https://github.com/MichaelStarks)
