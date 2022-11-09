@@ -1,4 +1,5 @@
 from __future__ import division
+from re import sub
 
 import time
 import rospy
@@ -10,6 +11,9 @@ from robot_msgs.msg import StringList, Robot_Pos,Light
 from std_msgs.msg import Int16, Int16MultiArray, Float32
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridge
+import cv2
+import subprocess
 
 class ServerWrapper():
     
@@ -32,6 +36,7 @@ class ServerWrapper():
         return roll, pitch, yaw
 
     def name_callback(self,msg):
+        self.all_active = msg
         for i in range(self.num_active_bots,self.selected_bots):
             self.num_active_bots += 1
             name = msg.data[i].data
@@ -234,10 +239,21 @@ class ServerWrapper():
         self.image_pub.publish(self.bridge.cv2_to_imgmsg(image, "bgr8"))
         # self.image_pub.publish(self.bridge.cv2_to_imgmsg(self.image.get("image"), "bgr8"))
 
+    def restart(self):
+        restart_string = "ssh pi@{robot_name}.local sudo shutdown -r 0"
+        for robot in self.all_active.data:
+            subprocess.call(restart_string.format(robot_name=robot.data),shell=True)
+
+    def shutdown(self):
+        shutdown_string = "ssh pi@{robot_name}.local sudo shutdown 0"
+        for robot in self.all_active.data:
+            subprocess.call(shutdown_string.format(robot_name=robot.data),shell=True)
+
     def __init__(self,selected_bots=0) -> None:
         rospy.init_node("server_wrapper",anonymous=True)
         self.selected_bots = selected_bots
         self.active_bots = {}
+        self.all_active = None
         self.num_active_bots = 0
         self.missing_bots = {}
 
