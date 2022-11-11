@@ -37,9 +37,8 @@ class ServerWrapper():
 
     def name_callback(self,msg):
         self.all_active = msg
-        for i in range(self.num_active_bots,self.selected_bots):
-            self.num_active_bots += 1
-            name = msg.data[i].data
+        while not self.num_active_bots == self.selected_bots:
+            name = msg.data[self.num_active_bots].data
 
             dict_entry =  {
                 "name":name,
@@ -48,25 +47,26 @@ class ServerWrapper():
                 "pixel_pos":[0,0,0],
                 "vel":[0,0,0],
                 "odom_pos":[0,0,0],
-                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(i)),
+                "odom_sub":rospy.Subscriber("/{robot_name}/odom".format(robot_name=str(name)),Odometry,self.odom_callback,(self.num_active_bots)),
                 "cmd_vel":[0,0,0],
                 "cmd_vel_pub": rospy.Publisher("/{robot_name}/cmd_vel".format(robot_name=name),Twist,queue_size=1),
                 "point":[0,0],
-                "mic_sub":rospy.Subscriber("/{robot_name}/mic".format(robot_name=name),Float32,self.mic_callback,(i)),
+                "mic_sub":rospy.Subscriber("/{robot_name}/mic".format(robot_name=name),Float32,self.mic_callback,(self.num_active_bots)),
                 "mic":0.0,
                 "to_point_pub": rospy.Publisher("/{robot_name}/to_point".format(robot_name=name),Point,queue_size=1),
-                "light_sub":rospy.Subscriber("/{robot_name}/light".format(robot_name=name),Light,self.light_callback,(i)),
-                "prox_sub":rospy.Subscriber("/{robot_name}/proximity".format(robot_name=name),Int16,self.prox_callback,(i)),
+                "light_sub":rospy.Subscriber("/{robot_name}/light".format(robot_name=name),Light,self.light_callback,(self.num_active_bots)),
+                "prox_sub":rospy.Subscriber("/{robot_name}/proximity".format(robot_name=name),Int16,self.prox_callback,(self.num_active_bots)),
                 "light_sensor": {"rgbw":None,
                                  "proximity":None},
                 "neopixel_color":None,
                 "neopixel_pub":rospy.Publisher("/{robot_name}/neopixel".format(robot_name=name),Int16MultiArray,queue_size=1),
-                "pos_sub":rospy.Subscriber("/{robot_name}/position".format(robot_name=name),Odometry,self.pos_callback,(i)),
+                "pos_sub":rospy.Subscriber("/{robot_name}/position".format(robot_name=name),Odometry,self.pos_callback,(self.num_active_bots)),
                 "pos":[0,0,0]
             }
             
-            self.active_bots[i] = dict_entry
+            self.active_bots[self.num_active_bots] = dict_entry
             self.active_bots[name] = dict_entry
+            self.num_active_bots += 1
 
     def pos_callback(self,msg,id):
         try:
@@ -203,6 +203,7 @@ class ServerWrapper():
                 except KeyError:
                     print("Invalid sensor {sensor}".format(sensor=sensor))
                     break
+        # print(len(data))
         return data
 
     def get_active(self):
@@ -266,11 +267,11 @@ class ServerWrapper():
         # self.missing_bots_thread = threading.Thread(target=self.remove_bots,args=(),daemon=True)
         # self.missing_bots_thread.start()
 
-
-        self.raw_image = rospy.Subscriber("/camera/image_raw",Image,self.raw_image_callback)
+        self.raw_image = rospy.Subscriber("/camera/image_detections",Image,self.raw_image_callback)
         self.image_pub = rospy.Publisher("/experiment_image",Image,queue_size=1)
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
-        time.sleep(.5)
+        while not len(self.active_bots)/2 == self.selected_bots:
+            continue
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
         self.global_pixel_position = rospy.Subscriber("/camera/pixel_pos",Robot_Pos,self.pixel_position_callback,(self.active_bots))

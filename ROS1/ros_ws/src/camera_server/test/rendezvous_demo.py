@@ -15,7 +15,7 @@ import signal
 import sys
 
 
-num_robots = 9
+num_robots = 6
 
 wrapper = ServerWrapper(num_robots)
 
@@ -27,7 +27,7 @@ signal.signal(signal.SIGINT, signal_handler)
 iterations = 10000
 
 for iteration in range(iterations):
-	print("Running iteration {}".format(iteration))
+	# print("Running iteration {}".format(iteration))
 	try:
 		# Get the position of the robots using the camera server
 		current_pos = wrapper.get_data("global_pos")
@@ -50,7 +50,7 @@ for iteration in range(iterations):
 		# vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
 		vels = si_to_uni_dyn(vels,np.asarray(current_pos).transpose())
 
-		print(vels)
+		# print(vels)
 
 
 		wrapper.set_velocities(vels.transpose())

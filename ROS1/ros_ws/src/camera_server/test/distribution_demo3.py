@@ -31,13 +31,13 @@ y_max_robotarium = 1.74
 board_scale = 1000 # to align the units in cm
 inverse_scale = 1/board_scale
 light_sources = [
-                    [0.75*x_max_robotarium*board_scale, 0.5*y_max_robotarium*board_scale],
-                    [0.15*x_max_robotarium*board_scale, 0.42*y_max_robotarium*board_scale],
-                    [0.37*x_max_robotarium*board_scale, 0.375*y_max_robotarium*board_scale]
+                    [0.2*x_max_robotarium*board_scale, 0.65*y_max_robotarium*board_scale],
+                    [0.75*x_max_robotarium*board_scale, 0.42*y_max_robotarium*board_scale],
+                    [0.3*x_max_robotarium*board_scale, 0.375*y_max_robotarium*board_scale]
                 ]
 
 decay = 3
-luminosity = [500,1000,500]
+luminosity = [500,500,500]
 scale = 1
 k=0.2 # learning rate
 
@@ -58,30 +58,29 @@ def NormalizeData(data):
 def dist(pos1,pos2):
     return np.sqrt(np.square(pos1[0]-pos2[0]) + np.square(pos1[1]-pos2[1]))
 
-
-def pop_sensor_mesh(h,w):
+def pop_sensor_mesh(h,w,iter=0):
 
     x = np.linspace(x_min_robotarium*board_scale, x_max_robotarium*board_scale, w)
     y = np.linspace(y_min_robotarium*board_scale, y_max_robotarium*board_scale, h)
     X, Y = np.meshgrid(x, y,sparse=False)
     Z = np.zeros((h,w))
     for k in range(len(light_sources)):
-        dist = np.sqrt(np.square(X -light_sources[k][0]) + np.square(Y -light_sources[k][1])) 
+        dist = np.sqrt(np.square(X -light_sources[k][0] + int(iter/40)*20) + np.square(Y -light_sources[k][1] + int(iter/40)*20)) 
         Z += luminosity[k] - 20*decay*np.log(dist) #(luminosity[k]/(4 * np.pi * (dist ** decay)))
     return Z
 
 image = wrapper.get_image()
-h,w = image.shape[:2]
-colormap = cv2.applyColorMap(cv2.flip(pop_sensor_mesh(h,w).astype(np.uint8),0), cv2.COLORMAP_JET)
+h,width = image.shape[:2]
+colormap = cv2.applyColorMap(cv2.flip(pop_sensor_mesh(h,width).astype(np.uint8),0), cv2.COLORMAP_JET)
 img = cv2.addWeighted(colormap, 0.5, image, 0.5, 0)
 wrapper.pub_image(img)
-cols = w # 1080
+cols = width # 1080
 rows = h
 
-def get_sensor(x,y): #x,y in cm
+def get_sensor(x,y,iter): #x,y in cm
     svalue = 0
     for k in range(len(light_sources)) :
-        dist = np.sqrt(np.square(x -light_sources[k][0]) + np.square(y -light_sources[k][1]) ) 
+        dist = np.sqrt(np.square(x -light_sources[k][0] + int(iter/40)*20 ) + np.square(y -light_sources[k][1] + int(iter/40)*20) ) 
         if dist < 50:
             svalue = svalue + luminosity[k]
         else:
@@ -95,17 +94,16 @@ w = np.zeros((N))
 
 x_res = np.linspace(x_min_robotarium,x_max_robotarium, cols)
 y_res = np.linspace(y_min_robotarium,y_max_robotarium, rows)
-import time
+
 for k in range(iterations):
-    start = time.time()
     img = wrapper.get_image()
+    colormap = cv2.applyColorMap(cv2.flip(pop_sensor_mesh(h,width,k).astype(np.uint8),0), cv2.COLORMAP_JET)
     img = cv2.addWeighted(colormap, 0.5, img, 0.5, 0)
     wrapper.pub_image(img)
 
     # Get the poses of the robots and convert to single-integrator poses
     current_pos = np.asarray(wrapper.get_data("global_pos"))
     # print(current_pos)
-    current_pos_xy = [x[:2] for x in current_pos]
     current_pos = current_pos.transpose()
     # current_pos_si = uni_to_si_states(current_pos)#.transpose()    
     current_x = current_pos[0, :, None]        
@@ -119,7 +117,7 @@ for k in range(iterations):
     # Below is a working version as of Nov 1, 2022
     for xi in np.arange(x_min_robotarium,x_max_robotarium,0.05):
         for yi in np.arange(y_min_robotarium,y_max_robotarium,0.05):
-            sensor_value = get_sensor(xi*board_scale,yi*board_scale)
+            sensor_value = get_sensor(xi*board_scale,yi*board_scale,k)
             # print("X: {x} | Y: {y} | Sensor: {s}".format(x=xi,y=yi, s=sensor_value))
             distances = np.zeros((N))
             for robot in range(N):
@@ -140,13 +138,12 @@ for k in range(iterations):
         # print("c_y :",c_y)
         # print(get_sensor(c_x*board_scale,c_y*board_scale))
 
-    dxi = si_barrier_cert(dxi, np.asarray(current_pos_xy).transpose())
+    #dxi = si_barrier_cert(np.asarray(dxi).transpose(),np.asarray(current_pos_si).transpose())
+    #dxi = si_barrier_cert(dxi, current_pos_si)
     dxi = si_to_uni_dyn(dxi, current_pos)
-    # dxi = si_barrier_cert(dxi,current_pos[:2])
 
     # print(dxu)
     #print(k)
-    print("Time:", time.time() - start)
     wrapper.set_velocities(dxi.transpose())
     wrapper.step(60)
 
