@@ -5,7 +5,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge
 
-class openCV_practice(Node):
+class openCV_publisher(Node):
         
     def __init__(self):
         self.cap = cv2.VideoCapture(0)
@@ -27,7 +27,7 @@ class openCV_practice(Node):
         
 def main(args=None):
     rclpy.init(args=args)
-    opencv_publisher = openCV_practice()
+    opencv_publisher = openCV_publisher()
     rclpy.spin(opencv_publisher)
     opencv_publisher.destroy_node()
     rclpy.shutdown()
