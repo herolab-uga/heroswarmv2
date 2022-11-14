@@ -83,7 +83,7 @@ class CameraServer(Node):
             posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
            
             if detection["id"] in self.charger_tags and not detection["id"]in self.close_chargers:
-                posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                # posString = "({x:.2f},{y:.2f})".format(x=center[0],y=center[1])
                 
                 (forward_dir,angle) = self.heading_dir(detection.corners,center)
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
@@ -116,7 +116,7 @@ class CameraServer(Node):
 
                 # Gets the forward direction
                 (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
-                posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                # posString = "({x:.2f},{y:.2f})".format(x=center[0],y=center[1])
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
                 cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
 
