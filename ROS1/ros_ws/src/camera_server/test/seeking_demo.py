@@ -1,10 +1,10 @@
 from ServerWrapper import *
 import numpy as np
-from rps.utilities.graph import *
-from rps.utilities.transformations import *
-from rps.utilities.barrier_certificates import *
-from rps.utilities.misc import *
-from rps.utilities.controllers import *
+from utilities.graph import *
+from utilities.transformations import *
+from utilities.barrier_certificates import *
+from utilities.misc import *
+from utilities.controllers import *
 
 def main():
     # Collision avoidance

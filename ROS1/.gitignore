@@ -2,8 +2,9 @@ ros_ws/build
 ros_ws/install
 ros_ws/log
 ros_ws/devel
-ros_ws/src/camera_server/scripts/__pycache__/*
-ros_ws/src/camera_server/scripts/rps/__pycache__/*
-ros_ws/src/camera_server/scripts/rps/utilities/__pycache__/*
-ROS1/ros_ws/src/camera_server/scripts/data/*
+ros_ws/src/camera_server/test/__pycache__
+ros_ws/src/camera_server/test/utilities/__pycache__
+ros_ws/src/camera_server/test/rps/__pycache__
+ros_ws/src/camera_server/test/rps/utilities/__pycache__
+ROS1/ros_ws/src/camera_server/test/data
 ros_ws/data
