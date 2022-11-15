@@ -89,13 +89,13 @@ def get_sensor(x,y,iter): #x,y in cm
 
     return svalue
 
-c_v = np.zeros((N,2))
-w = np.zeros((N))
-
 x_res = np.linspace(x_min_robotarium,x_max_robotarium, cols)
 y_res = np.linspace(y_min_robotarium,y_max_robotarium, rows)
 
 for k in range(iterations):
+    c_v = np.zeros((N,2))
+    w = np.zeros((N))
+
     img = wrapper.get_image()
     colormap = cv2.applyColorMap(cv2.flip(pop_sensor_mesh(h,width,k).astype(np.uint8),0), cv2.COLORMAP_JET)
     img = cv2.addWeighted(colormap, 0.5, img, 0.5, 0)
