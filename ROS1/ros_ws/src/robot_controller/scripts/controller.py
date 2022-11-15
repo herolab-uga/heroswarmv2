@@ -345,7 +345,7 @@ class Controller:
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
-                self.linear = values[1]
+                self.linear_y_velo = values[1]
 
                 self.angular_z_velo = values[2]
         except OSError as e:
