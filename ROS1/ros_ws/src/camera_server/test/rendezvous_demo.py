@@ -1,10 +1,10 @@
 from ServerWrapper import *
 import numpy as np
-from rps.utilities.graph import *
-from rps.utilities.transformations import *
-from rps.utilities.barrier_certificates import *
-from rps.utilities.misc import *
-from rps.utilities.controllers import *
+from utilities.graph import *
+from utilities.transformations import *
+from utilities.barrier_certificates import *
+from utilities.misc import *
+from utilities.controllers import *
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 
@@ -15,7 +15,7 @@ import signal
 import sys
 
 
-num_robots = 2
+num_robots = 6
 
 wrapper = ServerWrapper(num_robots)
 
@@ -24,15 +24,15 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-iterations = 100000
+iterations = 10000
 
 for iteration in range(iterations):
-	print("Running iteration {}".format(iteration))
+	# print("Running iteration {}".format(iteration))
 	try:
 		# Get the position of the robots using the camera server
 		current_pos = wrapper.get_data("global_pos")
 		current_pos_xy = [x[:2] for x in current_pos]
-		# print(current_pos_xy)
+		print(current_pos_xy)
 
 		vels = []
 		for robot in range(wrapper.get_num_active()):
@@ -54,7 +54,7 @@ for iteration in range(iterations):
 
 
 		wrapper.set_velocities(vels.transpose())
-		wrapper.step(rate=10,time=100)
+		wrapper.step(rate=10)
 
 	except Exception as e:
 		print(e)
