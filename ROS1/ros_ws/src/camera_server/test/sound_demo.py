@@ -2,14 +2,14 @@ import sys
 import signal
 from ServerWrapper import *
 import numpy as np
-from rps.utilities.graph import *
-from rps.utilities.transformations import *
-from rps.utilities.barrier_certificates import *
-from rps.utilities.misc import *
-from rps.utilities.controllers import *
+from utilities.graph import *
+from utilities.transformations import *
+from utilities.barrier_certificates import *
+from utilities.misc import *
+from utilities.controllers import *
 
 
-num_robots = 3
+num_robots = 9
 
 si_barrier_cert = create_single_integrator_barrier_certificate()
 
@@ -25,7 +25,7 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-iterations = 1000    
+iterations = 10000    
 
 time.sleep(2)
 
@@ -50,14 +50,14 @@ for iteration in range(iterations):
             dxi.append([x_sum, y_sum])
 
         # passing current pos remove theta
-        # dxi = si_barrier_cert(np.asarray(dxi).transpose(), current_pos_xy)
+        dxi = si_barrier_cert(np.asarray(dxi).transpose(), current_pos_xy)
         # vels = si_to_uni_dyn(np.asarray(vels).transpose(),np.asarray(current_pos).transpose()) # to use without barrier certificates
-        dxu = si_to_uni_dyn(np.asarray(dxi).transpose(), current_pos.transpose())
+        dxu = si_to_uni_dyn(dxi, current_pos.transpose())
 
         # print(vels)
 
         wrapper.set_velocities(dxu.transpose())
-        wrapper.step(rate=2, time=500)
+        wrapper.step(60)
         # time.sleep(2)
 
     except Exception as e:
