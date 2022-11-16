@@ -13,7 +13,7 @@ import signal
 
 N = 6 #number of robots
 wrapper = ServerWrapper(N)
-iterations = 5000
+iterations = 50000
 si_barrier_cert = create_single_integrator_barrier_certificate()
 # Create SI to UNI dynamics tranformation
 si_to_uni_dyn, uni_to_si_states = create_si_to_uni_mapping()
@@ -31,15 +31,16 @@ y_max_robotarium = 1.74
 board_scale = 1000 # to align the units in cm
 inverse_scale = 1/board_scale
 light_sources = [
-                    [0.2*x_max_robotarium*board_scale, 0.65*y_max_robotarium*board_scale],
-                    [0.75*x_max_robotarium*board_scale, 0.42*y_max_robotarium*board_scale],
-                    [0.3*x_max_robotarium*board_scale, 0.375*y_max_robotarium*board_scale]
+                #    [0.5*x_max_robotarium*board_scale, 0.5*y_max_robotarium*board_scale],
+                    # [0.5*x_max_robotarium*board_scale, 0.5*y_max_robotarium*board_scale],
+                    [0.7*x_max_robotarium*board_scale, 0.7*y_max_robotarium*board_scale]
                 ]
 
 decay = 3
-luminosity = [500,500,500]
+luminosity = [500,1000,1000]
 scale = 1
 k=0.2 # learning rate
+time_scale = 20
 
 #BOARD_SIZE_X = 3 * board_scale
 #BOARD_SIZE_Y = 2 * board_scale # 1.76
@@ -65,7 +66,7 @@ def pop_sensor_mesh(h,w,iter=0):
     X, Y = np.meshgrid(x, y,sparse=False)
     Z = np.zeros((h,w))
     for k in range(len(light_sources)):
-        dist = np.sqrt(np.square(X -light_sources[k][0] + int(iter/40)*20) + np.square(Y -light_sources[k][1] + int(iter/40)*20)) 
+        dist = np.sqrt(np.square(X -light_sources[k][0] + int(iter/time_scale)*20) + np.square(Y -light_sources[k][1] + int(iter/time_scale)*20)) 
         Z += luminosity[k] - 20*decay*np.log(dist) #(luminosity[k]/(4 * np.pi * (dist ** decay)))
     return Z
 
@@ -80,7 +81,7 @@ rows = h
 def get_sensor(x,y,iter): #x,y in cm
     svalue = 0
     for k in range(len(light_sources)) :
-        dist = np.sqrt(np.square(x -light_sources[k][0] + int(iter/40)*20 ) + np.square(y -light_sources[k][1] + int(iter/40)*20) ) 
+        dist = np.sqrt(np.square(x -light_sources[k][0] + int(iter/time_scale)*20 ) + np.square(y -light_sources[k][1] + int(iter/time_scale)*20) ) 
         if dist < 50:
             svalue = svalue + luminosity[k]
         else:
@@ -115,8 +116,8 @@ for k in range(iterations):
     #print(current_x[0][0],current_x[1][0],current_x[2][0])
                 
     # Below is a working version as of Nov 1, 2022
-    for xi in np.arange(x_min_robotarium,x_max_robotarium,0.05):
-        for yi in np.arange(y_min_robotarium,y_max_robotarium,0.05):
+    for xi in np.arange(x_min_robotarium,x_max_robotarium,0.1):
+        for yi in np.arange(y_min_robotarium,y_max_robotarium,0.1):
             sensor_value = get_sensor(xi*board_scale,yi*board_scale,k)
             # print("X: {x} | Y: {y} | Sensor: {s}".format(x=xi,y=yi, s=sensor_value))
             distances = np.zeros((N))

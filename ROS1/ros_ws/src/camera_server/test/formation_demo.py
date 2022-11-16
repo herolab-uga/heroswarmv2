@@ -110,7 +110,7 @@ weigths_ten = [
 
 shapes = [weights_five_pentagon, weights_square, weights_hexagon, weights_rect, weights_six_pentagon]
 
-demo = weights_five_pentagon
+demo = weights_nine_square
 
 num_robots = len(demo)
 wrapper = ServerWrapper(num_robots)
@@ -131,7 +131,7 @@ iterations = 10000
 time.sleep(1)
 
 for iteration in range(iterations):
-    # print(iteration)
+    print(iteration)
     try:
         # Get the position of the robots using the camera server
         current_pos = np.asarray(wrapper.get_data("global_pos"))

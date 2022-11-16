@@ -181,7 +181,7 @@ def gut_pursuit_game():
         for i in range(N):
             # Get the neighbors of robot 'i' (encoded in the graph Laplacian)
             # Compute the pp algorithm
-            if i == 0 and k%10 == 0:
+            if i == 0 and k%20 == 0:
                 si_velocities[:,i] = np.sum(waypoints[:, 0, None] - x_si[:, i, None], 1)
             if i >= 1:
                 oldpoint, catchpoint = get_catchpoint(x[:, 0], x[:, i], oldpoint)

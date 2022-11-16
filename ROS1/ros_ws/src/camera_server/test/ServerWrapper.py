@@ -237,9 +237,11 @@ class ServerWrapper():
 
     def pub_image(self, image):
         # print("pub")
-        self.image_pub.publish(self.bridge.cv2_to_imgmsg(image, "bgr8"))
+        msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
+        msg.header.stamp = rospy.Time.now()
+        self.image_pub.publish(msg)
         # self.image_pub.publish(self.bridge.cv2_to_imgmsg(self.image.get("image"), "bgr8"))
-
+        
     def restart(self):
         restart_string = "ssh pi@{robot_name}.local sudo shutdown -r 0"
         for robot in self.all_active.data:
@@ -271,6 +273,7 @@ class ServerWrapper():
         self.image_pub = rospy.Publisher("/experiment_image",Image,queue_size=1)
         self.active_bots_sub = rospy.Subscriber("active_robots",StringList,self.name_callback)
         while not len(self.active_bots)/2 == self.selected_bots:
+            # print(len(self.active_bots)/2)
             continue
         self.global_position = rospy.Subscriber("positions",Robot_Pos,self.global_position_callback,(self.active_bots))
         time.sleep(.5)
