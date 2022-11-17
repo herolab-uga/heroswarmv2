@@ -4,3 +4,6 @@
 [submodule "ROS1/ros_ws/src/vision_opencv"]
 	path = ROS1/ros_ws/src/vision_opencv
 	url = https://github.com/ros-perception/vision_opencv.git
+[submodule "ROS1/ros_ws/src/camera_server/swarmexperiments"]
+	path = ROS1/ros_ws/src/camera_server/swarmexperiments
+	url = git@github.com:herolab-uga/swarmexperiments.git
