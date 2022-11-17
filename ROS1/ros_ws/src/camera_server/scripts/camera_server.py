@@ -90,8 +90,34 @@ class CameraServer():
 
             center = detection["center"]
             
+            self.positions = Robot_Pos()
+            pixel_pos = Robot_Pos()
+            
+            (forward_dir,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
+            dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
+            # cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
+            temp = Pose()
+            
+            temp.position.x = center_transform[0]
+            temp.position.y = center_transform[1]
+            temp.position.z = 0.0
+
+            q = self.quaternion_from_rpy(0,0,angle)
+
+            temp.orientation.x = q[0]
+            temp.orientation.y = q[1]
+            temp.orientation.z = q[2]
+            temp.orientation.w = q[3]
+
+            center = detection["center"]
+            
             # Gets the center of the tag in inches and rotated accordingly
 
+
+            pixel_pos.robot_pos.append(Odometry())
+            pixel_pos.robot_pos[-1].pose.pose.position.x = center[0]
+            pixel_pos.robot_pos[-1].pose.pose.position.y = center[1]
+            pixel_pos.robot_pos[-1].pose.pose.position.z = 0
             center_transform = self.transform(center)
 
             cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
@@ -100,7 +126,7 @@ class CameraServer():
             if detection["id"] in self.charger_tags and not detection["id"]in self.close_chargers:
                 posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
                 
-                (forward_dir,angle) = self.heading_dir(detection.corners,center)
+                (forward_dir,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
                 cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
                 temp = Pose()
@@ -118,7 +144,7 @@ class CameraServer():
 
                 
                 self.charger_tags[detection["id"]] = temp
-
+            
             elif not detection["id"] in self.reference_tags and not detection["id"] in self.charger_tags:
                 # Gets the forward direction
                 (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
@@ -274,8 +300,8 @@ class CameraServer():
         with open("/home/michael/Documents/heroswarmv2/ROS1/ros_ws/src/camera_server/scripts/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
-        self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
-        self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
+        # self.get_charger = rospy.Service("get_charger",GetCharger,self.handle_get_charger)
+        # self.release_charger = rospy.Service("release_charger",ReleaseCharger,self.handle_release_charger)
 
         self.active_pub = rospy.Publisher("active_robots",StringList,queue_size=1)
 

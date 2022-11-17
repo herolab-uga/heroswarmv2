@@ -4,7 +4,7 @@
     <arg name="mic" default="True"/>
     <arg name="proximity" default="False"/>
     <arg name="light" default="False"/>
-    <arg name="imu" default="False"/>
+    <arg name="imu" default="True"/>
     <arg name="environment" default="False"/>
     <arg name="global_pos" default="False"/>
     <node name="controller" pkg="robot_controller" type="controller.py" output="screen">
