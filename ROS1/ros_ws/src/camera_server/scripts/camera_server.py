@@ -89,46 +89,17 @@ class CameraServer():
             dimg1 = self.draw(frame,detection["lb-rb-rt-lt"])
 
             center = detection["center"]
-            
-            self.positions = Robot_Pos()
-            pixel_pos = Robot_Pos()
-            
-            (forward_dir,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
-            dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
-            # cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
-            temp = Pose()
-            
-            temp.position.x = center_transform[0]
-            temp.position.y = center_transform[1]
-            temp.position.z = 0.0
-
-            q = self.quaternion_from_rpy(0,0,angle)
-
-            temp.orientation.x = q[0]
-            temp.orientation.y = q[1]
-            temp.orientation.z = q[2]
-            temp.orientation.w = q[3]
-
-            center = detection["center"]
-            
-            # Gets the center of the tag in inches and rotated accordingly
-
-
-            pixel_pos.robot_pos.append(Odometry())
-            pixel_pos.robot_pos[-1].pose.pose.position.x = center[0]
-            pixel_pos.robot_pos[-1].pose.pose.position.y = center[1]
-            pixel_pos.robot_pos[-1].pose.pose.position.z = 0
             center_transform = self.transform(center)
 
-            cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
+            cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(255,0,255),2)
 
             posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
             if detection["id"] in self.charger_tags and not detection["id"]in self.close_chargers:
-                posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                # posString = "({x:.2f},{y:.2f})".format(x=center[0],y=center[1])
                 
                 (forward_dir,angle) = self.heading_dir(detection["lb-rb-rt-lt"],center)
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
-                cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
+                cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),thickness=2,lineType=self.lineType)
                 temp = Pose()
                 
                 temp.position.x = center_transform[0]
@@ -148,9 +119,9 @@ class CameraServer():
             elif not detection["id"] in self.reference_tags and not detection["id"] in self.charger_tags:
                 # Gets the forward direction
                 (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
-                posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
+                # posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
-                cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
+                cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),thickness=2,lineType=self.lineType)
 
                 self.positions.robot_pos.append(Odometry())
                 robot_names.data.append(String())
@@ -182,7 +153,7 @@ class CameraServer():
         self.pixel_pub.publish(pixel_pos)
         
         if self.display_detections:
-            self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(dimg1,(1080,720)), "bgr8"))
+            self.detections_pub.publish(self.bridge.cv2_to_imgmsg(dimg1, "bgr8"))
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
@@ -286,10 +257,10 @@ class CameraServer():
         
         self.dector = apriltag.apriltag("tagStandard41h12")
 
-        self.font = cv2.FONT_HERSHEY_SIMPLEX
-        self.fontScale              = 0.3
+        self.font = cv2.FONT_HERSHEY_DUPLEX
+        self.fontScale              = 0.4
         self.fontColor              = (0,0,255)
-        self.lineType               = 1
+        self.lineType               = -1
 
         self.pos_pub = rospy.Publisher("/positions",Robot_Pos,queue_size=1)
         self.pixel_pub = rospy.Publisher("/camera/pixel_pos",Robot_Pos,queue_size=1)
