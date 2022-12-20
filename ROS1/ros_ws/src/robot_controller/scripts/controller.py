@@ -163,7 +163,7 @@ class Controller:
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
             z_angular = direction_ang * \
-                (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
+                (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85) #1.85
         else:
             z_angular = 0
         

@@ -3,6 +3,7 @@ import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import rospy
+import time
 
 
  
@@ -23,7 +24,9 @@ def read_frame():
 
     while not rospy.is_shutdown():
         _, frame = capture.read()
-        image_pub.publish(bridge.cv2_to_imgmsg(frame,"bgr8"))
+        msg = bridge.cv2_to_imgmsg(frame,"bgr8")
+        msg.header.stamp = rospy.Time.now()
+        image_pub.publish(msg)
             
 
 

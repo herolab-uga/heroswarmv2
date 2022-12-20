@@ -153,7 +153,9 @@ class CameraServer():
         self.pixel_pub.publish(pixel_pos)
         
         if self.display_detections:
-            self.detections_pub.publish(self.bridge.cv2_to_imgmsg(dimg1, "bgr8"))
+            msg = self.bridge.cv2_to_imgmsg(dimg1, "bgr8")
+            msg.header.stamp = rospy.Time.now()
+            self.detections_pub.publish(msg)
 
     def quaternion_from_rpy(self,roll, pitch, yaw):
         cy = math.cos(yaw * 0.5)
