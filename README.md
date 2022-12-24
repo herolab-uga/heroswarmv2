@@ -31,7 +31,6 @@ Running a Conventional Multi-Robot Rendezvous Algorithm with HeRoSwarmV2 robots.
 <img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/rendezvous_gif.gif" width="600">
 </p>
 
-[![HeRoSwarm - Rendezvous Demo](https://img.youtube.com/vi/odDSfJcQ4XM/0.jpg)](https://www.youtube.com/watch?v=odDSfJcQ4XM)
 
 
 Running a Conventional Multi-Robot Formation Control Algorithm with HeRoSwarmV2 robots. Here, the robots are organizing into a square-like pattern with 9 robots.
@@ -40,10 +39,13 @@ Running a Conventional Multi-Robot Formation Control Algorithm with HeRoSwarmV2 
 <img src="https://github.com/herolab-uga/heroswarmv2/blob/main/images/formation_gif.gif" width="600">
 </p>
 
-[![HeRoSwarm - Formation Demo](https://img.youtube.com/vi/DiLuNy2J9R0/0.jpg)](https://www.youtube.com/watch?v=DiLuNy2J9R0)
 
 
 More Demonstrations:
+
+[![HeRoSwarm - Rendezvous Demo](https://img.youtube.com/vi/odDSfJcQ4XM/0.jpg)](https://www.youtube.com/watch?v=odDSfJcQ4XM)
+
+[![HeRoSwarm - Formation Demo](https://img.youtube.com/vi/DiLuNy2J9R0/0.jpg)](https://www.youtube.com/watch?v=DiLuNy2J9R0)
 
 [![HeRoSwarm - Distribution/Coverage Demo](https://img.youtube.com/vi/bHFGVdpAJ7c/0.jpg)](https://www.youtube.com/watch?v=bHFGVdpAJ7c)
 
