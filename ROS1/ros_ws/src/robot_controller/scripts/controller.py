@@ -345,7 +345,7 @@ class Controller:
         # fails to send last byte over I2C, hence this needs to be added
         try:
             # Writes the values to the i2c
-            self.serial.write(self.arduino, byteList, stop=False)
+            self.serial.write(self.arduino, byteList)
             self.serial.read()
             if opcode == 0:
                 self.linear_x_velo = values[0]
