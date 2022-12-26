@@ -7,6 +7,7 @@ import time
 import json
 import multiprocessing as mp
 import subprocess
+import serial
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -156,6 +157,9 @@ class Controller:
             direction_lin = msg.linear.x / abs(msg.linear.x)
             x_velo = direction_lin * \
                 (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
+
+            x_velo = direction_lin * \
+                (abs(msg.linear.x) if abs(msg.linear.x) >= .01 else 0)
         else:
             x_velo = 0
 
@@ -163,7 +167,10 @@ class Controller:
         if not msg.angular.z == 0:
             direction_ang = msg.angular.z / abs(msg.angular.z)
             z_angular = direction_ang * \
-                (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85)
+                (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85) #1.85
+
+            z_angular = direction_ang * \
+                (abs(msg.angular.z) if abs(msg.angular.z) >= .01 else 0) #1.85
         else:
             z_angular = 0
         
@@ -337,23 +344,19 @@ class Controller:
             struct.pack('f'*len(values), *values) + struct.pack('f',0.0)
         # fails to send last byte over I2C, hence this needs to be added
         try:
-            while not self.i2c.try_lock():
-                pass
             # Writes the values to the i2c
-            self.i2c.writeto(self.arduino, byteList, stop=False)
-
+            self.serial.write(self.arduino, byteList, stop=False)
+            self.serial.read()
             if opcode == 0:
                 self.linear_x_velo = values[0]
 
-                self.linear_y_velo = values[1]
+                self.linear = values[1]
 
                 self.angular_z_velo = values[2]
         except OSError as e:
             rospy.loginfo(e)
             rospy.loginfo("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
-        finally:
-            self.i2c.unlock()
 
     def move_to_angle(self, angle):
         rate = rospy.Rate(10)
@@ -427,6 +430,7 @@ class Controller:
         self.arduino = 0x08
 
         self.i2c = board.I2C()
+        self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
         self.name = rospy.get_namespace()
 
         # self.manager = mp.Manager()
