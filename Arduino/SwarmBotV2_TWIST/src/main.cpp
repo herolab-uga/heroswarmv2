@@ -23,10 +23,11 @@ short sampleBuffer[256];
 // number of samples read
 volatile int samplesRead = 0;
 
-void stop(){
+void stop()
+{
   NRF_TIMER2->TASKS_START = 0; // Stop TIMER2
-  NRF_TIMER2->TASKS_STOP = 1; // Stop TIMER2
-  
+  NRF_TIMER2->TASKS_STOP = 1;  // Stop TIMER2
+
   steve.setPIDSetpoint(0, 0);
   steve.setVelocity(0, 0);
   steve.setLeftMotorSpeed(0);
@@ -78,11 +79,14 @@ void receiveEvent(int byteCount)
 
 void sendEvent()
 {
-  if (samplesRead) {
+  if (samplesRead)
+  {
     int max_val_temp = 0;
     // print samples to the serial monitor or plotter
-    for (int i = 0; i < samplesRead; i++) {
-      if (max_val_temp < sampleBuffer[i]) {
+    for (int i = 0; i < samplesRead; i++)
+    {
+      if (max_val_temp < sampleBuffer[i])
+      {
         max_val_temp = sampleBuffer[i];
       }
     }
@@ -113,7 +117,7 @@ void interpretData()
   switch ((int)inputArray[0])
   {
   case 0:
-    //add times start and stop
+    // add times start and stop
     linearVelocity = inputArray[1];
     angularVelocity = inputArray[3];
     steve.setPIDSetpoint(linearVelocity, angularVelocity);
@@ -124,14 +128,13 @@ void interpretData()
     // Serial.println(angularVelocity);
     if (abs(linearVelocity) < .001 && abs(angularVelocity) < .001)
     {
-        stop();
+      stop();
     }
     else
     {
-        lastTime = millis();
-        NRF_TIMER2->TASKS_STOP = 0; // Start TIMER2
-        NRF_TIMER2->TASKS_START = 1; // Start TIMER2
-
+      lastTime = millis();
+      NRF_TIMER2->TASKS_STOP = 0;  // Start TIMER2
+      NRF_TIMER2->TASKS_START = 1; // Start TIMER2
     }
     break;
   case 1:
@@ -149,28 +152,32 @@ void init_timer(void)
   NRF_TIMER2->TASKS_CLEAR = 1;                       // clear the task first to be usable for later
   NRF_TIMER2->PRESCALER = 1;                         // Set prescaler. Higher number gives slower timer. Prescaler = 0 gives 16MHz timer
   NRF_TIMER2->BITMODE = TIMER_BITMODE_BITMODE_16Bit; // Set counter to 16 bit resolution
-  NRF_TIMER2->CC[0] = 5000;                         // Set value for TIMER2 compare register 0 15384
+  NRF_TIMER2->CC[0] = 5000;                          // Set value for TIMER2 compare register 0 15384
 
   // Enable interrupt on Timer 2, both for CC[0] and CC[1] compare match events
   NRF_TIMER2->INTENSET = (TIMER_INTENSET_COMPARE0_Enabled << TIMER_INTENSET_COMPARE0_Pos);
   NVIC_EnableIRQ(TIMER2_IRQn);
-
 }
 
-extern "C" {
+extern "C"
+{
   void TIMER2_IRQHandler(void)
   {
-    NRF_TIMER2->EVENTS_COMPARE[0] = 0;           //Clear compare register 0 event
-    if (millis() - lastTime > 10000){
+    NRF_TIMER2->EVENTS_COMPARE[0] = 0; // Clear compare register 0 event
+    if (millis() - lastTime > 10000)
+    {
       stop();
-    } else {
+    }
+    else
+    {
       steve.updateOdometery();
-      // Serial.println("Running");	
+      // Serial.println("Running");
     }
   }
 }
 
-void onPDMdata() {
+void onPDMdata()
+{
   // query the number of bytes available
   int bytesAvailable = PDM.available();
 
@@ -184,6 +191,7 @@ void onPDMdata() {
 void setup()
 {
   Serial.begin(9600);
+  Serial1.begin(115200);
 
   // IMU.setupIMU();
 
@@ -193,9 +201,7 @@ void setup()
   measuredvbat /= 1024; // convert to voltage
 
   Wire.begin(0x8);
-  Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
-
 
   // interrupting twice on 01 -> 10 and 11 -> 00?
   attachInterrupt(steve.getLeftEncoderA(), leftInterrupt, CHANGE);
@@ -212,19 +218,61 @@ void setup()
   init_timer();
   PDM.onReceive(onPDMdata);
 
-  if (!PDM.begin(1, 16000)) {
+  if (!PDM.begin(1, 16000))
+  {
     Serial.println("Failed to start PDM!");
-    while (1) yield();
+    while (1)
+      yield();
   }
   PDM.setGain(.75);
   steve.setPIDSetpoint(0, 0);
   steve.setVelocity(0, 0);
   // steve.updateOdometery();
-
 }
 
-void loop() {
-  __WFE();
-  __SEV();
-  __WFE();
+void loop()
+{
+  if (Serial1.available())
+  {
+    int mode = Serial1.parseInt();
+    if (mode == 0)
+    {
+      linearVelocity = Serial1.parseFloat();
+      angularVelocity = Serial1.parseFloat();
+
+      if (abs(linearVelocity) < .001 && abs(angularVelocity) < .001)
+      {
+        stop();
+      }
+      else
+      {
+        lastTime = millis();
+        NRF_TIMER2->TASKS_STOP = 0;  // Start TIMER2
+        NRF_TIMER2->TASKS_START = 1; // Start TIMER2
+      }
+
+      while (Serial1.available())
+      {
+        Serial1.read();
+      }
+
+      Serial1.println("ack");
+      steve.setPIDSetpoint(linearVelocity, angularVelocity);
+      steve.setVelocity(linearVelocity, angularVelocity);
+    }
+    else if (mode == 1)
+    {
+      float r = Serial1.parseFloat();
+      float g = Serial1.parseFloat();
+      float b = Serial1.parseFloat();
+      steve.setColor(r, g, b);
+      Serial1.println("ack");
+    }
+    else if (mode == 2)
+    {
+      float cal = Serial1.parseFloat();
+      steve.callibrateOdometery(cal);
+      Serial1.println("ack");
+    }
+  }
 }
