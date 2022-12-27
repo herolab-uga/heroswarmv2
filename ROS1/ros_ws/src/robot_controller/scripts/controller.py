@@ -340,9 +340,8 @@ class Controller:
     def send_values(self, values=None, opcode=0):
         # Work around for demo remove later
         # Converts the values to bytes
-        byteList = struct.pack("f", opcode) + \
-            struct.pack('f'*len(values), *values)
-        print(byteList)
+        byteList = bytes([0xBE,0xEF]) + struct.pack("f", opcode) + \
+            struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
             # Writes the values to the i2c
