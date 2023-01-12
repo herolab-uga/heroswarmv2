@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'camera_server = camera_server.camera_server:main',
-	        'opencv_publisher = camera_server.openCV_publisher:main'
+	        'openCV_publisher = camera_server.openCV_publisher:main'
         ],
     },
 )
