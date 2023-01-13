@@ -434,7 +434,7 @@ class Controller(Node):
         self.arduino = 0x08
 
         self.i2c = board.I2C()
-        self.name = rclpy.get_namespace()
+        self.name = self.get_namespace()
 
         # self.manager = mp.Manager()
         # self.environment_queue = self.manager.Queue()
