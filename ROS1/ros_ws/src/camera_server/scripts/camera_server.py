@@ -57,7 +57,7 @@ class CameraServer():
             prev_active = active_dict
 
     def get_positions(self,msg):
-        frame = self.bridge.imgmsg_to_cv2(msg,"bgr8")
+        frame = self.bridge.imgmsg_to_cv2(msg)
         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         detections = self.dector.detect(gray)
 
@@ -85,7 +85,9 @@ class CameraServer():
         active_dict = {}
         # print(detections)
         for detection in detections:
-
+            #making sure to ignore the tags on charging table 
+            if(detection["center"][0] <= self.orig[0]):
+                continue
             dimg1 = self.draw(frame,detection["lb-rb-rt-lt"])
 
             center = detection["center"]
@@ -117,12 +119,13 @@ class CameraServer():
                 self.charger_tags[detection["id"]] = temp
             
             elif not detection["id"] in self.reference_tags and not detection["id"] in self.charger_tags:
+            
                 # Gets the forward direction
                 (forward_dir, angle) = self.heading_dir(detection["lb-rb-rt-lt"], center)
                 # posString = "({x:.4f},{y:.4f})".format(x=center[0],y=center[1])
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
                 cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),thickness=2,lineType=self.lineType)
-
+            
                 self.positions.robot_pos.append(Odometry())
                 robot_names.data.append(String())
                 self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
@@ -153,7 +156,7 @@ class CameraServer():
         self.pixel_pub.publish(pixel_pos)
         
         if self.display_detections:
-            msg = self.bridge.cv2_to_imgmsg(dimg1, "bgr8")
+            msg = self.bridge.cv2_to_imgmsg(dimg1,"bgr8")
             msg.header.stamp = rospy.Time.now()
             self.detections_pub.publish(msg)
 
