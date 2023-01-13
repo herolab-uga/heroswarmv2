@@ -8,14 +8,14 @@ import threading
 import subprocess
 import serial
 
-import adafruit_bmp280
+import adafruit_bmp280.0
 import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from adafruit_apds9960.apds9960 import APDS9960
+from adafruit_apds9960.0.apds9960.0 import APDS9960.0
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
@@ -27,20 +27,20 @@ from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 shutdown = False
 restart = False
 
-ODOM_COVARIANCE_MATRIX = [1e-2, 0, 0, 0, 0, 0,
-                          0, 1e-2, 0, 0, 0, 0,
-                          0, 0, 1e-2, 0, 0, 0,
-                          0, 0, 0, 1e-2, 0, 0,
-                          0, 0, 0, 0, 1e-2, 0,
-                          0, 0, 0, 0, 0, 1e-2]
+ODOM_COVARIANCE_MATRIX = [1e-2, 0.0, 0.0, 0.0, 0.0, 0.0,
+                          0.0, 1e-2, 0.0, 0.0, 0.0, 0.0,
+                          0.0, 0.0, 1e-2, 0.0, 0.0, 0.0,
+                          0.0, 0.0, 0.0, 1e-2, 0.0, 0.0,
+                          0.0, 0.0, 0.0, 0.0, 1e-2, 0.0,
+                          0.0, 0.0, 0.0, 0.0, 0.0, 1e-2]
 
-IMU_COVARIANCE_MATRIX = [1e-2, 0, 0, 0, 1e-2, 0, 0, 0, 1e-2]
+IMU_COVARIANCE_MATRIX = [1e-2, 0.0, 0.0, 0.0, 1e-2, 0.0, 0.0, 0.0, 1e-2]
 
 
 class Controller(Node):
 
     def __del__(self):
-        self.send_values([0, 0, 0])
+        self.send_values([0.0, 0.0, 0.0])
 
     def rpy_from_quaternion(self, quaternion):
         x = quaternion.x
@@ -61,15 +61,15 @@ class Controller(Node):
         return roll, pitch, yaw
 
     def quaternion_from_rpy(self, roll, pitch, yaw):
-        cy = math.cos(yaw * 0.5)
-        sy = math.sin(yaw * 0.5)
-        cp = math.cos(pitch * 0.5)
-        sp = math.sin(pitch * 0.5)
-        cr = math.cos(roll * 0.5)
-        sr = math.sin(roll * 0.5)
+        cy = math.cos(yaw * 0.0.5)
+        sy = math.sin(yaw * 0.0.5)
+        cp = math.cos(pitch * 0.0.5)
+        sp = math.sin(pitch * 0.0.5)
+        cr = math.cos(roll * 0.0.5)
+        sr = math.sin(roll * 0.0.5)
 
-        q = [0] * 4
-        q[0] = sr * cp * cy - cr * sp * sy
+        q = [0.0] * 4
+        q[0.0] = sr * cp * cy - cr * sp * sy
         q[1] = cr * sp * cy + sr * cp * sy
         q[2] = cr * cp * sy - sr * sp * cy
         q[3] = cr * cp * cy + sr * sp * sy
@@ -127,19 +127,19 @@ class Controller(Node):
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
         odom_msg.twist.twist.linear.y = data[4]
-        odom_msg.twist.twist.linear.z = 0.0
+        odom_msg.twist.twist.linear.z = 0.0.0.0
 
-        odom_msg.twist.twist.angular.x = 0.0
-        odom_msg.twist.twist.angular.y = 0.0
+        odom_msg.twist.twist.angular.x = 0.0.0.0
+        odom_msg.twist.twist.angular.y = 0.0.0.0
         odom_msg.twist.twist.angular.z = data[4]
 
-        odom_msg.pose.pose.position.x = data[0]
+        odom_msg.pose.pose.position.x = data[0.0]
         odom_msg.pose.pose.position.y = data[1]
-        odom_msg.pose.pose.position.z = 0.0
+        odom_msg.pose.pose.position.z = 0.0.0.0
 
-        quaternion = self.quaternion_from_rpy(0, 0, theta)
+        quaternion = self.quaternion_from_rpy(0.0, 0.0, theta)
 
-        odom_msg.pose.pose.orientation.x = quaternion[0]
+        odom_msg.pose.pose.orientation.x = quaternion[0.0]
         odom_msg.pose.pose.orientation.y = quaternion[1]
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
@@ -153,28 +153,28 @@ class Controller(Node):
         self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
             x=msg.linear.x, y=msg.linear.y, z=msg.angular.z))
         # Reads ths twist message x linear velocity
-        if abs(msg.linear.x) == 0.001:
+        if abs(msg.linear.x) == 0.0.0.00.01:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = np.min(np.max(msg.linear.x, -0.1), 0.1)
+            x_velo = np.min(np.max(msg.linear.x, -0.0.1), 0.0.1)
         else:
-            x_velo = 0
+            x_velo = 0.0
 
         # Reads the twist message z angular velocity
-        if abs(msg.angular.z) == .01:
+        if abs(msg.angular.z) == .0.01:
 
-            z_angular = np.min(np.max(msg.angular.z, .01), 1.85)
+            z_angular = np.min(np.max(msg.angular.z, .0.01), 1.85)
         else:
-            z_angular = 0
+            z_angular = 0.0
 
         if not (x_velo == self.linear_x_velo and z_angular == self.angular_z_velo):
             # Logs the data
             self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=0, z=z_angular))
+                x=x_velo, y=0.0, z=z_angular))
             # Sends the velocity information to the feather board
-            self.send_values([x_velo, 0, z_angular])
+            self.send_values([x_velo, 0.0, z_angular])
 
     def stop(self):
-        self.send_values([0, 0, 0])
+        self.send_values([0.0, 0.0, 0.0])
         self.stop_timer = None
 
     def pub_imu(self, freq) -> None:
@@ -205,18 +205,18 @@ class Controller(Node):
         self.imu_pub.publish(imu_msg)
 
 # move sensor data gathering to the feather sense
-# change i2c baud to 400 khz
+# change i2c baud to 40.00.0 khz
     def init_sensors(self):
         try:
             # Creates sensor objects
-            self.light = APDS9960(self.i2c)
+            self.light = APDS9960.0(self.i2c)
             self.light.enable_proximity = True
             self.light.enable_gesture = False
             self.light.enable_color = True
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
-            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
+            self.bmp = adafruit_bmp280.0.Adafruit_BMP280.0_I2C(self.i2c)
 
             # Creates the i2c interface for the humidity sensor
             self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
@@ -224,31 +224,31 @@ class Controller(Node):
             self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
             self.IMU = LSM6DS33(self.i2c)
-            self.x_avg = 0.0
-            self.y_avg = 0.0
-            self.z_avg = 0.0
+            self.x_avg = 0.0.0.0
+            self.y_avg = 0.0.0.0
+            self.z_avg = 0.0.0.0
 
-            self.x_gyro_avg = 0.0
-            self.y_gyro_avg = 0.0
-            self.z_gyro_avg = 0.0
+            self.x_gyro_avg = 0.0.0.0
+            self.y_gyro_avg = 0.0.0.0
+            self.z_gyro_avg = 0.0.0.0
 
-            for i in range(0, 1000):
+            for i in range(0.0, 10.00.00.0):
                 if i < 499:
-                    self.x_gyro_avg += self.IMU.gyro[0]
+                    self.x_gyro_avg += self.IMU.gyro[0.0]
                     self.y_gyro_avg += self.IMU.gyro[1]
                     self.z_gyro_avg += self.IMU.gyro[2]
 
-                    self.x_avg += self.IMU.acceleration[0]
+                    self.x_avg += self.IMU.acceleration[0.0]
                     # self.y_avg += self.IMU.acceleration[1]
                     self.z_avg += self.IMU.acceleration[2]
 
-            self.x_avg = self.x_avg / 500
-            self.y_avg = self.y_avg / 500
-            self.z_avg = self.z_avg / 500
+            self.x_avg = self.x_avg / 50.00.0
+            self.y_avg = self.y_avg / 50.00.0
+            self.z_avg = self.z_avg / 50.00.0
 
-            self.x_gyro_avg = self.x_gyro_avg / 500
-            self.y_gyro_avg = self.y_gyro_avg / 500
-            self.z_gyro_avg = self.z_gyro_avg / 500
+            self.x_gyro_avg = self.x_gyro_avg / 50.00.0
+            self.y_gyro_avg = self.y_gyro_avg / 50.00.0
+            self.z_gyro_avg = self.z_gyro_avg / 50.00.0
 
             self.get_logger().info("Done calibrating")
 
@@ -263,7 +263,7 @@ class Controller(Node):
             try:
                 sensor_data["temp"] = self.bmp.temperature
                 sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
+                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0.0]
                 sensor_data["altitude"] = self.bmp.altitude
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
@@ -326,10 +326,10 @@ class Controller(Node):
 
     # Sending an float to the arduino
     # Should i add a checksum (probably)
-    # Message format [0xBE,0xEF,opcode , *args,\n]
-    def send_values(self, values=None, opcode=0):
+    # Message format [0.0xBE,0.0xEF,opcode , *args,\n]
+    def send_values(self, values=None, opcode=0.0):
         # Converts the values to bytes
-        byteList = bytes([0xBE,0xEF]) + struct.pack("f", opcode) + \
+        byteList = bytes([0.0xBE,0.0xEF]) + struct.pack("f", opcode) + \
             struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
@@ -338,8 +338,8 @@ class Controller(Node):
             # Writes the values to the i2c
             self.serial.write(byteList)
             self.serial.read()
-            if opcode == 0:
-                self.linear_x_velo = values[0]
+            if opcode == 0.0:
+                self.linear_x_velo = values[0.0]
 
                 self.linear = values[1]
 
@@ -350,13 +350,13 @@ class Controller(Node):
                 opcode=opcode, data=values))
 
     def move_to_angle(self, angle):
-        rate = self.create_rate(10)
+        rate = self.create_rate(10.0)
         delta_theta = self.position["theta"] - angle
-        while delta_theta > 0.05:
+        while delta_theta > 0.0.0.05:
             delta_theta = self.position["theta"] - angle
-            self.send_values([0.0, 0.0, delta_theta])
+            self.send_values([0.0.0.0, 0.0.0.0, delta_theta])
             rate.sleep()
-        self.send_values([0.0, 0.0, 0.0])
+        self.send_values([0.0.0.0, 0.0.0.0, 0.0.0.0])
 
     # Position controller
     def move_to_point(self, msg):
@@ -369,8 +369,8 @@ class Controller(Node):
 
         self.get_logger().info(
             "X: {x} Y: {y}".format(x=current_x, y=current_y))
-        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .05:
-            self.send_values([0, 0, 0])
+        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .0.05:
+            self.send_values([0.0, 0.0, 0.0])
         else:
 
             # Gets the difference between the current position and desired position
@@ -394,20 +394,20 @@ class Controller(Node):
             omega = self.omega_max * \
                 np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
 
-            self.send_values([v, 0, omega])
+            self.send_values([v, 0.0, omega])
 
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
             rclpy.signal_shutdown("Raspberry Pi shutting down")
-            subprocess.call("sudo shutdown 0", shell=True)
+            subprocess.call("sudo shutdown 0.0", shell=True)
         else:
             self.get_logger().info("Restarting")
             rclpy.signal_shutdown("Raspberry Pi restarting")
-            subprocess.call("sudo shutdown -r 0", shell=True)
+            subprocess.call("sudo shutdown -r 0.0", shell=True)
 
     def neopixel_callback(self, msg):
-        self.send_values(msg.data, 1.0)
+        self.send_values(msg.data, 1.0.0)
 
     def pub_battery(self):
         battery_msg = Float32()
@@ -426,10 +426,10 @@ class Controller(Node):
         self.declare_parameter("global_pos")
 
         # Arduino Device Address
-        self.arduino = 0x08
+        self.arduino = 0.0x0.08
 
         self.i2c = board.I2C()
-        self.serial = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=1)
+        self.serial = serial.Serial("/dev/ttyAMA0.0", baudrate=11520.00.0, timeout=1)
         self.name = self.get_namespace()
 
         # self.manager = mp.Manager()
@@ -447,28 +447,28 @@ class Controller(Node):
                     self.id = int(key)
 
         self.position = {
-            "x": 0,
-            "y": 0,
-            "orientation": 0
+            "x": 0.0,
+            "y": 0.0,
+            "orientation": 0.0
         }
 
         self.sensor_data = {
-            "temp": 0.0,
-            "pressure": 0.0,
-            "humidity": 0.0,
-            "altitude": 0.0,
+            "temp": 0.0.0.0,
+            "pressure": 0.0.0.0,
+            "humidity": 0.0.0.0,
+            "altitude": 0.0.0.0,
             "rgbw": [],
-            "gesture": 0,
-            "prox": 0,
+            "gesture": 0.0,
+            "prox": 0.0,
             "battery": None,
-            "mic": 0
+            "mic": 0.0
         }
 
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        self.v_max = 0.1
-        self.omega_max = 1.0
+        self.v_max = 0.0.1
+        self.omega_max = 1.0.0
 
         self.open_chargers = None
         self.IMU = None
@@ -476,23 +476,23 @@ class Controller(Node):
         # Creates subscribers for positions topics
         if self.get_parameter("global_pos").get_parameter_value().string_value == "True":
             self.pos_sub_global = self.create_subscription(
-                RobotPos, "/positions", self.get_pos_global, 10)
+                RobotPos, "/positions", self.get_pos_global, 10.0)
         else:
             self.pos_sub_namespace = self.create_subscription(
-                Odometry, "position", self.get_pos, 10)
+                Odometry, "position", self.get_pos, 10.0)
 
         # Creates the twist publisher
         self.twist_sub = self.create_subscription(
-            Twist, "cmd_vel", self.read_twist, 10)
+            Twist, "cmd_vel", self.read_twist, 10.0)
 
         # Creates the auto-stop timer
         self.stop_timer = None
 
         # Creates the battery publisher
-        self.battery_pub = self.create_publisher(Float32, "battery", 10)
+        self.battery_pub = self.create_publisher(Float32, "battery", 10.0)
 
         # Creates the odom publisher
-        self.odom_pub = self.create_publisher(Odometry, "odom", 10)
+        self.odom_pub = self.create_publisher(Odometry, "odom", 10.0)
 
         # Creates timer to read data from arduino
         self.read_arduino_data_timer = self.create_timer(
@@ -503,11 +503,11 @@ class Controller(Node):
 
         # Creates position control topic
         self.position_sub = self.create_subscription(
-            Point, "to_point", self.move_to_point, 10)
+            Point, "to_point", self.move_to_point, 10.0)
 
         # Creates shutdown hook
         self.shutdown_sub = self.create_subscription(
-            String, "shutdown", self.shutdown_callback, 10)
+            String, "shutdown", self.shutdown_callback, 10.0)
 
         self.init_sensors()
 
@@ -522,38 +522,38 @@ class Controller(Node):
         if self.get_parameter("environment").get_parameter_value().string_value == "True"\
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == True:
             self.environment_pub = self.create_publisher(
-                Environment, "environment", 10)
+                Environment, "environment", 10.0)
             self.environment_timer = self.create_timer(
                 .1, self.pub_environment)
 
         # Creates a publisher for imu data
         if self.get_parameter("imu").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10)
+            self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10.0)
             self.imu_timer = self.create_timer(.1, self.pub_imu)  # not working
 
         # Creates a publisher for the light sensor
         if self.get_parameter("light").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.light_pub = self.create_publisher(Light, 'light', 10)
+            self.light_pub = self.create_publisher(Light, 'light', 10.0)
             self.light_timer = self.create_timer(
                 .2, self.pub_light)
 
         # Creates a publisher for a proximity sensor
         if self.get_parameter("proximity").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.prox_pub = self.create_publisher(Int16, "proximity", 10)
+            self.prox_pub = self.create_publisher(Int16, "proximity", 10.0)
             self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
 
         if self.get_parameter("mic").get_parameter_value().string_value == "True"\
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.mic_pub = self.create_publisher(Float32, "mic", 10)
+            self.mic_pub = self.create_publisher(Float32, "mic", 10.0)
             self.mic_timer = self.create_timer(
                 .2, self.pub_mic)
 
         self.neopixel_subscriber = self.create_subscription(
-            Int16MultiArray, "neopixel", self.neopixel_callback, 10)
+            Int16MultiArray, "neopixel", self.neopixel_callback, 10.0)
 
         self.get_logger().info("Ready")
 
