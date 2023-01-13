@@ -122,7 +122,7 @@ class Controller(Node):
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
-        odom_msg.header.stamp = self.get_clock().now()
+        odom_msg.header.stamp = self.get_clock().now().to_msg()
         odom_msg.header.frame_id = "base_footprint"
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
@@ -184,7 +184,7 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        imu_msg.header.stamp = self.get_clock().now()
+        imu_msg.header.stamp = self.get_clock().now().to_msg()
         imu_msg.header.frame_id = "base_footprint"
 
         # Sets the angular velocity parameters
