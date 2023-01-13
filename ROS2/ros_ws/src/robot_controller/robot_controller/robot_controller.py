@@ -8,14 +8,14 @@ import threading
 import subprocess
 import serial
 
-import adafruit_bmp280.0
+import adafruit_bmp280
 import adafruit_lis3mdl
 import adafruit_sht31d
 import board
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from adafruit_apds9960.0.apds9960.0 import APDS9960.0
+from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
@@ -209,14 +209,14 @@ class Controller(Node):
     def init_sensors(self):
         try:
             # Creates sensor objects
-            self.light = APDS9960.0(self.i2c)
+            self.light = APDS9960(self.i2c)
             self.light.enable_proximity = True
             self.light.enable_gesture = False
             self.light.enable_color = True
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
-            self.bmp = adafruit_bmp280.0.Adafruit_BMP280.0_I2C(self.i2c)
+            self.bmp = adafruit_bmp280.Adafruit_BMP280_I2C(self.i2c)
 
             # Creates the i2c interface for the humidity sensor
             self.humidity_sensor = adafruit_sht31d.SHT31D(self.i2c)
@@ -224,15 +224,15 @@ class Controller(Node):
             self.humidity_sensor.frequency = adafruit_sht31d.FREQUENCY_2
 
             self.IMU = LSM6DS33(self.i2c)
-            self.x_avg = 0.0.0.0
-            self.y_avg = 0.0.0.0
-            self.z_avg = 0.0.0.0
+            self.x_avg = 0.0
+            self.y_avg = 0.0
+            self.z_avg = 0.0
 
-            self.x_gyro_avg = 0.0.0.0
-            self.y_gyro_avg = 0.0.0.0
-            self.z_gyro_avg = 0.0.0.0
+            self.x_gyro_avg = 0.0
+            self.y_gyro_avg = 0.0
+            self.z_gyro_avg = 0.0
 
-            for i in range(0.0, 10.00.00.0):
+            for i in range(0.0, 1000):
                 if i < 499:
                     self.x_gyro_avg += self.IMU.gyro[0.0]
                     self.y_gyro_avg += self.IMU.gyro[1]
@@ -242,13 +242,13 @@ class Controller(Node):
                     # self.y_avg += self.IMU.acceleration[1]
                     self.z_avg += self.IMU.acceleration[2]
 
-            self.x_avg = self.x_avg / 50.00.0
-            self.y_avg = self.y_avg / 50.00.0
-            self.z_avg = self.z_avg / 50.00.0
+            self.x_avg = self.x_avg / 50.0
+            self.y_avg = self.y_avg / 50.0
+            self.z_avg = self.z_avg / 50.0
 
-            self.x_gyro_avg = self.x_gyro_avg / 50.00.0
-            self.y_gyro_avg = self.y_gyro_avg / 50.00.0
-            self.z_gyro_avg = self.z_gyro_avg / 50.00.0
+            self.x_gyro_avg = self.x_gyro_avg / 50.0
+            self.y_gyro_avg = self.y_gyro_avg / 50.0
+            self.z_gyro_avg = self.z_gyro_avg / 50.0
 
             self.get_logger().info("Done calibrating")
 
@@ -327,9 +327,9 @@ class Controller(Node):
     # Sending an float to the arduino
     # Should i add a checksum (probably)
     # Message format [0.0xBE,0.0xEF,opcode , *args,\n]
-    def send_values(self, values=None, opcode=0.0):
+    def send_values(self, values=None, opcode=0):
         # Converts the values to bytes
-        byteList = bytes([0.0xBE,0.0xEF]) + struct.pack("f", opcode) + \
+        byteList = bytes([0xBE,0xEF]) + struct.pack("f", opcode) + \
             struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
@@ -338,8 +338,8 @@ class Controller(Node):
             # Writes the values to the i2c
             self.serial.write(byteList)
             self.serial.read()
-            if opcode == 0.0:
-                self.linear_x_velo = values[0.0]
+            if opcode == 0:
+                self.linear_x_velo = values[0]
 
                 self.linear = values[1]
 
@@ -352,11 +352,11 @@ class Controller(Node):
     def move_to_angle(self, angle):
         rate = self.create_rate(10.0)
         delta_theta = self.position["theta"] - angle
-        while delta_theta > 0.0.0.05:
+        while delta_theta > 0.05:
             delta_theta = self.position["theta"] - angle
-            self.send_values([0.0.0.0, 0.0.0.0, delta_theta])
+            self.send_values([0.0, 0.0, delta_theta])
             rate.sleep()
-        self.send_values([0.0.0.0, 0.0.0.0, 0.0.0.0])
+        self.send_values([0.0, 0.0, 0.0])
 
     # Position controller
     def move_to_point(self, msg):
@@ -369,7 +369,7 @@ class Controller(Node):
 
         self.get_logger().info(
             "X: {x} Y: {y}".format(x=current_x, y=current_y))
-        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .0.05:
+        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .05:
             self.send_values([0.0, 0.0, 0.0])
         else:
 
@@ -394,20 +394,20 @@ class Controller(Node):
             omega = self.omega_max * \
                 np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
 
-            self.send_values([v, 0.0, omega])
+            self.send_values([v, 0, omega])
 
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
             rclpy.signal_shutdown("Raspberry Pi shutting down")
-            subprocess.call("sudo shutdown 0.0", shell=True)
+            subprocess.call("sudo shutdown 0", shell=True)
         else:
             self.get_logger().info("Restarting")
             rclpy.signal_shutdown("Raspberry Pi restarting")
-            subprocess.call("sudo shutdown -r 0.0", shell=True)
+            subprocess.call("sudo shutdown -r 0", shell=True)
 
     def neopixel_callback(self, msg):
-        self.send_values(msg.data, 1.0.0)
+        self.send_values(msg.data, 1.0)
 
     def pub_battery(self):
         battery_msg = Float32()
@@ -426,10 +426,10 @@ class Controller(Node):
         self.declare_parameter("global_pos")
 
         # Arduino Device Address
-        self.arduino = 0.0x0.08
+        self.arduino = 0x08
 
         self.i2c = board.I2C()
-        self.serial = serial.Serial("/dev/ttyAMA0.0", baudrate=11520.00.0, timeout=1)
+        self.serial = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
 
         # self.manager = mp.Manager()
@@ -447,16 +447,16 @@ class Controller(Node):
                     self.id = int(key)
 
         self.position = {
-            "x": 0.0,
-            "y": 0.0,
-            "orientation": 0.0
+            "x": 0,
+            "y": 0,
+            "orientation": 0
         }
 
         self.sensor_data = {
-            "temp": 0.0.0.0,
-            "pressure": 0.0.0.0,
-            "humidity": 0.0.0.0,
-            "altitude": 0.0.0.0,
+            "temp": 0.0,
+            "pressure": 0.0,
+            "humidity": 0.0,
+            "altitude": 0.0,
             "rgbw": [],
             "gesture": 0.0,
             "prox": 0.0,
@@ -467,8 +467,8 @@ class Controller(Node):
         self.linear_x_velo = None
         self.linear_y_velo = None
         self.angular_z_velo = None
-        self.v_max = 0.0.1
-        self.omega_max = 1.0.0
+        self.v_max = 0.1
+        self.omega_max = 1.0
 
         self.open_chargers = None
         self.IMU = None
