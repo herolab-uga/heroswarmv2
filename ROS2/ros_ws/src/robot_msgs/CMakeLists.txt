@@ -41,6 +41,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 "msg/RobotPos.msg"
 "msg/Light.msg"
 "msg/StringList.msg"
+"msg/Sensor_enable.msg"
 "srv/GetCharger.srv"
 "srv/ReleaseCharger.srv"
 DEPENDENCIES std_msgs nav_msgs
