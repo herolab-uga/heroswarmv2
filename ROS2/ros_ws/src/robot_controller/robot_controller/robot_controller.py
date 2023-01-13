@@ -444,7 +444,7 @@ class Controller(Node):
 
         self.id = None
 
-        with open("/home/pi/heroswarmv2/ROS1/ros_ws/src/robot_controller/scripts/robots.json") as file:
+        with open("/home/pi/heroswarmv2/ROS2/ros_ws/src/robot_controller/include/robots.json") as file:
             robot_dictionary = json.load(file)
             for key in robot_dictionary:
                 if robot_dictionary[key] == self.name:
