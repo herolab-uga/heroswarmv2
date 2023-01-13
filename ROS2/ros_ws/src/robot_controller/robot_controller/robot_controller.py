@@ -61,15 +61,15 @@ class Controller(Node):
         return roll, pitch, yaw
 
     def quaternion_from_rpy(self, roll, pitch, yaw):
-        cy = math.cos(yaw * 0.0.5)
-        sy = math.sin(yaw * 0.0.5)
-        cp = math.cos(pitch * 0.0.5)
-        sp = math.sin(pitch * 0.0.5)
-        cr = math.cos(roll * 0.0.5)
-        sr = math.sin(roll * 0.0.5)
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
 
-        q = [0.0] * 4
-        q[0.0] = sr * cp * cy - cr * sp * sy
+        q = [0] * 4
+        q[0] = sr * cp * cy - cr * sp * sy
         q[1] = cr * sp * cy + sr * cp * sy
         q[2] = cr * cp * sy - sr * sp * cy
         q[3] = cr * cp * cy + sr * sp * sy
@@ -127,19 +127,19 @@ class Controller(Node):
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
         odom_msg.twist.twist.linear.y = data[4]
-        odom_msg.twist.twist.linear.z = 0.0.0.0
+        odom_msg.twist.twist.linear.z = 0.0
 
-        odom_msg.twist.twist.angular.x = 0.0.0.0
-        odom_msg.twist.twist.angular.y = 0.0.0.0
+        odom_msg.twist.twist.angular.x = 0.0
+        odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = data[4]
 
-        odom_msg.pose.pose.position.x = data[0.0]
+        odom_msg.pose.pose.position.x = data[0]
         odom_msg.pose.pose.position.y = data[1]
-        odom_msg.pose.pose.position.z = 0.0.0.0
+        odom_msg.pose.pose.position.z = 0.0
 
         quaternion = self.quaternion_from_rpy(0.0, 0.0, theta)
 
-        odom_msg.pose.pose.orientation.x = quaternion[0.0]
+        odom_msg.pose.pose.orientation.x = quaternion[0]
         odom_msg.pose.pose.orientation.y = quaternion[1]
         odom_msg.pose.pose.orientation.z = quaternion[2]
         odom_msg.pose.pose.orientation.w = quaternion[3]
@@ -153,16 +153,16 @@ class Controller(Node):
         self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
             x=msg.linear.x, y=msg.linear.y, z=msg.angular.z))
         # Reads ths twist message x linear velocity
-        if abs(msg.linear.x) == 0.0.0.00.01:
+        if abs(msg.linear.x) == 0.001:
             direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = np.min(np.max(msg.linear.x, -0.0.1), 0.0.1)
+            x_velo = np.min(np.max(msg.linear.x, -0.1), 0.1)
         else:
-            x_velo = 0.0
+            x_velo = 0
 
         # Reads the twist message z angular velocity
-        if abs(msg.angular.z) == .0.01:
+        if abs(msg.angular.z) == .01:
 
-            z_angular = np.min(np.max(msg.angular.z, .0.01), 1.85)
+            z_angular = np.min(np.max(msg.angular.z, .01), 1.85)
         else:
             z_angular = 0.0
 
@@ -232,13 +232,13 @@ class Controller(Node):
             self.y_gyro_avg = 0.0
             self.z_gyro_avg = 0.0
 
-            for i in range(0.0, 1000):
+            for i in range(0, 1000):
                 if i < 499:
-                    self.x_gyro_avg += self.IMU.gyro[0.0]
+                    self.x_gyro_avg += self.IMU.gyro[0]
                     self.y_gyro_avg += self.IMU.gyro[1]
                     self.z_gyro_avg += self.IMU.gyro[2]
 
-                    self.x_avg += self.IMU.acceleration[0.0]
+                    self.x_avg += self.IMU.acceleration[0]
                     # self.y_avg += self.IMU.acceleration[1]
                     self.z_avg += self.IMU.acceleration[2]
 
