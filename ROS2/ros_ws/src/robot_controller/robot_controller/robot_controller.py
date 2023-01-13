@@ -333,7 +333,7 @@ class Controller(Node):
             struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
-            self.get_logger.info("Sending message: {opcode} {data}".format(
+            self.get_logger().info("Sending message: {opcode} {data}".format(
                 opcode=opcode, data=values))
             # Writes the values to the i2c
             self.serial.write(byteList)
