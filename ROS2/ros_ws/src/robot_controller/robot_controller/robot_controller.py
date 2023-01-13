@@ -430,6 +430,15 @@ class Controller(Node):
     def __init__(self):
         super().__init__("robot_controller")
 
+        self.declare_parameter("all_sensors")
+        self.declare_parameter("mic")
+        self.declare_parameter("proximity")
+        self.declare_parameter("environment")
+        self.declare_parameter("light")
+        self.declare_parameter("imu")
+        self.declare_parameter("global_pos")
+            
+
         # Arduino Device Address
         self.arduino = 0x08
 
@@ -478,7 +487,7 @@ class Controller(Node):
         self.IMU = None
 
         # Creates subscribers for positions topics
-        if self.get_parameter(self.name + "/global_pos").get_parameter_value().string_value == True:
+        if self.get_parameter("global_pos").get_parameter_value().string_value == True:
             self.pos_sub_global = self.create_subscriber(
                 "/positions", RobotPos, self.get_pos_global)
         else:
