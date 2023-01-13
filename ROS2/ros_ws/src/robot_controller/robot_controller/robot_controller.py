@@ -557,7 +557,7 @@ class Controller(Node):
             self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
 
-        if self.get_parameter("/mic").get_parameter_value().string_value == "True"\
+        if self.get_parameter("mic").get_parameter_value().string_value == "True"\
              or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
             self.mic_pub = self.create_publisher(Float32, "mic", 10)
             self.mic_timer = self.create_timer(
