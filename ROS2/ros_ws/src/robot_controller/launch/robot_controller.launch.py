@@ -15,6 +15,13 @@ def generate_launch_description():
     
 
     return LaunchDescription([
+        all_sensors_arg,
+        mic_arg,
+        proximity_arg,
+        light_arg,
+        imu_arg,
+        environment_arg,
+        global_pos_arg,
         Node(
             package='robot_controller',
             namespace=socket.gethostname(),
