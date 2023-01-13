@@ -19,7 +19,7 @@ from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, Robot_Pos
+from robot_msgs.msg import Environment, Light, RobotPos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 
@@ -480,7 +480,7 @@ class Controller(Node):
         # Creates subscribers for positions topics
         if self.get_parametereter(self.name + "controller/global_pos") == True:
             self.pos_sub_global = self.create_subscriber(
-                "/positions", Robot_Pos, self.get_pos_global)
+                "/positions", RobotPos, self.get_pos_global)
         else:
             self.pos_sub_namespace = self.create_subscriber(
                 "position", Odometry, self.get_pos)
