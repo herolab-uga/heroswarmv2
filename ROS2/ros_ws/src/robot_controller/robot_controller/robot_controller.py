@@ -515,11 +515,11 @@ class Controller(Node):
 
         # Creates position control topic
         self.position_sub = self.create_subscription(
-            "to_point", Point, self.move_to_point,10)
+            Point,"to_point", self.move_to_point,10)
 
         # Creates shutdown hook
         self.shutdown_sub = self.create_subscription(
-            "shutdown", String, self.shutdown_callback,10)
+            String, "shutdown", self.shutdown_callback,10)
 
         self.init_sensors()
 
