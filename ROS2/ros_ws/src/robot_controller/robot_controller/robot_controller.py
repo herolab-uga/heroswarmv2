@@ -562,6 +562,5 @@ def main():
     rclpy.init()
     # Spin in a separate thread
     controller = Controller()
-    spin_thread = threading.Thread(
-        target=rclpy.spin, args=(controller, ), daemon=True)
-    spin_thread.start()
+    rclpy.spin(controller)
+    controller.destroy_node()
