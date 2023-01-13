@@ -156,6 +156,9 @@ class Controller:
             direction_lin = msg.linear.x / abs(msg.linear.x)
             x_velo = direction_lin * \
                 (abs(msg.linear.x) if abs(msg.linear.x) <= .10 else .10)
+
+            x_velo = direction_lin * \
+                (abs(msg.linear.x) if abs(msg.linear.x) >= .01 else 0)
         else:
             x_velo = 0
 
@@ -164,6 +167,9 @@ class Controller:
             direction_ang = msg.angular.z / abs(msg.angular.z)
             z_angular = direction_ang * \
                 (abs(msg.angular.z) if abs(msg.angular.z) <= 1.85 else 1.85) #1.85
+
+            z_angular = direction_ang * \
+                (abs(msg.angular.z) if abs(msg.angular.z) >= .01 else 0) #1.85
         else:
             z_angular = 0
         
