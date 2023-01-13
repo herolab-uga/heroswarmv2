@@ -2,11 +2,11 @@
 
 import math
 import struct
-import threading
 import time
 import json
-import multiprocessing as mp
+import threading
 import subprocess
+import serial
 
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -14,14 +14,14 @@ import adafruit_sht31d
 import board
 import numpy as np
 import rclpy
-from rclpy.node import Node
 from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, RobotPos
+from robot_msgs.msg import Environment, Light, RobotPos,Sensor_Enable
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
+
 
 shutdown = False
 restart = False
@@ -424,6 +424,7 @@ class Controller(Node):
         self.arduino = 0x08
 
         self.i2c = board.I2C()
+        self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
 
         # self.manager = mp.Manager()
