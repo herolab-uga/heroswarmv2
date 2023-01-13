@@ -429,7 +429,7 @@ class Controller(Node):
         self.arduino = 0x08
 
         self.i2c = board.I2C()
-        self.serial = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=1)
+        self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
 
         # self.manager = mp.Manager()
