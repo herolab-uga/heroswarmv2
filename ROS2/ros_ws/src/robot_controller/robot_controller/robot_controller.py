@@ -400,11 +400,11 @@ class Controller(Node):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
             rclpy.signal_shutdown("Raspberry Pi shutting down")
-            shutdown = True
+            subprocess.call("sudo shutdown 0", shell=True)
         else:
             self.get_logger().info("Restarting")
             rclpy.signal_shutdown("Raspberry Pi restarting")
-            restart = True
+            subprocess.call("sudo shutdown -r 0", shell=True)
 
     def neopixel_callback(self, msg):
         self.send_values(msg.data, 1.0)
@@ -565,9 +565,3 @@ def main():
     spin_thread = threading.Thread(
         target=rclpy.spin, args=(controller, ), daemon=True)
     spin_thread.start()
-    while rclpy.ok():
-        continue
-    if shutdown == True:
-        subprocess.call("sudo shutdown 0", shell=True)
-    elif restart == True:
-        subprocess.call("sudo shutdown -r 0", shell=True)
