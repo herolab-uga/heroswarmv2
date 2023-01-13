@@ -350,7 +350,7 @@ class Controller(Node):
                 opcode=opcode, data=values))
 
     def move_to_angle(self, angle):
-        rate = self.create_rate(10.0)
+        rate = self.create_rate(10)
         delta_theta = self.position["theta"] - angle
         while delta_theta > 0.05:
             delta_theta = self.position["theta"] - angle
@@ -476,23 +476,23 @@ class Controller(Node):
         # Creates subscribers for positions topics
         if self.get_parameter("global_pos").get_parameter_value().string_value == "True":
             self.pos_sub_global = self.create_subscription(
-                RobotPos, "/positions", self.get_pos_global, 10.0)
+                RobotPos, "/positions", self.get_pos_global, 10)
         else:
             self.pos_sub_namespace = self.create_subscription(
-                Odometry, "position", self.get_pos, 10.0)
+                Odometry, "position", self.get_pos, 10)
 
         # Creates the twist publisher
         self.twist_sub = self.create_subscription(
-            Twist, "cmd_vel", self.read_twist, 10.0)
+            Twist, "cmd_vel", self.read_twist, 10)
 
         # Creates the auto-stop timer
         self.stop_timer = None
 
         # Creates the battery publisher
-        self.battery_pub = self.create_publisher(Float32, "battery", 10.0)
+        self.battery_pub = self.create_publisher(Float32, "battery", 10)
 
         # Creates the odom publisher
-        self.odom_pub = self.create_publisher(Odometry, "odom", 10.0)
+        self.odom_pub = self.create_publisher(Odometry, "odom", 10)
 
         # Creates timer to read data from arduino
         self.read_arduino_data_timer = self.create_timer(
@@ -503,11 +503,11 @@ class Controller(Node):
 
         # Creates position control topic
         self.position_sub = self.create_subscription(
-            Point, "to_point", self.move_to_point, 10.0)
+            Point, "to_point", self.move_to_point, 10)
 
         # Creates shutdown hook
         self.shutdown_sub = self.create_subscription(
-            String, "shutdown", self.shutdown_callback, 10.0)
+            String, "shutdown", self.shutdown_callback, 10)
 
         self.init_sensors()
 
@@ -522,38 +522,38 @@ class Controller(Node):
         if self.get_parameter("environment").get_parameter_value().string_value == "True"\
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == True:
             self.environment_pub = self.create_publisher(
-                Environment, "environment", 10.0)
+                Environment, "environment", 10)
             self.environment_timer = self.create_timer(
                 .1, self.pub_environment)
 
         # Creates a publisher for imu data
         if self.get_parameter("imu").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10.0)
+            self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10)
             self.imu_timer = self.create_timer(.1, self.pub_imu)  # not working
 
         # Creates a publisher for the light sensor
         if self.get_parameter("light").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.light_pub = self.create_publisher(Light, 'light', 10.0)
+            self.light_pub = self.create_publisher(Light, 'light', 10)
             self.light_timer = self.create_timer(
                 .2, self.pub_light)
 
         # Creates a publisher for a proximity sensor
         if self.get_parameter("proximity").get_parameter_value().string_value == "True" \
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.prox_pub = self.create_publisher(Int16, "proximity", 10.0)
+            self.prox_pub = self.create_publisher(Int16, "proximity", 10)
             self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
 
         if self.get_parameter("mic").get_parameter_value().string_value == "True"\
                 or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
-            self.mic_pub = self.create_publisher(Float32, "mic", 10.0)
+            self.mic_pub = self.create_publisher(Float32, "mic", 10)
             self.mic_timer = self.create_timer(
                 .2, self.pub_mic)
 
         self.neopixel_subscriber = self.create_subscription(
-            Int16MultiArray, "neopixel", self.neopixel_callback, 10.0)
+            Int16MultiArray, "neopixel", self.neopixel_callback, 10)
 
         self.get_logger().info("Ready")
 
