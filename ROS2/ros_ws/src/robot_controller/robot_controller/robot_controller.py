@@ -488,14 +488,14 @@ class Controller(Node):
 
         # Creates subscribers for positions topics
         if self.get_parameter("global_pos").get_parameter_value().string_value == True:
-            self.pos_sub_global = self.create_subscriber(
+            self.pos_sub_global = self.create_subscription(
                 "/positions", RobotPos, self.get_pos_global)
         else:
-            self.pos_sub_namespace = self.create_subscriber(
+            self.pos_sub_namespace = self.create_subscription(
                 "position", Odometry, self.get_pos)
 
         # Creates the twist publisher
-        self.twist_sub = self.create_subscriber(Twist,"cmd_vel", self.read_twist,queue_size=1)
+        self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,queue_size=1)
 
         # Creates the auto-stop timer
         self.stop_timer = None
@@ -514,11 +514,11 @@ class Controller(Node):
         self.battery_timer = rclpy.create_timer(.2,self.pub_battery)
 
         # Creates position control topic
-        self.position_sub = self.create_subscriber(
+        self.position_sub = self.create_subscription(
             "to_point", Point, self.move_to_point)
 
         # Creates shutdown hook
-        self.shutdown_sub = self.create_subscriber(
+        self.shutdown_sub = self.create_subscription(
             "shutdown", String, self.shutdown_callback)
 
         self.init_sensors()
@@ -558,7 +558,7 @@ class Controller(Node):
             self.mic_timer = rclpy.create_timer(
                 .2, self.pub_mic)
 
-        self.neopixel_subscriber = self.create_subscriber(
+        self.neopixel_subscriber = self.create_subscription(
             Int16MultiArray, "neopixel", self.neopixel_callback)
 
         self.get_logger().info("Ready")
