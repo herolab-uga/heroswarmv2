@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-
+import socket
 def generate_launch_description():
 
     all_sensors_arg = DeclareLaunchArgument("all_sensors", default_value="False")
@@ -17,7 +17,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='robot_controller',
-            namespace="$(env HOSTNAME)",
+            namespace=socket.gethostname(),
             executable='robot_controller',
             name='controller',
             output='screen',
