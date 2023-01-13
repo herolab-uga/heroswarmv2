@@ -95,7 +95,7 @@ class Controller(Node):
         # self.get_logger().info("X: {x} Z: {z} Theta: {theta}".format(
         # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
 
-    def read_arduino_data(self, timer, event=None):
+    def read_arduino_data(self, event=None):
 
         num_val = 7
 
@@ -272,7 +272,7 @@ class Controller(Node):
             except:
                 print("Could not read sensor")
 
-    def pub_light(self, timer) -> None:
+    def pub_light(self) -> None:
         # Creates the light message
         light_msg = Light()
 
@@ -285,7 +285,7 @@ class Controller(Node):
         # Publishes the message
         self.light_pub.publish(light_msg)
 
-    def pub_environment(self, timer) -> None:
+    def pub_environment(self) -> None:
         # Creates the environment message
         environ_msg = Environment()
 
@@ -304,7 +304,7 @@ class Controller(Node):
         # Publishes the message
         self.environment_pub.publish(environ_msg)
 
-    def pub_proximity(self, timer, ) -> None:
+    def pub_proximity(self) -> None:
         # Creates the proximity message
         proximity_msg = Int16()
 
@@ -314,7 +314,7 @@ class Controller(Node):
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
 
-    def pub_mic(self, timer):
+    def pub_mic(self):
         # Creates the mic message
         mic_msg = Float32()
 
@@ -409,7 +409,7 @@ class Controller(Node):
     def neopixel_callback(self, msg):
         self.send_values(msg.data, 1.0)
 
-    def pub_battery(self, timer):
+    def pub_battery(self):
         battery_msg = Float32()
         battery_msg.data = self.sensor_data["battery"]
         self.battery_pub.publish(battery_msg)
