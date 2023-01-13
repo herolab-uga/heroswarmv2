@@ -531,29 +531,29 @@ class Controller(Node):
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if rclpy.get_parametereter(self.name + "/controller/environment") == True or rclpy.get_parametereter(self.name + "controller/all_sensors").get_parameter_value().boolean_value == True:
+        if rclpy.get_parametereter("environment") == True or rclpy.get_parametereter("all_sensors").get_parameter_value().boolean_value == True:
             self.environment_pub = self.create_publisher(
                 Environment, "environment", queue_size=1)
             self.environment_timer = rclpy.create_timer(.1,self.pub_environment)
 
         # Creates a publisher for imu data
-        if rclpy.get_parametereter(self.name + "/controller/imu") == True or rclpy.get_parametereter(self.name + "/controller/all_sensors").get_parameter_value().boolean_value == True:
+        if rclpy.get_parametereter("imu") == True or rclpy.get_parametereter("all_sensors").get_parameter_value().boolean_value == True:
             self.imu_pub = self.create_publisher(Imu, "imu/data_raw", queue_size=1)
             self.imu_timer = rclpy.create_timer(.1,self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
-        if rclpy.get_parameter(self.name + "/controller/light") == True or rclpy.get_parameter(self.name + "/controller/all_sensors").get_parameter_value().boolean_value == True:
+        if rclpy.get_parameter("controller/light") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.light_pub = self.create_publisher(Light, 'light', queue_size=1)
             self.light_timer = rclpy.create_timer(
                 .2, self.pub_light)
 
         # Creates a publisher for a proximity sensor
-        if rclpy.get_parameter(self.name + "/controller/proximity") == True or rclpy.get_parameter(self.name + "/controller/all_sensors").get_parameter_value().boolean_value == True:
+        if rclpy.get_parameter("proximity") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.prox_pub = self.create_publisher(Int16, "proximity", queue_size=1)
             self.environment_timer = rclpy.create_timer(
                 .2, self.pub_proximity)
 
-        if rclpy.get_parameter(self.name + "/controller/mic") == True or rclpy.get_parameter(self.name + "/controller/all_sensors").get_parameter_value().boolean_value == True:
+        if rclpy.get_parameter("/mic") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.mic_pub = self.create_publisher(Float32, "mic", queue_size=1)
             self.mic_timer = rclpy.create_timer(
                 .2, self.pub_mic)
