@@ -489,10 +489,10 @@ class Controller(Node):
         # Creates subscribers for positions topics
         if self.get_parameter("global_pos").get_parameter_value().string_value == True:
             self.pos_sub_global = self.create_subscription(
-                "/positions", RobotPos, self.get_pos_global,10)
+                RobotPos,"/positions", self.get_pos_global,10)
         else:
             self.pos_sub_namespace = self.create_subscription(
-                "position", Odometry, self.get_pos,10)
+                Odometry,"position", self.get_pos,10)
 
         # Creates the twist publisher
         self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
