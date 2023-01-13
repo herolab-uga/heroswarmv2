@@ -489,13 +489,13 @@ class Controller(Node):
         # Creates subscribers for positions topics
         if self.get_parameter("global_pos").get_parameter_value().string_value == True:
             self.pos_sub_global = self.create_subscription(
-                "/positions", RobotPos, self.get_pos_global)
+                "/positions", RobotPos, self.get_pos_global,10)
         else:
             self.pos_sub_namespace = self.create_subscription(
-                "position", Odometry, self.get_pos)
+                "position", Odometry, self.get_pos,10)
 
         # Creates the twist publisher
-        self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,queue_size=1)
+        self.twist_sub = self.create_subscription(Twist,"cmd_vel", self.read_twist,10)
 
         # Creates the auto-stop timer
         self.stop_timer = None
@@ -515,11 +515,11 @@ class Controller(Node):
 
         # Creates position control topic
         self.position_sub = self.create_subscription(
-            "to_point", Point, self.move_to_point)
+            "to_point", Point, self.move_to_point,10)
 
         # Creates shutdown hook
         self.shutdown_sub = self.create_subscription(
-            "shutdown", String, self.shutdown_callback)
+            "shutdown", String, self.shutdown_callback,10)
 
         self.init_sensors()
 
@@ -559,7 +559,7 @@ class Controller(Node):
                 .2, self.pub_mic)
 
         self.neopixel_subscriber = self.create_subscription(
-            Int16MultiArray, "neopixel", self.neopixel_callback)
+            Int16MultiArray, "neopixel", self.neopixel_callback,10)
 
         self.get_logger().info("Ready")
 
