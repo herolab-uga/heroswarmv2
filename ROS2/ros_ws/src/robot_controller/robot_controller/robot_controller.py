@@ -268,7 +268,7 @@ class Controller(Node):
             self.init_sensors()
 
     def read_sensors(self, sensor_data):
-        rate = rclpy.create_timer.Rate(5)
+        rate = self.create_timer.Rate(5)
 
         while not rclpy.ok():
             try:
@@ -363,7 +363,7 @@ class Controller(Node):
             self.i2c.unlock()
 
     def move_to_angle(self, angle):
-        rate = rclpy.create_timer.Rate(10)
+        rate = self.create_timer.Rate(10)
         delta_theta = self.position["theta"] - angle
         while delta_theta > 0.05:
             delta_theta = self.position["theta"] - angle
@@ -507,11 +507,11 @@ class Controller(Node):
         self.odom_pub = self.create_publisher(Odometry,"odom", 10)
 
         # Creates timer to read data from arduino
-        self.read_arduino_data_timer = rclpy.create_timer(
+        self.read_arduino_data_timer = self.create_timer(
             .2,self.read_arduino_data)
 
         # Publish the battery level on the battery topic with at 5hz
-        self.battery_timer = rclpy.create_timer(.2,self.pub_battery)
+        self.battery_timer = self.create_timer(.2,self.pub_battery)
 
         # Creates position control topic
         self.position_sub = self.create_subscription(
@@ -534,28 +534,28 @@ class Controller(Node):
         if rclpy.get_parametereter("environment") == True or rclpy.get_parametereter("all_sensors").get_parameter_value().boolean_value == True:
             self.environment_pub = self.create_publisher(
                 Environment, "environment", 10)
-            self.environment_timer = rclpy.create_timer(.1,self.pub_environment)
+            self.environment_timer = self.create_timer(.1,self.pub_environment)
 
         # Creates a publisher for imu data
         if rclpy.get_parametereter("imu") == True or rclpy.get_parametereter("all_sensors").get_parameter_value().boolean_value == True:
             self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10)
-            self.imu_timer = rclpy.create_timer(.1,self.pub_imu) # not working
+            self.imu_timer = self.create_timer(.1,self.pub_imu) # not working
 
         # Creates a publisher for the light sensor
         if rclpy.get_parameter("controller/light") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.light_pub = self.create_publisher(Light, 'light', 10)
-            self.light_timer = rclpy.create_timer(
+            self.light_timer = self.create_timer(
                 .2, self.pub_light)
 
         # Creates a publisher for a proximity sensor
         if rclpy.get_parameter("proximity") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.prox_pub = self.create_publisher(Int16, "proximity",10)
-            self.environment_timer = rclpy.create_timer(
+            self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
 
         if rclpy.get_parameter("/mic") == True or rclpy.get_parameter("all_sensors").get_parameter_value().boolean_value == True:
             self.mic_pub = self.create_publisher(Float32, "mic", 10)
-            self.mic_timer = rclpy.create_timer(
+            self.mic_timer = self.create_timer(
                 .2, self.pub_mic)
 
         self.neopixel_subscriber = self.create_subscription(
