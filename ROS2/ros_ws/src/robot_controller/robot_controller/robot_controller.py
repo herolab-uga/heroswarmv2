@@ -18,7 +18,7 @@ from adafruit_apds9960.apds9960 import APDS9960
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
-from robot_msgs.msg import Environment, Light, RobotPos,Sensor_Enable
+from robot_msgs.msg import Environment, Light, RobotPos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 
