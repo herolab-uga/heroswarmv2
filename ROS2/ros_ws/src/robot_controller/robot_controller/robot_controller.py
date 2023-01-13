@@ -554,8 +554,7 @@ class Controller(Node):
 
         self.get_logger().info("Ready")
 
-
-if __name__ == '__main__':
+def main():
     rclpy.init()
     # Spin in a separate thread
     controller = Controller()
