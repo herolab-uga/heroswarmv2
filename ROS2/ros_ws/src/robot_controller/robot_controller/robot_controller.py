@@ -531,7 +531,8 @@ class Controller(Node):
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if self.get_parameter("environment").get_parameter_value().string_value == "True" or self.get_parameter("all_sensors").get_parameter_value().string_value == True:
+        if self.get_parameter("environment").get_parameter_value().string_value == "True"\
+             or self.get_parameter("all_sensors").get_parameter_value().string_value == True:
             self.environment_pub = self.create_publisher(
                 Environment, "environment", 10)
             self.environment_timer = self.create_timer(.1,self.pub_environment)
