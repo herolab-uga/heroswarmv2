@@ -122,7 +122,7 @@ class Controller(Node):
         self.sensor_data["battery"] = data[5]
 
         # Adds Twist data
-        odom_msg.header.stamp = rclpy.Clock.now()
+        odom_msg.header.stamp = self.get_clock().now()
         odom_msg.header.frame_id = "base_footprint"
         theta = np.deg2rad(data[2])
         odom_msg.twist.twist.linear.x = data[3]
@@ -184,7 +184,7 @@ class Controller(Node):
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
 
-        imu_msg.header.stamp = rclpy.Clock.now()
+        imu_msg.header.stamp = self.get_clock().now()
         imu_msg.header.frame_id = "base_footprint"
 
         # Sets the angular velocity parameters
@@ -257,7 +257,7 @@ class Controller(Node):
             self.init_sensors()
 
     def read_sensors(self, sensor_data):
-        rate = self.create_timer.Rate(5)
+        rate = self.create_rate(5)
 
         while not rclpy.ok():
             try:
@@ -350,7 +350,7 @@ class Controller(Node):
                 opcode=opcode, data=values))
 
     def move_to_angle(self, angle):
-        rate = self.create_timer.Rate(10)
+        rate = self.create_rate(10)
         delta_theta = self.position["theta"] - angle
         while delta_theta > 0.05:
             delta_theta = self.position["theta"] - angle
