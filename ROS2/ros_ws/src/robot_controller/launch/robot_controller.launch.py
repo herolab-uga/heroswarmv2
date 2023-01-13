@@ -19,7 +19,7 @@ def generate_launch_description():
             package='robot_controller',
             namespace="$(env HOSTNAME)",
             executable='robot_controller',
-            name='$(env HOSTNAME)_controller',
+            name='controller',
             output='screen',
             parameters=[
                 {
