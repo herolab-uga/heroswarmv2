@@ -152,14 +152,14 @@ class Controller(Node):
     def read_twist(self, msg, event=None) -> None:
         # Reads ths twist message x linear velocity
         if abs(msg.linear.x) > 0.01:
-            test = np.max(msg.linear.x, -0.01)
-            x_velo = np.min(test, 0.1)
+            test = max(msg.linear.x, -0.01)
+            x_velo = min(test, 0.1)
         else:
             x_velo = 0
 
         # Reads the twist message z angular velocity
         if abs(msg.angular.z) > .01:
-            z_angular = np.min(np.max(msg.angular.z, .01), 1.85)
+            z_angular = min(max(msg.angular.z, .01), 1.85)
         else:
             z_angular = 0.0
 
