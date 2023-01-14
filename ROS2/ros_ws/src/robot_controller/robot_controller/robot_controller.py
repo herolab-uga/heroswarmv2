@@ -110,7 +110,7 @@ class Controller(Node):
             self.i2c.readfrom_into(self.arduino, data)
         # Get odom data from arduino
         except Exception as e:
-            self.get_logger().info(e)  # need to fix this
+            self.get_logger().info(str(e))  # need to fix this
         finally:
             self.i2c.unlock()
 
@@ -163,12 +163,8 @@ class Controller(Node):
         else:
             z_angular = 0.0
 
-        if not (x_velo == self.linear_x_velo and z_angular == self.angular_z_velo):
-            # Logs the data
-            self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-                x=x_velo, y=0.0, z=z_angular))
-            # Sends the velocity information to the feather board
-            self.send_values([x_velo, 0.0, z_angular])
+        # Sends the velocity information to the feather board
+        self.send_values([x_velo, 0.0, z_angular])
 
     def stop(self):
         self.send_values([0.0, 0.0, 0.0])
