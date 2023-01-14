@@ -342,7 +342,7 @@ class Controller(Node):
 
                 self.angular_z_velo = values[2]
         except OSError as e:
-            self.get_logger().info(e)
+            self.get_logger().error(str(e))
             self.get_logger().info("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
 
