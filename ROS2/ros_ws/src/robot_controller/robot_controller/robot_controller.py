@@ -158,8 +158,8 @@ class Controller(Node):
             x_velo = 0
 
         # Reads the twist message z angular velocity
-        if abs(msg.angular.z) > .01:
-            z_angular = min(max(msg.angular.z, .01), 1.85)
+        if abs(msg.angular.z) > .05:
+            z_angular = min(max(msg.angular.z, -1.85), 1.85)
         else:
             z_angular = 0.0
 
