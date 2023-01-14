@@ -150,18 +150,15 @@ class Controller(Node):
         self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
-        self.get_logger().info("X Linear: {x} Y Linear: {y} Z Angular: {z}".format(
-            x=msg.linear.x, y=msg.linear.y, z=msg.angular.z))
         # Reads ths twist message x linear velocity
-        if abs(msg.linear.x) > 0.001:
-            direction_lin = msg.linear.x / abs(msg.linear.x)
-            x_velo = np.min(np.max(msg.linear.x, -0.1), 0.1)
+        if abs(msg.linear.x) > 0.01:
+            test = np.max(msg.linear.x, -0.01)
+            x_velo = np.min(test, 0.1)
         else:
             x_velo = 0
 
         # Reads the twist message z angular velocity
         if abs(msg.angular.z) > .01:
-
             z_angular = np.min(np.max(msg.angular.z, .01), 1.85)
         else:
             z_angular = 0.0
