@@ -5,6 +5,7 @@ import struct
 import time
 import json
 import threading
+import multiprocessing as mp
 import subprocess
 import serial
 
@@ -259,9 +260,9 @@ class Controller(Node):
                 sensor_data["rgbw"] = self.light.color_data
                 sensor_data["gesture"] = self.light.gesture()
                 sensor_data["prox"] = self.light.proximity
-                # queue.put(sensor_data)
             except:
                 print("Could not read sensor")
+
 
     def pub_light(self) -> None:
         # Creates the light message
@@ -452,15 +453,17 @@ class Controller(Node):
         self.init_sensors()
 
         # Read sensors
-        # self.sensor_read_thread = mp.Process(
-        #     target=self.read_sensors, args=(self.sensor_data,self.sensor_queue,self.i2c))
-        # self.sensor_read_thread.start()
+        self.sensor_read_thread = mp.Process(
+            target=self.read_sensors, args=(self.sensor_data,))
+        self.sensor_read_thread.start()
+
+        self.get_logger().info(self.get_parameter("all_sensors").get_parameter_value().string_value)
 
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
         if self.get_parameter("environment").get_parameter_value().string_value == "True"\
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == True:
+                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
             self.environment_pub = self.create_publisher(
                 Environment, "environment", 10)
             self.environment_timer = self.create_timer(
