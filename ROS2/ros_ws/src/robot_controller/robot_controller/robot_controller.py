@@ -361,7 +361,8 @@ class Controller(Node):
 
     def __init__(self):
         super().__init__("robot_controller")
-        self.get_logger().info(self._parameters)
+        for key in self._parameters.keys():
+            self.get_logger().info(str(key) + " " + str(self._parameters[key].value))
 
         # self.declare_parameter("all_sensors")
         # self.declare_parameter("mic")
