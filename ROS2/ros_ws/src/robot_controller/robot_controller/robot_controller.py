@@ -258,8 +258,9 @@ class Controller(Node):
                 self.sensor_data["rgbw"] = self.light.color_data
                 self.sensor_data["gesture"] = self.light.gesture()
                 self.sensor_data["prox"] = self.light.proximity
-            except:
-                print("Could not read sensor")
+            except Exception as e:
+                self.get_logger().info("Could not read sensor")
+                self.get_logger().info(str(e))
 
 
     def pub_light(self) -> None:
