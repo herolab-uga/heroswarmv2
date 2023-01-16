@@ -397,7 +397,7 @@ class Controller(Node):
             "humidity": 0.0,
             "altitude": 0.0,
             "rgbw": [],
-            "gesture": 0.0,
+            "gesture": 0,
             "prox": 0.0,
             "battery": None,
             "mic": 0.0
