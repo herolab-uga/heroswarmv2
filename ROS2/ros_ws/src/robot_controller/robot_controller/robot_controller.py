@@ -399,7 +399,7 @@ class Controller(Node):
             "rgbw": [],
             "gesture": 0,
             "prox": 0.0,
-            "battery": None,
+            "battery": 0.0,
             "mic": 0.0
         }
 
