@@ -326,11 +326,10 @@ class Controller(Node):
             struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
-            self.get_logger().info("Sending message: {opcode} {data}".format(
-                opcode=opcode, data=values))
+            # self.get_logger().info("Sending message: {opcode} {data}".format(
+                # opcode=opcode, data=values))
             # Writes the values to the i2c
             self.serial.write(byteList)
-            print("sent")
             self.serial.read()
             if opcode == 0:
                 self.linear_x_velo = values[0]
@@ -361,8 +360,8 @@ class Controller(Node):
         current_y = self.position["y"]
         theta = self.position["orientation"]
 
-        self.get_logger().info(
-            "X: {x} Y: {y}".format(x=current_x, y=current_y))
+        # self.get_logger().info(
+            # "X: {x} Y: {y}".format(x=current_x, y=current_y))
         if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .05:
             self.send_values([0.0, 0.0, 0.0])
         else:

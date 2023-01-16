@@ -203,20 +203,21 @@ void loop()
   // Serial.println("Waiting for command");
   if (Serial1.available())
   {
+    // Serial.println("Command received");
     msgLen = Serial1.readBytesUntil('\n', msg, 255);
     int mode;
     memcpy(&mode, msg + 2, sizeof(int));
     // Serial.print("Mode: ");
-    Serial.println(mode);
+    // Serial.println(mode);
     if (mode == 0)
     {
 
       memcpy(&linearVelocity, msg + 6, sizeof(float));
       memcpy(&angularVelocity, msg + 14, sizeof(float));
       // Serial.print("Linear Velocity: ");
-      Serial.println(linearVelocity);
+      // Serial.println(linearVelocity);
       // Serial.print("Angular Velocity: ");
-      Serial.println(angularVelocity);
+      // Serial.println(angularVelocity);
       Serial1.flush();
       Serial1.println("ack");
 
