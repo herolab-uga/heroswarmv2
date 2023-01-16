@@ -417,7 +417,7 @@ class Controller(Node):
         self.IMU = None
 
         # Creates subscribers for positions topics
-        if self.get_parameter("global_pos").get_parameter_value().string_value == "True":
+        if self.get_parameter("global_pos").get_parameter_value().bool_value:
             self.pos_sub_global = self.create_subscription(
                 RobotPos, "/positions", self.get_pos_global, 10)
         else:
