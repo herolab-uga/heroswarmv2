@@ -272,8 +272,7 @@ class Controller(Node):
         light_msg.rgbw = self.sensor_data["rgbw"]
 
         # Sets the gesture type
-        self.get_logger().info("Gesture: " + str(self.sensor_data["gesture"]))
-        light_msg.gesture = self.sensor_data["gesture"]
+        light_msg.gesture = int(self.sensor_data["gesture"])
 
         # Publishes the message
         self.light_pub.publish(light_msg)
