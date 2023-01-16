@@ -23,8 +23,6 @@ from robot_msgs.msg import Environment, Light, RobotPos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
 
-
-shutdown = False
 restart = False
 
 ODOM_COVARIANCE_MATRIX = [1e-2, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -342,62 +340,15 @@ class Controller(Node):
             self.get_logger().info("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
 
-    def move_to_angle(self, angle):
-        rate = self.create_rate(10)
-        delta_theta = self.position["theta"] - angle
-        while delta_theta > 0.05:
-            delta_theta = self.position["theta"] - angle
-            self.send_values([0.0, 0.0, delta_theta])
-            rate.sleep()
-        self.send_values([0.0, 0.0, 0.0])
-
-    # Position controller
-    def move_to_point(self, msg):
-        self.move_to_point_handler(msg.x, msg.y)
-
-    def move_to_point_handler(self, x, y):
-        current_x = self.position["x"]
-        current_y = self.position["y"]
-        theta = self.position["orientation"]
-
-        # self.get_logger().info(
-            # "X: {x} Y: {y}".format(x=current_x, y=current_y))
-        if math.sqrt(math.pow((x - current_x), 2) + math.pow((y - current_y), 2)) < .05:
-            self.send_values([0.0, 0.0, 0.0])
-        else:
-
-            # Gets the difference between the current position and desired position
-            delta_x = x - current_x
-            delta_y = y - current_y
-            # Gets the time such that the robot would move to the point at v_max
-            t = math.sqrt(
-                (math.pow(delta_x, 2) + math.pow(delta_y, 2)) / math.pow(self.v_max, 2))
-            # Gets the velocities
-            x_velo = delta_x / t
-            y_velo = delta_y / t
-
-            # Calculates the sine and cosine of the current theta
-            a = np.cos(theta)
-            b = np.sin(theta)
-
-            # Finds the linear velocity
-            v = 1*(x_velo*a + y_velo*b)
-
-            # Finds the angular velocity
-            omega = self.omega_max * \
-                np.arctan2(-b*x_velo + a*y_velo, v) / (np.pi/2)
-
-            self.send_values([v, 0, omega])
-
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
             rclpy.signal_shutdown("Raspberry Pi shutting down")
-            subprocess.call("sudo shutdown 0", shell=True)
+
         else:
             self.get_logger().info("Restarting")
             rclpy.signal_shutdown("Raspberry Pi restarting")
-            subprocess.call("sudo shutdown -r 0", shell=True)
+            retart = True
 
     def neopixel_callback(self, msg):
         self.send_values(msg.data, 1.0)
@@ -557,3 +508,7 @@ def main():
     controller = Controller()
     rclpy.spin(controller)
     controller.destroy_node()
+    if restart:
+        subprocess.Popen("sleep 15; sudo shutdown -r 0", shell=True)
+    else:
+        subprocess.Popen("sleep 15; sudo shutdown 0", shell=True,)
