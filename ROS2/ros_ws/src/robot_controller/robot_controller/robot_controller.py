@@ -250,7 +250,7 @@ class Controller(Node):
 
     def read_sensors(self):
 
-        while not rclpy.ok():
+        while rclpy.ok():
             try:
                 self.sensor_data["temp"] = self.bmp.temperature
                 self.sensor_data["pressure"] = self.bmp.pressure
@@ -447,7 +447,7 @@ class Controller(Node):
 
         # Read sensors
         self.sensor_read_thread = threading.Thread(
-            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
+            target=self.read_sensors, args=(,),daemon=True)
         self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
