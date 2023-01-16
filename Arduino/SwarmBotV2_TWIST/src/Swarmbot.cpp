@@ -383,37 +383,37 @@ void SwarmBot::printOdom(bool mode, float a, float b)
     float angle = angleWrap2(thetaDegOdom, false);
     if (mode == false)
     {
-        Serial.print("X: ");
+        // Serial.print("X: ");
         Serial.print(X, 4);
-        Serial.print(" Y: ");
+        // Serial.print(" Y: ");
         Serial.print(Y, 4);
-        Serial.print(" targetX: ");
+        // Serial.print(" targetX: ");
         Serial.print(a, 4);
-        Serial.print(" targetY: ");
+        // Serial.print(" targetY: ");
         Serial.print(b, 4);
-        Serial.print(" Theta: ");
+        // Serial.print(" Theta: ");
         Serial.println(angle);
     }
     else
     {
-        Serial.print("linVel: ");
+        // Serial.print("linVel: ");
         Serial.print(linearVelocity, 4);
-        Serial.print(" anglarVel: ");
+        // Serial.print(" anglarVel: ");
         Serial.print(angularVelocityOdom);
-        Serial.print(" targetLin: ");
+        // Serial.print(" targetLin: ");
         Serial.print(a);
-        Serial.print(" targetAng: ");
+        // Serial.print(" targetAng: ");
         Serial.println(b);
     }
-    Serial.println("");
+    // Serial.println("");
     // delay(20);
 }
 
 void SwarmBot::setLeftMotorSpeed(float speed)
 {
-    Serial.print("Output Left: ");
+    // Serial.print("Output Left: ");
     float outputLeft = abs(speed) + lmFF;
-    Serial.println(outputLeft);
+    // Serial.println(outputLeft);
     if (speed > 0)
     {
         analogWrite(leftMotorIN1, 0);
@@ -433,8 +433,8 @@ void SwarmBot::setLeftMotorSpeed(float speed)
 void SwarmBot::setRightMotorSpeed(float speed)
 {
     float outputRight = abs(speed) + rmFF;
-    Serial.print("Output Right: ");
-    Serial.println(outputRight);
+    // Serial.print("Output Right: ");
+    // Serial.println(outputRight);
     if (speed > 0)
     {
         analogWrite(rightMotorIN1, 0);
