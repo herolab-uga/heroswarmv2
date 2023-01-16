@@ -361,7 +361,7 @@ class Controller(Node):
 
     def __init__(self):
         super().__init__("robot_controller")
-        self.get_logger().info(self.parameter_list)
+        self.get_logger().info(self._parameters)
 
         # self.declare_parameter("all_sensors")
         # self.declare_parameter("mic")
@@ -377,12 +377,6 @@ class Controller(Node):
         self.i2c = board.I2C()
         self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
-
-        # self.manager = mp.Manager()
-        # self.environment_queue = self.manager.Queue()
-        # self.light_queue = self.manager.Queue()
-        # self.prox_queue = self.manager.Queue()
-        # self.mic_queue = self.manager.Queue()
 
         self.id = None
 
