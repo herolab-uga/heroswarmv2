@@ -455,7 +455,7 @@ class Controller(Node):
             target=self.read_sensors, args=(self.sensor_data,))
         self.sensor_read_thread.start()
 
-        self.get_logger().info(self.get_parameter("all_sensors").get_parameter_value())
+        self.get_logger().info(self.get_parameter("all_sensors").get_parameter_value().bool_value)
 
         ###_________________Enables Sensor Data Publishers________________###
 
