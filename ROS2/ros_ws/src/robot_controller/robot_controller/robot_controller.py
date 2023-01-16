@@ -455,40 +455,38 @@ class Controller(Node):
             target=self.read_sensors, args=(self.sensor_data,))
         self.sensor_read_thread.start()
 
-        self.get_logger().info(self.get_parameter("all_sensors").get_parameter_value().bool_value)
-
         ###_________________Enables Sensor Data Publishers________________###
 
         # Creates a publisher for the magnetometer, bmp and humidity sensor
-        if self.get_parameter("environment").get_parameter_value().string_value == "True"\
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
+        if self.get_parameter("environment").get_parameter_value().bool_value\
+                or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.environment_pub = self.create_publisher(
                 Environment, "environment", 10)
             self.environment_timer = self.create_timer(
                 .1, self.pub_environment)
 
         # Creates a publisher for imu data
-        if self.get_parameter("imu").get_parameter_value().string_value == "True" \
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
+        if self.get_parameter("imu").get_parameter_value().bool_value \
+                or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10)
             self.imu_timer = self.create_timer(.1, self.pub_imu)  # not working
 
         # Creates a publisher for the light sensor
-        if self.get_parameter("light").get_parameter_value().string_value == "True" \
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
+        if self.get_parameter("light").get_parameter_value().bool_value \
+                or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.light_pub = self.create_publisher(Light, 'light', 10)
             self.light_timer = self.create_timer(
                 .2, self.pub_light)
 
         # Creates a publisher for a proximity sensor
-        if self.get_parameter("proximity").get_parameter_value().string_value == "True" \
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
+        if self.get_parameter("proximity").get_parameter_value().bool_value \
+                or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.prox_pub = self.create_publisher(Int16, "proximity", 10)
             self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
 
-        if self.get_parameter("mic").get_parameter_value().string_value == "True"\
-                or self.get_parameter("all_sensors").get_parameter_value().string_value == "True":
+        if self.get_parameter("mic").get_parameter_value().bool_value\
+                or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.mic_pub = self.create_publisher(Float32, "mic", 10)
             self.mic_timer = self.create_timer(
                 .2, self.pub_mic)
