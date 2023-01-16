@@ -445,10 +445,6 @@ class Controller(Node):
         # Publish the battery level on the battery topic with at 5hz
         self.battery_timer = self.create_timer(.2, self.pub_battery)
 
-        # Creates position control topic
-        self.position_sub = self.create_subscription(
-            Point, "to_point", self.move_to_point, 10)
-
         # Creates shutdown hook
         self.shutdown_sub = self.create_subscription(
             String, "shutdown", self.shutdown_callback, 10)
