@@ -322,7 +322,7 @@ class Controller(Node):
     # Message format [0.0xBE,0.0xEF,opcode , *args,\n]
     def send_values(self, values=None, opcode=0):
         # Converts the values to bytes
-        byteList = bytes([0xBE,0xEF]) + struct.pack("f", opcode) + \
+        byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
             struct.pack('f'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
@@ -330,6 +330,7 @@ class Controller(Node):
                 opcode=opcode, data=values))
             # Writes the values to the i2c
             self.serial.write(byteList)
+            print("sent")
             self.serial.read()
             if opcode == 0:
                 self.linear_x_velo = values[0]
