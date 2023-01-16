@@ -253,7 +253,7 @@ class Controller(Node):
             try:
                 self.sensor_data["temp"] = self.bmp.temperature
                 self.sensor_data["pressure"] = self.bmp.pressure
-                self.sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0.0]
+                self.sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0]
                 self.sensor_data["altitude"] = self.bmp.altitude
                 self.sensor_data["rgbw"] = self.light.color_data
                 self.sensor_data["gesture"] = self.light.gesture()
