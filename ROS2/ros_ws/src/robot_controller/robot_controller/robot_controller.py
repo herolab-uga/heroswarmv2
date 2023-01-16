@@ -248,18 +248,17 @@ class Controller(Node):
             time.sleep(.1)
             self.init_sensors()
 
-    def read_sensors(self, sensor_data):
-        rate = self.create_rate(5)
+    def read_sensors(self):
 
         while not rclpy.ok():
             try:
-                sensor_data["temp"] = self.bmp.temperature
-                sensor_data["pressure"] = self.bmp.pressure
-                sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0.0]
-                sensor_data["altitude"] = self.bmp.altitude
-                sensor_data["rgbw"] = self.light.color_data
-                sensor_data["gesture"] = self.light.gesture()
-                sensor_data["prox"] = self.light.proximity
+                self.sensor_data["temp"] = self.bmp.temperature
+                self.sensor_data["pressure"] = self.bmp.pressure
+                self.sensor_data["humidity"] = self.humidity_sensor.relative_humidity[0.0]
+                self.sensor_data["altitude"] = self.bmp.altitude
+                self.sensor_data["rgbw"] = self.light.color_data
+                self.sensor_data["gesture"] = self.light.gesture()
+                self.sensor_data["prox"] = self.light.proximity
             except:
                 print("Could not read sensor")
 
@@ -392,7 +391,7 @@ class Controller(Node):
         }
 
         self.sensor_data = {
-            "temp": 0,
+            "temp": 0.0,
             "pressure": 0,
             "humidity": 0,
             "altitude": 0,
@@ -447,8 +446,8 @@ class Controller(Node):
         self.init_sensors()
 
         # Read sensors
-        self.sensor_read_thread = mp.Process(
-            target=self.read_sensors, args=(self.sensor_data,))
+        self.sensor_read_thread = threading.Thread(
+            target=self.read_sensors, args=(self.sensor_data,),daemon=True)
         self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
