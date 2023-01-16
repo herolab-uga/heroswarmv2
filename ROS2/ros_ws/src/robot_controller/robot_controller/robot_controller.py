@@ -169,7 +169,7 @@ class Controller(Node):
         self.send_values([0.0, 0.0, 0.0])
         self.stop_timer = None
 
-    def pub_imu(self, freq) -> None:
+    def pub_imu(self) -> None:
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor data
@@ -369,10 +369,6 @@ class Controller(Node):
         self.declare_parameter("light")
         self.declare_parameter("imu")
         self.declare_parameter("global_pos")
-
-        self.get_logger().info("PARAMETERS KEYS")
-        for key in self._parameters.keys():
-            self.get_logger().info(str(key) + " " + str(self._parameters[key].value))
 
         # Arduino Device Address
         self.arduino = 0x08
