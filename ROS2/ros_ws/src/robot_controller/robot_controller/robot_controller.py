@@ -362,13 +362,13 @@ class Controller(Node):
     def __init__(self):
         super().__init__("robot_controller")
 
-        self.declare_parameter("all_sensors")
-        self.declare_parameter("mic")
-        self.declare_parameter("proximity")
-        self.declare_parameter("environment")
-        self.declare_parameter("light")
-        self.declare_parameter("imu")
-        self.declare_parameter("global_pos")
+        # self.declare_parameter("all_sensors")
+        # self.declare_parameter("mic")
+        # self.declare_parameter("proximity")
+        # self.declare_parameter("environment")
+        # self.declare_parameter("light")
+        # self.declare_parameter("imu")
+        # self.declare_parameter("global_pos")
 
         # Arduino Device Address
         self.arduino = 0x08
