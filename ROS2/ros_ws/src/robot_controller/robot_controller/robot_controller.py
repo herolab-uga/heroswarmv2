@@ -301,7 +301,7 @@ class Controller(Node):
         proximity_msg = Int16()
 
         # Sets the proximity value
-        proximity_msg.data = self.sensor_data["prox"]
+        proximity_msg.data = int(self.sensor_data["prox"])
 
         # Publishes the message
         self.prox_pub.publish(proximity_msg)
@@ -392,15 +392,15 @@ class Controller(Node):
         }
 
         self.sensor_data = {
-            "temp": 0.0,
-            "pressure": 0.0,
-            "humidity": 0.0,
-            "altitude": 0.0,
+            "temp": 0,
+            "pressure": 0,
+            "humidity": 0,
+            "altitude": 0,
             "rgbw": [],
             "gesture": 0,
-            "prox": 0.0,
+            "prox": 0,
             "battery": 0.0,
-            "mic": 0.0
+            "mic": 0
         }
 
         self.linear_x_velo = None
