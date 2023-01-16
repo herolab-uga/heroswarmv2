@@ -447,7 +447,7 @@ class Controller(Node):
 
         # Read sensors
         self.sensor_read_thread = threading.Thread(
-            target=self.read_sensors, args=(,),daemon=True)
+            target=self.read_sensors, args=(),daemon=True)
         self.sensor_read_thread.start()
 
         ###_________________Enables Sensor Data Publishers________________###
