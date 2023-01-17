@@ -10,3 +10,6 @@
 [submodule "ROS2/ros_ws/src/ros2_usb_camera"]
 	path = ROS2/ros_ws/src/ros2_usb_camera
 	url = git@github.com:shinkansan/ros2_logitech_brio_publisher.git
+[submodule "ROS2/ros_ws/src/camera_server/swarmexperiments"]
+	path = ROS2/ros_ws/src/camera_server/swarmexperiments
+	url = git@github.com:herolab-uga/swarmexperiments.git
