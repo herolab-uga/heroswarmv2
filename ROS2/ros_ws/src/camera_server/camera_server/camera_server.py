@@ -69,7 +69,9 @@ class CameraServer(Node):
         active_dict = {}
         # print(detections)
         for detection in detections:
-
+             #making sure to ignore the tags on charging table 
+            if(detection["center"][0] <= self.orig[0]):
+                continue
             dimg1 = self.draw(frame,detection["lb-rb-rt-lt"])
 
             center = detection["center"]
