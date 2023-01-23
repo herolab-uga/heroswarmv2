@@ -343,11 +343,11 @@ class Controller(Node):
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
-            rclpy.signal_shutdown("Raspberry Pi shutting down")
+            rclpy.shutdown("Raspberry Pi shutting down")
 
         else:
             self.get_logger().info("Restarting")
-            rclpy.signal_shutdown("Raspberry Pi restarting")
+            rclpy.shutdown("Raspberry Pi restarting")
             retart = True
 
     def neopixel_callback(self, msg):
