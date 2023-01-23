@@ -343,13 +343,13 @@ class Controller(Node):
     def shutdown_callback(self, msg):
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
-            self.destroy_node()
+            raise SystemExit
 
         else:
             global restart
             restart = True
             self.get_logger().info("Restarting")
-            self.destroy_node()
+            raise SystemExit
 
     def neopixel_callback(self, msg):
         self.send_values(msg.data, 1.0)
@@ -496,10 +496,12 @@ class Controller(Node):
 def main():
     rclpy.init()
     # Spin in a separate thread
-    controller = Controller()
-    rclpy.spin(controller)
-    controller.destroy_node()
-    if restart:
-        subprocess.Popen("sleep 15; sudo shutdown -r 0", shell=True)
-    else:
-        subprocess.Popen("sleep 15; sudo shutdown 0", shell=True,)
+    try:
+        controller = Controller()
+        rclpy.spin(controller)
+        controller.destroy_node()
+    except SystemExit:
+        if restart:
+            subprocess.Popen("sleep 15; sudo shutdown -r 0", shell=True)
+        else:
+            subprocess.Popen("sleep 15; sudo shutdown 0", shell=True,)
