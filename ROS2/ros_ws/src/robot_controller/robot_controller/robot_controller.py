@@ -153,7 +153,7 @@ class Controller(Node):
             test = max(msg.linear.x, -0.1)
             x_velo = min(test, 0.1)
         else:
-            x_velo = 0
+            x_velo = 0.0
 
         # Reads the twist message z angular velocity
         if abs(msg.angular.z) > .05:
