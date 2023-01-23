@@ -502,6 +502,6 @@ def main():
         controller.destroy_node()
     except SystemExit:
         if restart:
-            subprocess.Popen("sleep 15; sudo shutdown -r 0", shell=True)
+            subprocess.Popen("sleep 5; sudo shutdown -r 0", shell=True)
         else:
-            subprocess.Popen("sleep 15; sudo shutdown 0", shell=True,)
+            subprocess.Popen("sleep 5; sudo shutdown 0", shell=True,)
