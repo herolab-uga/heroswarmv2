@@ -5,7 +5,7 @@ from launch.substitutions import LaunchConfiguration
 import socket
 def generate_launch_description():
 
-    all_sensors_arg = DeclareLaunchArgument("all_sensors", default_value="True")
+    all_sensors_arg = DeclareLaunchArgument("all_sensors", default_value="False")
     mic_arg = DeclareLaunchArgument("mic", default_value="True")
     proximity_arg = DeclareLaunchArgument("proximity", default_value="False")
     light_arg = DeclareLaunchArgument("light", default_value="False")

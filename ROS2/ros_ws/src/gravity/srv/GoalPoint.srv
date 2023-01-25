@@ -1,0 +1,3 @@
+geometry_msgs/Point goal_pos
+---
+std_msgs/Bool confirm
