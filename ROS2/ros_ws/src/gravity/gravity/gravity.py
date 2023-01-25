@@ -74,7 +74,8 @@ class Gravity(Node):
         self.neighbor_names = {} #dict of neighbors and their m values
         self.neighbors = {} #list of neighbor names
 
-        Gravity.anchor_position = self.get_parameter("anchor_pos").value # this is the desired position of the start robot NOTE: i think i want to make this a service
+        # NOTE: i think i want to make this a service
+        Gravity.anchor_position = self.get_parameter("anchor_pos").value # this is the desired position of the start robot 
         Gravity.g = self.get_parameter("g").value # this is a global property of the environment
         self.si_to_uni_dyn,_ = create_si_to_uni_dynamics_mapping()
 
@@ -98,13 +99,15 @@ class Gravity(Node):
 
         #--------------------------------- Experiment Setup ---------------------------------#
         # Additional set up
-        # Fill assign neighbor names with their m values in neighbor_names dict
+        # Fill assign neighbor names with their m values in neighbor_names dict you can get using their service
 
         # We need to be able to setup different scenarios
         # First we calculate F based on the initial positions of the robots
         Gravity.F = self.get_parameter("F").value # this is a dict of link cost with keys being the names of the neighbors
         if Gravity.F == -1:
-            # Calculate F using its neighbors
+            # Calculate F using its neighbors 
+            # store F in a dict with keys being the names of the neighbors
+            # NOTE: can we consolidate some or all of the dicts
             pass
 
 def main():
