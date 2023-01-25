@@ -70,7 +70,7 @@ class CameraServer(Node):
         # print(detections)
         for detection in detections:
              #making sure to ignore the tags on charging table 
-            if(detection["center"][0] <= self.orig[0]):
+            if(detection["center"][0] <= self.orig[0] - 100):
                 continue
             dimg1 = self.draw(frame,detection["lb-rb-rt-lt"])
 
@@ -80,7 +80,7 @@ class CameraServer(Node):
 
             center_transform = self.transform(center)
 
-            cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(0,0,0),2)
+            cv2.putText(dimg1,'Id:'+str(detection["id"]), tuple((center.ravel()).astype(int)),self.font,0.8,(150,150,0),2)
 
             posString = '({x:.2f},{y:.2f})'.format(x=center_transform[0],y=center_transform[1])
            
@@ -268,7 +268,7 @@ class CameraServer(Node):
         # self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
         # self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
-        self.active_pub = self.create_publisher(StringList,"active_robots",1)
+        self.active_pub = self.create_publisher(StringList,"/active_robots",1)
         if self.display_detections:
             self.detections_pub = self.create_publisher(Image,"/camera/image_detections",1)
 
