@@ -153,7 +153,7 @@ class Controller(Node):
             test = max(msg.linear.x, -0.1)
             x_velo = min(test, 0.1)
         else:
-            x_velo = 0
+            x_velo = 0.0
 
         # Reads the twist message z angular velocity
         if abs(msg.angular.z) > .05:
@@ -320,8 +320,12 @@ class Controller(Node):
     # Message format [0.0xBE,0.0xEF,opcode , *args,\n]
     def send_values(self, values=None, opcode=0):
         # Converts the values to bytes
-        byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
-            struct.pack('f'*len(values), *values) + bytes("\n".encode())
+        if opcode == 0:
+            byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
+                struct.pack('f'*len(values), *values) + bytes("\n".encode())
+        else:
+            byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
+                struct.pack('i'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
         try:
             # self.get_logger().info("Sending message: {opcode} {data}".format(
