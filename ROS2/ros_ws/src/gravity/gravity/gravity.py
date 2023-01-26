@@ -40,6 +40,8 @@ class Gravity(Node):
         self.neighbors = {robot.name: robot for robot in msg if robot.name in self.neighbor_names or robot.name == self.robot_name}
 
     def name_callback(self, msg,L):
+        # if you want to catch a mismatch in the number of available robots and the number of robots in the graph laplacian matrix
+        # do it in this method
         self.robot_index = msg.data.index(self.robot_name)
         neighbors = topological_neighbors(L,self.robot_index)
         self.neighbor_names = {msg.data[index]: None for index in neighbors}
