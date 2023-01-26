@@ -12,11 +12,12 @@ def generate_launch_description():
     )
     F = DeclareLaunchArgument("F", default_value="-1")
     g = DeclareLaunchArgument("g", default_value="1")
-    L = DeclareLaunchArgument("L", default_value=str(graph_lapacian)))
+    L = DeclareLaunchArgument("L", default_value=str(graph_lapacian))
 
     return LaunchDescription([
         F,
         g,
+        L,
         Node(
             package='gravity',
             namespace=socket.gethostname(),
@@ -27,6 +28,7 @@ def generate_launch_description():
                 {
                     "F": LaunchConfiguration("F"),
                     "g": LaunchConfiguration("G"),
+                    "L": LaunchConfiguration("L")
                 }
             ]
         ),
