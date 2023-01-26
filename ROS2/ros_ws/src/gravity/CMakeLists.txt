@@ -41,4 +41,11 @@ DEPENDENCIES std_msgs nav_msgs
 
 )
 
+install(
+  PROGRAMS
+  gravity/gravity.py
+  launch/gravity.launch.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
