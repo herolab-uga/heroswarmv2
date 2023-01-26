@@ -136,22 +136,11 @@ class CameraServer(Node):
                 self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
                 self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
 
-            #if the ID is not in the active_dict
-            if detection["id"] not in active_dict:
-                #add the newly detected robot to the list
-                active_dict[detection["id"]] = True
-                #publish the list 
-                self.active_pub.publish(robot_names)
+        if self.robot_names != robot_names:
+            self.active_pub.publish(robot_names)
         
-        #loop through the previous function calls list 
-        for rob in self.active_dict:
-            #if not in the active_dict list, then it has left the camera's view 
-            if rob not in active_dict:
-                self.active_dict.remove(rob)
-                #publish the active list
-                self.active_pub.publish(robot_names)
-
-
+        self.robot_names = robot_names 
+        
         self.active_dict = active_dict
 
         self.pos_pub.publish(self.positions)
@@ -246,6 +235,7 @@ class CameraServer(Node):
         rclpy.init()
         super().__init__("camera_server")
 
+        self.robot_names = {}
         self.ref_x = None
         self.ref_y = None
         self.orig = None
