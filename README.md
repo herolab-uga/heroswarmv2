@@ -21,7 +21,7 @@ The robot is fully-capable in the following sense.
 # Citation
 A preprint of the paper focusing on the robot architecture is available at https://arxiv.org/abs/2211.03014
 
-Cite the paper as "Starks M, Gupta A, Oruganti S, Parasuraman R. Design of a high strength multi-steering climbing robot for steel bridge inspection. In 2023 IEEE/SICE International Symposium on System Integration (SII) 2023. IEEE."
+Cite the paper as "Starks M, Gupta A, Oruganti S, Parasuraman R. HeRoSwarm: Fully-Capable Miniature Swarm Robot Hardware Design With Open-Source ROS Support. In Proceedings of 2023 IEEE/SICE International Symposium on System Integration (SII) 2023. IEEE." URL: https://ieeexplore.ieee.org/document/10039174 
 
 # Implementation Examples
 
