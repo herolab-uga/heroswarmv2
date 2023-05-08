@@ -25,20 +25,6 @@ import time
 
 
 class CameraServer(Node):
-                
-    def connection_manager(self,active_dict,robot_dictionary):
-        prev_active = []
-        count = 0
-        thread_dict = None
-        while True:
-            active_dict = list(active_dict)
-            add = [add_bot for add_bot in active_dict if add_bot not in prev_active]
-            for new_robot in add:
-                thread_dict[new_robot] = threading.Thread(target=distributed_controller.DistributedController, args=(new_robot, 
-                                                            robot_dictionary[new_robot]),daemon=True)
-                thread_dict[new_robot].start()
-                count = count + 1
-            prev_active = active_dict
 
     def get_positions(self,msg):
 
@@ -48,7 +34,8 @@ class CameraServer(Node):
 
         dimg1 = frame
     
-        self.positions = RobotPos()
+        positions = RobotPos()
+        pixel_pos = RobotPos()
         
         if self.transform_matrix == None:
             try:
@@ -122,28 +109,41 @@ class CameraServer(Node):
                 dimg1=self.draw1(dimg1,forward_dir,center,(0,0,255))
                 cv2.putText(dimg1,posString, tuple((center.ravel()).astype(int)+10),self.font,self.fontScale,(255,0,0),self.lineType)
 
-                self.positions.robot_pos.append(Odometry())
-                self.positions.robot_pos[-1].child_frame_id = str(detection["id"])
-                    
-                self.positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
-                self.positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
-                self.positions.robot_pos[-1].pose.pose.position.z = 0.0
+                positions.robot_pos.append(Odometry())
+                pixel_pos.robot_pos.append(Odometry())
+
+                positions.robot_pos[-1].child_frame_id = str(detection["id"])
+                pixel_pos.robot_pos[-1].child_frame_id = str(detection["id"])
+
+                positions.robot_pos[-1].pose.pose.position.x = center_transform[0]
+                positions.robot_pos[-1].pose.pose.position.y = center_transform[1] 
+                positions.robot_pos[-1].pose.pose.position.z = 0.0
+
+                pixel_pos.robot_pos[-1].pose.pose.position.x = center[0]
+                pixel_pos.robot_pos[-1].pose.pose.position.y = center[1] 
+                pixel_pos.robot_pos[-1].pose.pose.position.z = 0.0
 
                 q = self.quaternion_from_rpy(0,0,angle)
 
-                self.positions.robot_pos[-1].pose.pose.orientation.x = q[0]
-                self.positions.robot_pos[-1].pose.pose.orientation.y = q[1]
-                self.positions.robot_pos[-1].pose.pose.orientation.z = q[2]
-                self.positions.robot_pos[-1].pose.pose.orientation.w = q[3]
+                positions.robot_pos[-1].pose.pose.orientation.x = q[0]
+                positions.robot_pos[-1].pose.pose.orientation.y = q[1]
+                positions.robot_pos[-1].pose.pose.orientation.z = q[2]
+                positions.robot_pos[-1].pose.pose.orientation.w = q[3]
 
-        if self.robot_names != robot_names:
-            self.active_pub.publish(robot_names)
+                pixel_pos.robot_pos[-1].pose.pose.orientation.x = q[0]
+                pixel_pos.robot_pos[-1].pose.pose.orientation.y = q[1]
+                pixel_pos.robot_pos[-1].pose.pose.orientation.z = q[2]
+                pixel_pos.robot_pos[-1].pose.pose.orientation.w = q[3]
+
+        # if self.robot_names != robot_names:
+        self.active_pub.publish(robot_names)
         
         self.robot_names = robot_names 
         
         self.active_dict = active_dict
 
-        self.pos_pub.publish(self.positions)
+        self.pos_pub.publish(positions)
+        self.pixel_pub.publish(pixel_pos)
         #self.active_pub.publish(robot_names)
         
         if self.display_detections:
@@ -163,19 +163,6 @@ class CameraServer(Node):
         q[2] = cr * cp * sy - sr * sp * cy
         q[3] = cr * cp * cy + sr * sp * sy
         return q
-
-    def getTheta(self, pt11,pt12,pt21,pt22,):
-        vec1 = pt11 - pt12
-        vec2 = pt22 - pt21
-        vec12dt = math.degrees(math.atan2(np.cross(vec1, vec2),
-                            np.dot(vec1, vec2))) + 180
-        return vec12dt
-
-    def draw1ine(self, img,point1,point2,clr,):
-        corner1 = tuple(point1.ravel().astype(int))
-        corner2 = tuple(point2.ravel().astype(int))
-        img = cv2.line(img, corner2, corner1, clr, 1)
-        return img
 
     def draw1(self, img,point1,point2,clr,):
         corner1 = tuple(point1.ravel().astype(int))
@@ -260,7 +247,8 @@ class CameraServer(Node):
         self.fontColor              = (0,0,255)
         self.lineType               = 1
 
-        self.pos_pub = self.create_publisher(RobotPos,"/positions",1)
+        self.pos_pub = self.create_publisher(RobotPos,"/positions",10)
+        self.pixel_pub = self.create_publisher(RobotPos,"/pixel_pos",10)
         self.bridge = CvBridge()
 
         # CV subscriber
@@ -268,19 +256,16 @@ class CameraServer(Node):
         self.subscription
 
         self.robot_dictionary = None
-        with open("/home/michael/Documents/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
+        with open("/home/michael/Documents/School/HeroLab/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
         # self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
         # self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
-        self.active_pub = self.create_publisher(StringList,"/active_robots",1)
+        self.active_pub = self.create_publisher(StringList,"/active_robots",10)
         if self.display_detections:
-            self.detections_pub = self.create_publisher(Image,"/camera/image_detections",1)
-
-        self.positions = None
+            self.detections_pub = self.create_publisher(Image,"/camera/image_detections",10)
         self.active_dict = {}
-        self.thread_dict = {}
         
 def main():
     server = CameraServer()
