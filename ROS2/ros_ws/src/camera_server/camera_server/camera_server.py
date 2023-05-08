@@ -136,15 +136,14 @@ class CameraServer(Node):
                 pixel_pos.robot_pos[-1].pose.pose.orientation.w = q[3]
 
         # if self.robot_names != robot_names:
-        self.active_pub.publish(robot_names)
+        #     self.active_pub.publish(robot_names)
         
         self.robot_names = robot_names 
         
         self.active_dict = active_dict
 
-        self.pos_pub.publish(positions)
-        self.pixel_pub.publish(pixel_pos)
-        #self.active_pub.publish(robot_names)
+        self.pos_pub.publish(self.positions)
+        self.active_pub.publish(robot_names)
         
         if self.display_detections:
             self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(dimg1,(1920,1080)), "bgr8"))
@@ -256,7 +255,7 @@ class CameraServer(Node):
         self.subscription
 
         self.robot_dictionary = None
-        with open("/home/michael/Documents/School/HeroLab/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
+        with open("/home/herolab/Documents/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
             self.robot_dictionary = json.load(file)
 
         # self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
