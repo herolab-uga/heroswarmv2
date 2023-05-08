@@ -330,7 +330,7 @@ class Controller(Node):
         try:
             # self.get_logger().info("Sending message: {opcode} {data}".format(
                 # opcode=opcode, data=values))
-            # Writes the values to the i2c
+            # Writes the values to serial
             self.serial.write(byteList)
             self.serial.read()
             if opcode == 0:
