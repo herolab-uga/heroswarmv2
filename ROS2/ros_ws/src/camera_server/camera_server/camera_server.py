@@ -142,7 +142,7 @@ class CameraServer(Node):
         
         self.active_dict = active_dict
 
-        self.pos_pub.publish(self.positions)
+        self.pos_pub.publish(positions)
         self.active_pub.publish(robot_names)
         
         if self.display_detections:
