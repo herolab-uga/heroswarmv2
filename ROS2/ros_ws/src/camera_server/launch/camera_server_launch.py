@@ -14,6 +14,7 @@ def generate_launch_description():
             package='camera_server',
             executable='openCV_publisher',
             name='openCV_publisher',
-            output='screen'
+            output='screen',
+            emulate_tty=True
         )
     ])

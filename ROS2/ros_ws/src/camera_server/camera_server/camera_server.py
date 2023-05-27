@@ -47,10 +47,17 @@ class CameraServer(Node):
                 self.transform_matrix = [(np.abs(self.x_distance) / np.abs(self.ref_x[0] - self.orig[0])),
                                             (np.abs(self.y_distance) / np.abs(self.orig[1] - self.ref_y[1]))]
 
+                # print(self.transform_matrix)
+
                 # Creates the rotation matrix
                 self.rotation_matrix = np.array([[0, 1], [-1, 0]])
             except IndexError:
                 return
+
+
+        # print("Ref X: ",self.ref_x)
+        # print("Ref Y: ",self.ref_y)
+        # print("Orig: ",self.orig)
             
         robot_names = StringList()
         active_dict = {}
