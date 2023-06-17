@@ -7,7 +7,7 @@ from cv_bridge import CvBridge
 class openCV_publisher(Node):
         
     def __init__(self):
-        self.cap = cv2.VideoCapture("/dev/video4")
+        self.cap = cv2.VideoCapture(-1)
         # self.cap.open(0 + cv2.CAP_DSHOW)
         W, H = 1920, 1080
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, W)
