@@ -22,8 +22,8 @@ class openCV_publisher(Node):
     def read_frame(self):
         while True:
             ret, img = self.cap.read()
-            cv2.imshow('Video', img)
-            cv2.waitKey(30)
+            # cv2.imshow('Video', img)
+            # cv2.waitKey(30)
             self.publisher.publish(self.conv.cv2_to_imgmsg(img, "bgr8"))
             if not self.cap.isOpened():
                 print("Can't read frame, exiting...")
