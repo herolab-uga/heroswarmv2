@@ -36,7 +36,6 @@ class CameraServer(Node):
     
         positions = RobotPos()
         pixel_pos = RobotPos()
-        
         if self.transform_matrix == None:
             try:
                 # Gets the x and y positions.robot_pos of the reference tags
@@ -105,7 +104,7 @@ class CameraServer(Node):
                 robot_names.data.append(String())
                 
                 try:
-                    active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"]["name"])]
+                    active_dict[str(detection["id"])] = self.robot_dictionary[detection["id"]]["name"]
                     robot_names.data[-1].data = self.robot_dictionary[str(detection["id"])]["name"]
                 except KeyError:
                     continue
@@ -151,7 +150,6 @@ class CameraServer(Node):
 
         self.pos_pub.publish(positions)
         self.active_pub.publish(robot_names)
-        
         if self.display_detections:
             self.detections_pub.publish(self.bridge.cv2_to_imgmsg(cv2.resize(dimg1,(1920,1080)), "bgr8"))
 
@@ -264,7 +262,6 @@ class CameraServer(Node):
         self.robot_dictionary = None
         with open("/home/herolab/Documents/heroswarmv2/ROS2/ros_ws/src/camera_server/camera_server/robots.json") as file:
             self.robot_dictionary = json.load(file)
-
         # self.get_charger = self.Service(GetCharger,"get_charger",self.handle_get_charger)
         # self.release_charger = self.Service(ReleaseCharger,"release_charger",self.handle_release_charger)
 
