@@ -77,9 +77,13 @@
         "name":"swarmphi",
         "type":"swarmv3"
     },
+    "22":{
+        "name": "swarmharley",
+        "type": "swarmv3"  
+    },
     "23":{
-        "name":"",
-        "type":"herocube"
+        "name":"swarmjoker",
+        "type":"swarmv3"
     },
     "24":{
         "name":"",

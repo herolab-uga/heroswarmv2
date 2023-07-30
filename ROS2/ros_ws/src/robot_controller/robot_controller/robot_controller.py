@@ -378,10 +378,10 @@ class Controller(Node):
         self.arduino = 0x08
 
         self.i2c = board.I2C()
-        self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
+        self.serial = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
 
-        self.id = None
+        self.id = None # Read SWARM_ID variable
 
         with open("/home/pi/heroswarmv2/ROS2/ros_ws/src/robot_controller/include/robots.json") as file:
             robot_dictionary = json.load(file)
