@@ -185,7 +185,7 @@ class Controller(Node):
         # Sets the linear acceleration parameters
         imu_msg.linear_acceleration.x = acc_x - self.x_avg
         imu_msg.linear_acceleration.y = acc_y - self.y_avg
-        imu_msg.linear_acceleration.z = acc_z - self.z_avg)
+        imu_msg.linear_acceleration.z = acc_z - self.z_avg
         imu_msg.orientation_covariance = IMU_COVARIANCE_MATRIX
         imu_msg.angular_velocity_covariance = IMU_COVARIANCE_MATRIX
         imu_msg.linear_acceleration_covariance = IMU_COVARIANCE_MATRIX
@@ -201,7 +201,7 @@ class Controller(Node):
             self.light = APDS9960(self.i2c)
             self.light.enable_proximity = True
             self.light.enable_gesture = False
-            self.light.enable_color = True)
+            self.light.enable_color = True
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
