@@ -6,7 +6,6 @@ import time
 import json
 import threading
 import subprocess
-print("First Imports Worked")
 import serial
 import adafruit_bmp280
 import adafruit_lis3mdl
@@ -22,8 +21,6 @@ from nav_msgs.msg import Odometry
 from robot_msgs.msg import Environment, Light, RobotPos
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Int16, String, Float32, Int16MultiArray
-print("Second Imports Worked")
-
 restart = False
 
 ODOM_COVARIANCE_MATRIX = [1e-2, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -42,7 +39,6 @@ class Controller(Node):
         self.send_values([0.0, 0.0, 0.0])
 
     def rpy_from_quaternion(self, quaternion):
-        print("inside rpy_from_quaternion")
         x = quaternion.x
         y = quaternion.y
         z = quaternion.z
@@ -61,7 +57,6 @@ class Controller(Node):
         return roll, pitch, yaw
 
     def quaternion_from_rpy(self, roll, pitch, yaw):
-        print("inside quaternion_from_rpy")
         cy = math.cos(yaw * 0.5)
         sy = math.sin(yaw * 0.5)
         cp = math.cos(pitch * 0.5)
@@ -77,7 +72,6 @@ class Controller(Node):
         return q
 
     def get_pos_global(self, msg):
-        print("inside get_pos_global")
         for robot in msg.robot_pos:
             print("Reading robot position")
             if robot.child_frame_id == str(self.id):
@@ -90,7 +84,6 @@ class Controller(Node):
             # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
 
     def get_pos(self, msg):
-        print("inside get_pos")
         self.position["x"] = msg.pose.pose.position.x
         self.position["y"] = msg.pose.pose.position.y
         self.position["orientation"] = - \
@@ -100,7 +93,6 @@ class Controller(Node):
         # x=self.position["x"], z=self.position["y"], theta=self.position["orientation"]))
 
     def read_arduino_data(self, event=None):
-        print("inside read_arduino data")
         num_val = 7
 
         # Creates the odom message
@@ -143,7 +135,6 @@ class Controller(Node):
 
         quaternion = self.quaternion_from_rpy(0.0, 0.0, theta)
 
-        print("added twist data")
 
         odom_msg.pose.pose.orientation.x = quaternion[0]
         odom_msg.pose.pose.orientation.y = quaternion[1]
@@ -156,7 +147,6 @@ class Controller(Node):
         self.odom_pub.publish(odom_msg)
 
     def read_twist(self, msg, event=None) -> None:
-        print("inside read_twist")
         # Reads ths twist message x linear velocity
         if abs(msg.linear.x) > 0.01:
             test = max(msg.linear.x, -0.1)
@@ -170,24 +160,20 @@ class Controller(Node):
             z_angular = min(max(msg.angular.z, -1.85), 1.85)
         else:
             z_angular = 0.0
-        print("read the twist message z angular velocity ")
 
         # Sends the velocity information to the feather board
         self.send_values([x_velo, 0.0, z_angular])
-        print("sent the velocity information to the feather board")
 
     def stop(self):
         self.send_values([0.0, 0.0, 0.0])
         self.stop_timer = None
 
     def pub_imu(self) -> None:
-        print("inside pub_imu")
         # Creates the IMU message
         imu_msg = Imu()
         # Read the sensor data
         acc_x, acc_y, acc_z = self.IMU.acceleration
         gyro_x, gyro_y, gyro_z = self.IMU.gyro
-        print("created an IMU message and read the sensor data")
 
         imu_msg.header.stamp = self.get_clock().now().to_msg()
         imu_msg.header.frame_id = "base_footprint"
@@ -196,31 +182,26 @@ class Controller(Node):
         imu_msg.angular_velocity.x = gyro_x - self.x_gyro_avg
         imu_msg.angular_velocity.y = gyro_y - self.y_gyro_avg
         imu_msg.angular_velocity.z = gyro_z - self.z_gyro_avg
-        print("angular velocity is set ")
         # Sets the linear acceleration parameters
         imu_msg.linear_acceleration.x = acc_x - self.x_avg
         imu_msg.linear_acceleration.y = acc_y - self.y_avg
-        imu_msg.linear_acceleration.z = acc_z - self.z_avg
-        print("linear accelseration is set")
+        imu_msg.linear_acceleration.z = acc_z - self.z_avg)
         imu_msg.orientation_covariance = IMU_COVARIANCE_MATRIX
         imu_msg.angular_velocity_covariance = IMU_COVARIANCE_MATRIX
         imu_msg.linear_acceleration_covariance = IMU_COVARIANCE_MATRIX
 
         # Publishes the message
         self.imu_pub.publish(imu_msg)
-        print("IMU message is published")
 
 # move sensor data gathering to the feather sense
 # change i2c baud to 40.00.0 khz
     def init_sensors(self):
-        print("inside init_sensors")
         try:
             # Creates sensor objects
             self.light = APDS9960(self.i2c)
             self.light.enable_proximity = True
             self.light.enable_gesture = False
-            self.light.enable_color = True
-            print("created sensor objects")
+            self.light.enable_color = True)
 
             self.magnetometer = adafruit_lis3mdl.LIS3MDL(self.i2c)
             # Creates the i2c interface for the bmp sensor
@@ -265,7 +246,6 @@ class Controller(Node):
             self.init_sensors()
 
     def read_sensors(self):
-        print("inside read_sensors")
         while rclpy.ok():
             try:
                 self.sensor_data["temp"] = self.bmp.temperature
@@ -281,7 +261,6 @@ class Controller(Node):
 
 
     def pub_light(self) -> None:
-        print("inside pub_light")
         # Creates the light message
         light_msg = Light()
 
@@ -295,7 +274,6 @@ class Controller(Node):
         self.light_pub.publish(light_msg)
 
     def pub_environment(self) -> None:
-        print("inside pub_environment")
         # Creates the environment message
         environ_msg = Environment()
 
@@ -315,7 +293,6 @@ class Controller(Node):
         self.environment_pub.publish(environ_msg)
 
     def pub_proximity(self) -> None:
-        print("inside pub_proximity")
         # Creates the proximity message
         proximity_msg = Int16()
 
@@ -326,7 +303,6 @@ class Controller(Node):
         self.prox_pub.publish(proximity_msg)
 
     def pub_mic(self):
-        print("inside pub_mic")
         # Creates the mic message
         mic_msg = Float32()
 
@@ -340,8 +316,6 @@ class Controller(Node):
     # Should i add a checksum (probably)
     # Message format [0.0xBE,0.0xEF,opcode , *args,\n]
     def send_values(self, values=None, opcode=0):
-        print("inside send_values")
-        print("inside send_values")
         # Converts the values to bytes
         if opcode == 0:
             byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
@@ -350,7 +324,6 @@ class Controller(Node):
             byteList = bytes([0xBE,0xEF]) + struct.pack("i", opcode) + \
                 struct.pack('i'*len(values), *values) + bytes("\n".encode())
         # fails to send last byte over I2C, hence this needs to be added
-        print("converted the values into bytes")
         try:
             # self.get_logger().info("Sending message: {opcode} {data}".format(
                 # opcode=opcode, data=values))
@@ -363,15 +336,12 @@ class Controller(Node):
                 self.linear = values[1]
 
                 self.angular_z_velo = values[2]
-            print("value is writtent to serial")
         except OSError as e:
             self.get_logger().error(str(e))
             self.get_logger().info("Could not send message: {opcode} {data}".format(
                 opcode=opcode, data=values))
-            print("exception is thrown")
 
     def shutdown_callback(self, msg):
-        print("inside shutdown_callback")
         if msg.data == "shutdown":
             self.get_logger().info("Shutting Down")
             raise SystemExit
@@ -407,12 +377,10 @@ class Controller(Node):
         self.arduino = 0x08
 
         self.i2c = board.I2C()
-        self.serial = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
+        self.serial = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=1)
         self.name = self.get_namespace()
 
         self.id = None # Read SWARM_ID variable
-
-        print("arduino config is complete")
 
         with open("/home/pi/heroswarmv2/ROS2/ros_ws/src/robot_controller/include/robots.json") as file:
             robot_dictionary = json.load(file)
@@ -451,16 +419,13 @@ class Controller(Node):
         if self.get_parameter("global_pos").get_parameter_value().bool_value:
             self.pos_sub_global = self.create_subscription(
                 RobotPos, "/positions", self.get_pos_global, 10)
-            print("created subscribers for position topics")
         else:
             self.pos_sub_namespace = self.create_subscription(
                 Odometry, "position", self.get_pos, 10)
-            print("inside the else")
 
         # Creates the twist publisher
         self.twist_sub = self.create_subscription(
             Twist, "cmd_vel", self.read_twist, 10)
-        print("twist publisher is created")
         # Creates the auto-stop timer
         self.stop_timer = None
 
@@ -469,7 +434,6 @@ class Controller(Node):
         
         # Creates the odom publisher
         self.odom_pub = self.create_publisher(Odometry, "odom", 10)
-        print("odom publisher is created")
         # Creates timer to read data from arduino
         self.read_arduino_data_timer = self.create_timer(
             .2, self.read_arduino_data)
@@ -487,7 +451,6 @@ class Controller(Node):
         self.sensor_read_thread = threading.Thread(
             target=self.read_sensors, args=(),daemon=True)
         self.sensor_read_thread.start()
-        print("reading sensors")
 
         ###_________________Enables Sensor Data Publishers________________###
         
@@ -498,13 +461,11 @@ class Controller(Node):
                 Environment, "environment", 10)
             self.environment_timer = self.create_timer(
                 .1, self.pub_environment)
-            print("publisher for magnetometer, bmp and humidity sensor is created")
         # Creates a publisher for imu data
         if self.get_parameter("imu").get_parameter_value().bool_value \
                 or self.get_parameter("all_sensors").get_parameter_value().bool_value:
             self.imu_pub = self.create_publisher(Imu, "imu/data_raw", 10)
             self.imu_timer = self.create_timer(.1, self.pub_imu)  # not working
-            print("publisher for imu is created")
 
         # Creates a publisher for the light sensor
         if self.get_parameter("light").get_parameter_value().bool_value \
@@ -519,7 +480,6 @@ class Controller(Node):
             self.prox_pub = self.create_publisher(Int16, "proximity", 10)
             self.environment_timer = self.create_timer(
                 .2, self.pub_proximity)
-            print("publisher for prox is created")
 
         if self.get_parameter("mic").get_parameter_value().bool_value\
                 or self.get_parameter("all_sensors").get_parameter_value().bool_value:
@@ -531,7 +491,6 @@ class Controller(Node):
             Int16MultiArray, "neopixel", self.neopixel_callback, 10)
 
         self.get_logger().info("Ready")
-        print("everything is ready to go!")
 
 
 def main():
