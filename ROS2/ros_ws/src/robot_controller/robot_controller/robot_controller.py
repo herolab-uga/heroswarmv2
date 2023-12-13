@@ -353,7 +353,7 @@ class Controller(Node):
             raise SystemExit
 
     def neopixel_callback(self, msg):
-        self.send_values(msg.data, 1.0)
+        self.send_values(msg.data, 1)
 
     def pub_battery(self):
         battery_msg = Float32()
