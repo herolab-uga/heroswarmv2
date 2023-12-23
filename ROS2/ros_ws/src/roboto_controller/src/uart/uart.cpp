@@ -45,8 +45,7 @@ void unlockMutex()
 
 int uartInit()
 {
-    lockMutex();
-
+    std::cout << "Initializing UART" << std::endl;
     if (uartConfigured == true){
         return uartState::CONFIGURED; // return configured 
     }
@@ -106,7 +105,7 @@ int uartInit()
 
     uartConfigured = true;
 
-    unlockMutex();
+    std::cout << "Finished Initializing UART" << std::endl;
     
     return uartState::CONFIGURED;
 }
