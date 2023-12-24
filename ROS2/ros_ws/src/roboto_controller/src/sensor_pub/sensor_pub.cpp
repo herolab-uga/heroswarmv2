@@ -4,6 +4,9 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <iostream>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 
 /* Linux headers */
 #include <errno.h> // Error integer and strerror() function
@@ -18,13 +21,38 @@
 #include "robot_msgs/msg/light.hpp"
 //#include "robot_msgs/sensor_enable.hpp"
 
-/* Misc Headers */
+/* Communication Headers */
 #include "uart.hpp"
 extern "C"
 {
-	#include <linux/i2c.h>
+	#include <linux/i2c-dev.h>
 	#include <i2c/smbus.h>
 }
+
+// I2C sensor's slave address
+#define BMP280 		0x77
+// BMP280 Registers
+
+// Temperature
+#define T1 0x88
+#define T2 0x8A
+#define T3 0x8C
+
+// Pressure
+#define P1 0x8E
+#define P2 0x90
+#define P3 0x92
+#define P4 0x94
+#define P5 0x96
+#define P6 0x98
+#define P7 0x9A
+#define P8 0x9C
+#define P9 0x9E
+
+#define LIS3MDL 	0x1C
+#define SHT31D 		0x44
+#define APDS9960 	0x39
+#define LSM6DS33	0x69
 
 #define DEFAULT_PUB_RATE std::chrono::milliseconds(16) /* The default publishing rate for sensor data is 60 hz*/
 
@@ -124,7 +152,30 @@ class SensorPublisher : public rclcpp::Node {
 		 * I2C Mutex
 		 **/
 		std::mutex i2cMutex;
-		//i2c_smbus_data i2cData;
+		int i2cFd;
+		char i2cFileName[20];
+
+		/**
+		 * BMP280 Param Struct
+		*/
+		struct {
+			// Temperatur Parameters
+			uint16_t t1;
+			int16_t t2;
+			int16_t t3;
+
+			// Pressure Parameters
+			uint16_t p1;
+			int16_t p2;
+			int16_t p3;
+			int16_t p4;
+			int16_t p5;
+			int16_t p6;
+			int16_t p7;
+			int16_t p8;
+			int16_t p9;
+
+		} BMP280Params;
 
 		/**
 		 * I2C Thread
@@ -160,17 +211,70 @@ class SensorPublisher : public rclcpp::Node {
 				proximityTimer = this->create_wall_timer(DEFAULT_PUB_RATE,std::bind(&SensorPublisher::pubProximity,this));
 				odomTimer = this->create_wall_timer(DEFAULT_PUB_RATE,std::bind(&SensorPublisher::pubOdom,this));
 				batteryTimer = this->create_wall_timer(DEFAULT_PUB_RATE,std::bind(&SensorPublisher::pubOdom,this));
-		
+
+				// I2C Setup
+				snprintf(i2cFileName, 19, "/dev/i2c-%d",1);
+				i2cFd = open(i2cFileName,O_RDWR);
+
+				if (i2cFd < 0) {
+					std::cout << "Error opening i2c file" << std::endl;
+					exit(1);
+				}
+
+				if (setupBMP280() != 0)
+				{
+					std::cout << "Failed setting up BMP280" << std::endl;
+					exit(1);
+				}
+
 				// Instantiate the thread that will read from uart
 				readUartThread = std::thread(&SensorPublisher::readUart,this);
 
 				//readI2CThread = std::thread(readI2CSensors);
+				std::cout << "Ready" << std::endl;
 			}
     
     /**
      * Private Functions
     **/
     private:
+		// import adafruit_bmp280
+		// import adafruit_lis3mdl
+		// import adafruit_sht31d
+		// from adafruit_apds9960.apds9960 import APDS9960
+		// from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
+
+		bool readParamsBMP280()
+		{
+			BMP280Params.t1 = i2c_smbus_read_word_data(i2cFd,i + 1) | i2c_smbus_read_word_data(i2cFd,i);
+			return true;
+		}
+
+		bool setupBMP280()
+		{
+			char buf[32];
+			if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
+			{
+				return false;
+			}
+
+			buf[0] = 0xF5;
+			buf[1] = 0x57;
+			buf[2] = 0xF4;
+			buf[3] = 0x1C; 
+			if(write(i2cFd, buf, 4) != 4)
+			{
+				std::cout << "Failed sending BMP280 config" << std::endl;
+				return false;
+			}
+
+			if (readParamsBMP280() != 0)
+			{
+				return false;
+			}
+		
+			return true;
+		}
 
 		//void readI2CSensors()
 		//{
@@ -212,7 +316,12 @@ class SensorPublisher : public rclcpp::Node {
 		{
 			auto lightMsg = robot_msgs::msg::Light();
 			lightMutex.lock();
-			lightMsg.rgbw = rgbw
+			// Insert RGBW values into message
+			lightMsg.rgbw.push_back(rgbw[0]);
+			lightMsg.rgbw.push_back(rgbw[1]);
+			lightMsg.rgbw.push_back(rgbw[2]);
+			lightMsg.rgbw.push_back(rgbw[3]);
+
 			lightMsg.gesture = gesture;
 			lightMutex.unlock();
 			lightPublisher->publish(lightMsg);	
@@ -294,13 +403,14 @@ class SensorPublisher : public rclcpp::Node {
 
 int main(int argc, char * argv[])
 {
-
+	std::cout << "Starting" << std::endl;
     if (tryUartLock())
     {
         uartInit();
         unlockMutex();
     }
-    std::cout << "Starting" << std::endl;
+	
+	std::cout << "Spinning ROS Node" << std::endl;
     rclcpp::init(argc,argv);
     rclcpp::spin(std::make_shared<SensorPublisher>());
     rclcpp::shutdown();
