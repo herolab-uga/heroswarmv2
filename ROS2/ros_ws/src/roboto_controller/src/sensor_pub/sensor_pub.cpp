@@ -225,7 +225,7 @@ public:
 			exit(1);
 		}
 
-		if (setupBMP280() != 0)
+		if (setupBMP280() != true)
 		{
 			std::cout << "Failed setting up BMP280" << std::endl;
 			exit(1);
@@ -242,128 +242,153 @@ public:
 	 * Private Functions
 	 **/
 private:
-	// import adafruit_bmp280
 	// import adafruit_lis3mdl
 	// import adafruit_sht31d
 	// from adafruit_apds9960.apds9960 import APDS9960
 	// from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 
-	int32_t bmp280_compensate_T_int32(int32_t adc_T)
+	float bmp280_compensate_T_int32(int32_t adc_T)
 	{
-		int32_t var1, var2, T;
-		var1 = ((((adc_T >> 3) - ((int32_t)BMP280Params.t1 << 1))) * ((int32_t)BMP280Params.t2)) >> 11;
-		var2 = (((((adc_T >> 4) - ((int32_t)BMP280Params.t1)) * ((adc_T >> 4) - ((int32_t)BMP280Params.t1))) >> 12) * ((int32_t)BMP280Params.t3)) >> 14;
-		BMP280Params.t_fine = var1 + var2;
-		T = (BMP280Params.t_fine * 5 + 128) >> 8;
+		std::cout << "Raw Temperature: " << adc_T << std::endl;
+		double var1, var2;
+		float T;
+		var1 = (((double)adc_T)/16384.0 - ((double)BMP280Params.t1)/1024.0) * ((double)BMP280Params.t2); //((((adc_T >> 3) - ((int32_t)BMP280Params.t1 << 1))) * ((int32_t)BMP280Params.t2)) >> 11;
+		var2 = ((((double)adc_T)/131072.0 - ((double)BMP280Params.t1)/8192.0) * (((double)adc_T)/131072.0 - ((double)BMP280Params.t1)/8192.0)) * ((double)BMP280Params.t3); //(((((adc_T >> 4) - ((int32_t)BMP280Params.t1)) * ((adc_T >> 4) - ((int32_t)BMP280Params.t1))) >> 12) * ((int32_t)BMP280Params.t3)) >> 14;
+		BMP280Params.t_fine = (int32_t) (var1 + var2);
+		T = BMP280Params.t_fine / 5120.0;
+		std::cout << "Var1: " << var1 << std::endl;
+		std::cout << "Var2: " << var2 << std::endl;
+		std::cout << "Converted Temperature: " << T << std::endl; // Conv temp and pressure are wrong, replace the bmp280params struct values read from the device with the ones in the datasheet and check the math again to see if it matches what is in the datasheet
 		return T;
 	}
 
-	uint32_t bmp280_compensate_P_int64(int32_t adc_P)
+	int32_t bmp280_compensate_P_int64(int32_t adc_P)
 	{
-		int64_t var1, var2, p;
-		var1 = ((int64_t)BMP280Params.t_fine) - 128000; // This number came from the datasheet
-		var2 = var1 * var1 * (int64_t)BMP280Params.p6;
-		var2 = var2 + ((var1 * (int64_t)BMP280Params.p5) << 17);
-		var2 = var2 + (((int64_t)BMP280Params.p4) << 35);
-		var1 = ((var1 * var1 * (int64_t)BMP280Params.p3) >> 8) + ((var1 * (int64_t)BMP280Params.p2) << 12);
-		var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)BMP280Params.p1) >> 33;
-		if (var1 == 0)
-		{
-			return 0; // avoid exception caused by division by zero
-		}
-		p = 1048576 - adc_P; // This number came from the datasheet
-		p = (((p << 31) - var2) * 3125) / var1; // This number came from the datasheet
-		var1 = (((int64_t)BMP280Params.p9) * (p >> 13) * (p >> 13)) >> 25;
-		var2 = (((int64_t)BMP280Params.p8) * p) >> 19;
-		p = ((p + var1 + var2) >> 8) + (((int64_t)BMP280Params.p7) << 4);
-		return (uint32_t)p;
+		std::cout << "Raw Pressure: " << adc_P << std::endl;
+		double var1, var2;
+		float p;
+		var1 = ((double) BMP280Params.t_fine/2.0) - 64000.0;  // This number came from the datasheet
+		var2 = var1 * var1 * ((double)BMP280Params.p6)/32768.0;
+		var2 = var2 + var1 * ((double)BMP280Params.p5) * 2.0;
+		var2 = (var2/4.0) + (((double)BMP280Params.p4) * 65536.0);
+		var1 = (((double)BMP280Params.p3) * var1 * var1/524288.0 * ((double)BMP280Params.p2) * var1)/524288.0;
+		var1 = (1.0 + var1/32768.0) * ((double)BMP280Params.p1);
+		p = 1048576.0 - (double)adc_P; // This number came from the datasheet
+		p = (p - (var2 / 4096.0)) * 6250.0 / var1; // This number came from the datasheet
+		var1 = ((double)BMP280Params.p9) * p * p /2147483648.0;
+		var2 = p * ((double)BMP280Params.p8) / 32768.0;
+		p = p + (var1 + var2 + ((double)BMP280Params.p7)) / 16.0;
+		std::cout << "Var1: " << var1 << std::endl;
+		std::cout << "Var2: " << var2 << std::endl;
+		std::cout << "Converted Pressure: " << p << std::endl;
+		return (int32_t) p;
 	}
 
 	bool readParamsBMP280()
 	{
 		// Get the temperature parameters
-		BMP280Params.t1 = (uint16_t) (i2c_smbus_read_word_data(i2cFd, T1 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, T1));
-		BMP280Params.t2 = (int16_t) (i2c_smbus_read_word_data(i2cFd, T2 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, T2));
-		BMP280Params.t3 = (int16_t) (i2c_smbus_read_word_data(i2cFd, T3 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, T3));
+		BMP280Params.t1 = (uint16_t) (i2c_smbus_read_byte_data(i2cFd, T1 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T1));
+		std::cout << "T1: " << BMP280Params.t1<< std::endl;
+		BMP280Params.t2 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, T2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T2));
+		std::cout << "T2: " << BMP280Params.t2 << std::endl;
+		BMP280Params.t3 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, T3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T3));
+		std::cout << "T3: " << BMP280Params.t3 << std::endl;
 
 		// Get the pressure parameters
-		BMP280Params.p1 = (uint16_t) (i2c_smbus_read_word_data(i2cFd, P1 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P1));
-		BMP280Params.p2 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P2 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P2));
-		BMP280Params.p3 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P3 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P3));
-		BMP280Params.p4 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P4 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P4));
-		BMP280Params.p5 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P5 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P5));
-		BMP280Params.p6 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P6 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P6));
-		BMP280Params.p7 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P7 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P7));
-		BMP280Params.p8 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P8 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P8));
-		BMP280Params.p9 = (int16_t) (i2c_smbus_read_word_data(i2cFd, P9 + 1) << 8 | i2c_smbus_read_word_data(i2cFd, P9));
+		BMP280Params.p1 = (uint16_t) (i2c_smbus_read_byte_data(i2cFd, (P1 + 1)) << 8 | i2c_smbus_read_byte_data(i2cFd, P1));
+		std::cout << "P1: " << BMP280Params.p1<< std::endl;
+		BMP280Params.p2 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P2));
+		std::cout << "P2: " << BMP280Params.p2 << std::endl;
+		BMP280Params.p3 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P3));
+		std::cout << "P3: " << BMP280Params.p3 << std::endl;
+		BMP280Params.p4 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P4 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P4));
+		std::cout << "P4: " << BMP280Params.p4 << std::endl;
+		BMP280Params.p5 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P5 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P5));
+		std::cout << "P5: " << BMP280Params.p5 << std::endl;
+		BMP280Params.p6 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P6 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P6));
+		std::cout << "P6: " << BMP280Params.p6 << std::endl;
+		BMP280Params.p7 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P7 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P7));
+		std::cout << "P7: " << BMP280Params.p7 << std::endl;
+		BMP280Params.p8 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P8 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P8));
+		std::cout << "P8: " << BMP280Params.p8 << std::endl;
+		BMP280Params.p9 = (int16_t) (i2c_smbus_read_byte_data(i2cFd, P9 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P9));
+		std::cout << "P9: " << BMP280Params.p9 << std::endl;
 		return true;
 	}
 
 	bool setupBMP280()
 	{
-		char buf[32];
+		std::cout << "Starting BMP280 Setup" << std::endl;
+		uint8_t buf[32];
 		if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
 		{
+			std::cout << "Faild to set I2C Slave" << std::endl;
 			return false;
 		}
 
-		buf[0] = 0xF5;
-		buf[1] = 0x57;
-		if (write(i2cFd, buf, 2) != 2)
+		if (readParamsBMP280() != true)
+		{
+			std::cout << "Faild to read parameters" << std::endl;
+			return false;
+		}
+
+		std::cout << "Writing BMP280 Register F4 and F5" << std::endl;
+		buf[0] = 0x5F;
+		if (i2c_smbus_write_byte_data(i2cFd,0xF4,0x5F) != 0)
 		{
 			std::cout << "Failed sending BMP280 config" << std::endl;
 			return false;
 		}
 
-		buf[0] = 0xF4;
-		buf[1] = 0x5F;
-		if (write(i2cFd, buf, 2) != 2)
+
+		buf[0] = 0x10;
+		if (i2c_smbus_write_byte_data(i2cFd,0xF5,0x10) != 0)
 		{
 			std::cout << "Failed sending BMP280 config" << std::endl;
 			return false;
 		}
 
-		if (readParamsBMP280() != 0)
-		{
-			return false;
-		}
+		std::cout << "F5: " << i2c_smbus_read_byte_data(i2cFd, 0xF5) << std::endl;
+
+		std::cout << "F4: " << i2c_smbus_read_byte_data(i2cFd, 0xF4) << std::endl;
 
 		return true;
 	}
 
-	int32_t readTempBMP280()
+	void readPressure()
 	{
 		if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
 		{
 			return 0;
 		}
-		uint32_t rawTemp = (uint32_t) (i2c_smbus_read_word_data(i2cFd, 0xFA) << 9 | i2c_smbus_read_word_data(i2cFd, 0xFB) << 1 | ((i2c_smbus_read_word_data(i2cFd, 0xFC) >> 4) & 0x01));
-		uint32_t convTemp = bmp280_compensate_T_int32(rawTemp);
+		uint32_t rawTemp = (uint32_t) (i2c_smbus_read_byte_data(i2cFd, 0xFA) << 12 | i2c_smbus_read_byte_data(i2cFd, 0xFB) << 4 | ((i2c_smbus_read_byte_data(i2cFd, 0xFC) >> 4) ));
+		float convTemp = bmp280_compensate_T_int32(rawTemp & 0x000FFFF8);
+
 		environmentMutex.lock();
 		temp = (float) convTemp;
 		environmentMutex.unlock();
-		return convTemp;
+
+		uint32_t rawPressure = (uint32_t) (i2c_smbus_read_byte_data(i2cFd, 0xF7) << 12 | i2c_smbus_read_byte_data(i2cFd, 0xF8) << 4 | ((i2c_smbus_read_byte_data(i2cFd, 0xF9) >> 4)));
+		int32_t convPressure = bmp280_compensate_P_int64(rawPressure);
+
+		environmentMutex.lock();
+		pressure = (float)convPressure;
+		environmentMutex.unlock();
 	}
 
-	uint32_t readPressure()
+	bool setupLIS3MDL()
 	{
-		if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
-		{
-			return false;
-		}
-		readTempBMP280();
-		uint32_t rawPressure = (uint32_t) (i2c_smbus_read_word_data(i2cFd, 0xF7) << 12| i2c_smbus_read_word_data(i2cFd, 0xF8) << 4 | ((i2c_smbus_read_word_data(i2cFd, 0xF9) >> 4) & 0x0F));
-		uint32_t convPressure = bmp280_compensate_P_int64(rawPressure);
-		environmentMutex.lock();
-		pressure = (float) convPressure;
-		environmentMutex.unlock();
-		return convPressure;
+		
 	}
 
 	void readI2CSensors()
 	{
-		readPressure();
-		// add a sleep to test timing
+		while(true)
+		{
+			readPressure();
+			// add a sleep to test timing
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
 	}
 
 	// create function for reading data from uart
