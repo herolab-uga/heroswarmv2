@@ -1,6 +1,6 @@
 #include "includes/sensor_pub.hpp"
 
-bool setupLIS3MDL()
+bool SensorPublisher::setupLIS3MDL()
 {
     std::cout << "Starting LIS3MDL Setup" << std::endl;
     if (ioctl(i2cFd, I2C_SLAVE, LIS3MDL) < 0)
@@ -43,10 +43,10 @@ bool setupLIS3MDL()
 }
 
 // still need to figure out the transfer function for this
-void readMagField()
+void SensorPublisher::readMagField()
 {
-    uint16_t magX = i2c_smbus_read_block_data(i2cFd, 0x28);
-    uint16_t magY = i2c_smbus_read_block_data(i2cFd, 0x2a);
-    uint16_t magZ = i2c_smbus_read_block_data(i2cFd, 0x2c);
-    uint16_t temp = i2c_smbus_read_block_data(i2cFd, 0x2e);
+    // uint16_t magX = i2c_smbus_read_block_data(i2cFd, 0x28);
+    // uint16_t magY = i2c_smbus_read_block_data(i2cFd, 0x2a);
+    // uint16_t magZ = i2c_smbus_read_block_data(i2cFd, 0x2c);
+    // uint16_t temp = i2c_smbus_read_block_data(i2cFd, 0x2e);
 }

@@ -1,4 +1,6 @@
-
+#pragma once
+#ifndef UARTHEADER
+#define UARTHEADER
 #define BAUDRATE B115200
 
 // error enumeration?
@@ -18,3 +20,5 @@ bool tryUartLock();
 int uartInit();
 void lockMutex();
 void unlockMutex();
+
+#endif

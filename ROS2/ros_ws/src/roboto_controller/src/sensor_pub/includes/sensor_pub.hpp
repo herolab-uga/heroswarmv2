@@ -49,44 +49,20 @@ class SensorPublisher : public rclcpp::Node
 	 **/
 private:
 	/**
-	 * These variables will hold the sensor publisher objects
-	 **/
-	rclcpp::Publisher<robot_msgs::msg::Light>::SharedPtr lightPublisher;			 /* Light publisher for sensed RGB and gestures */
-	rclcpp::Publisher<robot_msgs::msg::Environment>::SharedPtr environmentPublisher; /* Environment publisher for temperature, pressure, humidity, and altitude */
-	rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPublisher;				 /* IMU publisher or IMU information */
-	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr micPublisher;				 /* Mic publisher for volume picked up by mic */
-	rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr proximityPublisher;			 /* Proximity publisher for distance information from front of robot */
-	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;			 /* Odometry publisher for odom data from feather senese */
-	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr batteryPublisher;			 /* Battery publisher for battery inforation */
-
-	/**
-	 * These variables will hold the sensor timmer objects
-	 **/
-	rclcpp::TimerBase::SharedPtr lightTimer;
-	rclcpp::TimerBase::SharedPtr environmentTimer;
-	rclcpp::TimerBase::SharedPtr imuTimer;
-	rclcpp::TimerBase::SharedPtr micTimer;
-	rclcpp::TimerBase::SharedPtr proximityTimer;
-	rclcpp::TimerBase::SharedPtr odomTimer;
-	rclcpp::TimerBase::SharedPtr batteryTimer;
-
-	std::thread readUartThread;
-
-	/**
 	 * Light message variables
 	 **/
 	std::mutex lightMutex;
-	int32_t rgbw[4] = {-1, -1, -1, -1};
-	int32_t gesture = -1;
+	int32_t rgbw[4];
+	int32_t gesture;
 
 	/**
 	 * Environment message variables
 	 **/
 	std::mutex environmentMutex;
-	float temp = -1;
-	float pressure = -1;
-	float humidity = -1;
-	float altitude = -1;
+	float temp;
+	float pressure;
+	float humidity;
+	float altitude;
 
 	/**
 	 * IMU message variables
@@ -109,25 +85,25 @@ private:
 	 * Odom message variables
 	 **/
 	std::mutex odomMutex;
-	float linX = -1;
-	float linY = -1;
-	float linZ = -1;
-	float angX = -1;
-	float angY = -1;
-	float angZ = -1;
+	float linX;
+	float linY;
+	float linZ;
+	float angX;
+	float angY;
+	float angZ;
 
-	float linVelX = -1;
-	float linVelY = -1;
-	float linVelZ = -1;
-	float angVelX = -1;
-	float angVelY = -1;
-	float angVelZ = -1;
+	float linVelX;
+	float linVelY;
+	float linVelZ;
+	float angVelX;
+	float angVelY;
+	float angVelZ;
 
 	/**
 	 * Battery message variables
 	 **/
 	std::mutex batteryMutex;
-	float bat = -1;
+	float bat;
 
 	/**
 	 * I2C Mutex
@@ -163,9 +139,11 @@ private:
 
 	void readSHT31D();
 
+	bool readParamsBMP280();
+
 	bool setupBMP280();
 
-	void readPressure();
+	bool readPressure();
 
 	bool setupLSM6DS33();
 

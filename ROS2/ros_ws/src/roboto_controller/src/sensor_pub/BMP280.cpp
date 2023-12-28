@@ -43,7 +43,39 @@ struct
 
 } BMP280Params;
 
-bool setupBMP280()
+bool SensorPublisher::readParamsBMP280()
+{
+    // Get the temperature parameters
+    BMP280Params.t1 = (uint16_t)(i2c_smbus_read_byte_data(i2cFd, T1 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T1));
+    std::cout << "T1: " << BMP280Params.t1 << std::endl;
+    BMP280Params.t2 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, T2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T2));
+    std::cout << "T2: " << BMP280Params.t2 << std::endl;
+    BMP280Params.t3 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, T3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T3));
+    std::cout << "T3: " << BMP280Params.t3 << std::endl;
+
+    // Get the pressure parameters
+    BMP280Params.p1 = (uint16_t)(i2c_smbus_read_byte_data(i2cFd, (P1 + 1)) << 8 | i2c_smbus_read_byte_data(i2cFd, P1));
+    std::cout << "P1: " << BMP280Params.p1 << std::endl;
+    BMP280Params.p2 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P2));
+    std::cout << "P2: " << BMP280Params.p2 << std::endl;
+    BMP280Params.p3 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P3));
+    std::cout << "P3: " << BMP280Params.p3 << std::endl;
+    BMP280Params.p4 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P4 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P4));
+    std::cout << "P4: " << BMP280Params.p4 << std::endl;
+    BMP280Params.p5 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P5 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P5));
+    std::cout << "P5: " << BMP280Params.p5 << std::endl;
+    BMP280Params.p6 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P6 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P6));
+    std::cout << "P6: " << BMP280Params.p6 << std::endl;
+    BMP280Params.p7 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P7 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P7));
+    std::cout << "P7: " << BMP280Params.p7 << std::endl;
+    BMP280Params.p8 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P8 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P8));
+    std::cout << "P8: " << BMP280Params.p8 << std::endl;
+    BMP280Params.p9 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P9 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P9));
+    std::cout << "P9: " << BMP280Params.p9 << std::endl;
+    return true;
+}
+
+bool SensorPublisher::setupBMP280()
 {
     std::cout << "Starting BMP280 Setup" << std::endl;
     if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
@@ -59,14 +91,13 @@ bool setupBMP280()
     }
 
     std::cout << "Writing BMP280 Register F4 and F5" << std::endl;
-    buf[0] = 0x5F;
+
     if (i2c_smbus_write_byte_data(i2cFd, 0xF4, 0x5F) != 0)
     {
         std::cout << "Failed sending BMP280 config" << std::endl;
         return false;
     }
 
-    buf[0] = 0x10;
     if (i2c_smbus_write_byte_data(i2cFd, 0xF5, 0x10) != 0)
     {
         std::cout << "Failed sending BMP280 config" << std::endl;
@@ -117,44 +148,11 @@ int32_t bmp280_compensate_P_int64(int32_t adc_P)
     return (int32_t)p;
 }
 
-bool readParamsBMP280()
-{
-    // Get the temperature parameters
-    BMP280Params.t1 = (uint16_t)(i2c_smbus_read_byte_data(i2cFd, T1 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T1));
-    std::cout << "T1: " << BMP280Params.t1 << std::endl;
-    BMP280Params.t2 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, T2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T2));
-    std::cout << "T2: " << BMP280Params.t2 << std::endl;
-    BMP280Params.t3 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, T3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, T3));
-    std::cout << "T3: " << BMP280Params.t3 << std::endl;
-
-    // Get the pressure parameters
-    BMP280Params.p1 = (uint16_t)(i2c_smbus_read_byte_data(i2cFd, (P1 + 1)) << 8 | i2c_smbus_read_byte_data(i2cFd, P1));
-    std::cout << "P1: " << BMP280Params.p1 << std::endl;
-    BMP280Params.p2 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P2 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P2));
-    std::cout << "P2: " << BMP280Params.p2 << std::endl;
-    BMP280Params.p3 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P3 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P3));
-    std::cout << "P3: " << BMP280Params.p3 << std::endl;
-    BMP280Params.p4 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P4 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P4));
-    std::cout << "P4: " << BMP280Params.p4 << std::endl;
-    BMP280Params.p5 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P5 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P5));
-    std::cout << "P5: " << BMP280Params.p5 << std::endl;
-    BMP280Params.p6 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P6 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P6));
-    std::cout << "P6: " << BMP280Params.p6 << std::endl;
-    BMP280Params.p7 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P7 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P7));
-    std::cout << "P7: " << BMP280Params.p7 << std::endl;
-    BMP280Params.p8 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P8 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P8));
-    std::cout << "P8: " << BMP280Params.p8 << std::endl;
-    BMP280Params.p9 = (int16_t)(i2c_smbus_read_byte_data(i2cFd, P9 + 1) << 8 | i2c_smbus_read_byte_data(i2cFd, P9));
-    std::cout << "P9: " << BMP280Params.p9 << std::endl;
-    return true;
-}
-
-
-void readPressure()
+bool SensorPublisher::readPressure()
 {
     if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
     {
-        return 0;
+        return false;
     }
     uint32_t rawTemp = (uint32_t)(i2c_smbus_read_byte_data(i2cFd, 0xFA) << 12 | i2c_smbus_read_byte_data(i2cFd, 0xFB) << 4 | ((i2c_smbus_read_byte_data(i2cFd, 0xFC) >> 4)));
     float convTemp = bmp280_compensate_T_int32(rawTemp & 0x000FFFF8);
@@ -169,4 +167,6 @@ void readPressure()
     environmentMutex.lock();
     pressure = (float)convPressure;
     environmentMutex.unlock();
+
+    return true;
 }

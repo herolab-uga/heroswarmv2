@@ -9,7 +9,7 @@
 #define GREENREG 0x98
 #define BLUEREG 0x9A
 
-bool setupAPDS9960()
+bool SensorPublisher::setupAPDS9960()
 {
 
     std::cout << "Starting APDS9960 Setup" << std::endl;
@@ -26,7 +26,7 @@ bool setupAPDS9960()
     return true;
 }
 
-void readColor()
+void SensorPublisher::readColor()
 {
     // The color data is 16 bit
     uint16_t clear = i2c_smbus_read_word_data(i2cFd, CLEARREG);
@@ -42,7 +42,7 @@ void readColor()
     lightMutex.unlock();
 }
 
-void readProx()
+void SensorPublisher::readProx()
 {
     uint8_t readProx = i2c_smbus_read_byte_data(i2cFd, PROXDATA);
     proximityMutex.lock();

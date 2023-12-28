@@ -1,6 +1,6 @@
 #include "includes/sensor_pub.hpp"
 
-bool setupSHT31D()
+bool SensorPublisher::setupSHT31D()
 {
     std::cout << "Starting SHT31D Setup" << std::endl;
     if (ioctl(i2cFd, I2C_SLAVE, SHT31D) < 0)
@@ -17,7 +17,7 @@ bool setupSHT31D()
     return true;
 }
 
-void readSHT31D()
+void SensorPublisher::readSHT31D()
 {
     // Request data
     i2c_smbus_write_word_data(i2cFd, 0xE0, 0x00);
