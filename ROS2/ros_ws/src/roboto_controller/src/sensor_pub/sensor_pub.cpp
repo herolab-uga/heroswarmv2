@@ -2,39 +2,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <thread>
-#include <mutex>
 #include <chrono>
 #include <iostream>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include "includes/sensor_pub.hpp"
 
 /* Linux headers */
 #include <errno.h> // Error integer and strerror() function
 
-/* Ros Headers */
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/int16.hpp"
-#include "sensor_msgs/msg/imu.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "robot_msgs/msg/environment.hpp"
-#include "robot_msgs/msg/light.hpp"
-// #include "robot_msgs/sensor_enable.hpp"
-
 /* Communication Headers */
 #include "uart.hpp"
-extern "C"
-{
-#include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
-}
-
-
-
-#define LIS3MDL 0x1C
-#define SHT31D 0x44
-#define APDS9960 0x39
-#define LSM6DS33 0x69
+#include "sharedMutex.h++"
 
 #define DEFAULT_PUB_RATE std::chrono::milliseconds(16) /* The default publishing rate for sensor data is 60 hz*/
 
@@ -76,14 +55,14 @@ private:
 	/**
 	 * Light message variables
 	 **/
-	std::mutex lightMutex;
+	extern std::mutex lightMutex;
 	int32_t rgbw[4] = {-1, -1, -1, -1};
 	int32_t gesture = -1;
 
 	/**
 	 * Environment message variables
 	 **/
-	std::mutex environmentMutex;
+	extern std::mutex environmentMutex;
 	float temp = -1;
 	float pressure = -1;
 	float humidity = -1;
@@ -92,24 +71,24 @@ private:
 	/**
 	 * IMU message variables
 	 **/
-	std::mutex imuMutex;
+	extern std::mutex imuMutex;
 
 	/**
 	 * Mic message variables
 	 **/
-	std::mutex micMutex;
+	extern std::mutex micMutex;
 	float volume = -1;
 
 	/**
 	 * Proximity message variables
 	 **/
-	std::mutex proximityMutex;
+	extern std::mutex proximityMutex;
 	int16_t prox = -1;
 
 	/**
 	 * Odom message variables
 	 **/
-	std::mutex odomMutex;
+	extern std::mutex odomMutex;
 	float linX = -1;
 	float linY = -1;
 	float linZ = -1;
@@ -127,13 +106,13 @@ private:
 	/**
 	 * Battery message variables
 	 **/
-	std::mutex batteryMutex;
+	extern std::mutex batteryMutex;
 	float bat = -1;
 
 	/**
 	 * I2C Mutex
 	 **/
-	std::mutex i2cMutex;
+	extern std::mutex i2cMutex;
 	int i2cFd;
 	char i2cFileName[20];
 
@@ -172,6 +151,21 @@ public:
 		odomTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&SensorPublisher::pubOdom, this));
 		batteryTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&SensorPublisher::pubOdom, this));
 
+		// Instantiate the thread that will read from uart
+		readUartThread = std::thread(&SensorPublisher::readUart, this);
+
+		readI2CThread = std::thread(&SensorPublisher::readI2CSensors, this);
+		std::cout << "Ready" << std::endl;
+	}
+
+	/**
+	 * Private Functions
+	 **/
+private:
+
+	void readI2CSensors()
+	{
+
 		// I2C Setup
 		snprintf(i2cFileName, 19, "/dev/i2c-%d", 1);
 		i2cFd = open(i2cFileName, O_RDWR);
@@ -182,71 +176,43 @@ public:
 			exit(1);
 		}
 
+		if (setupLIS3MDL() != true)
+		{
+			std::cout << "Failed setting up LIS3MDL" << std::endl;
+			exit(1);
+		}
+
 		if (setupSHT31D() != true)
 		{
 			std::cout << "Failed setting up SHT31D" << std::endl;
 			exit(1);
 		}
 
-		// Instantiate the thread that will read from uart
-		readUartThread = std::thread(&SensorPublisher::readUart, this);
-
-		readI2CThread = std::thread(&SensorPublisher::readI2CSensors,this);
-		std::cout << "Ready" << std::endl;
-	}
-
-	/**
-	 * Private Functions
-	 **/
-private:
-	// import adafruit_lis3mdl
-	// from adafruit_apds9960.apds9960 import APDS9960
-	// from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-
-	bool setupSHT31D()
-	{
-		std::cout << "Starting SHT31D Setup" << std::endl;
-		if (ioctl(i2cFd, I2C_SLAVE, SHT31D) < 0)
+		if (setupBMP280() != true)
 		{
-			std::cout << "Faild to set SHT31D I2C Slave" << std::endl;
-			return false;
+			std::cout << "Failed setting up BMP280" << std::endl;
+			exit(1);
 		}
-		// High repeatability with clock stretching
-		i2c_smbus_write_word_data(i2cFd,0x2C, 0x06);
 
-		// High repeatability 10 measurements per second
-		i2c_smbus_write_word_data(i2cFd,0x27, 0x37);
-
-		return true;
-	}
-
-	void readSHT31D()
-	{
-		// Request data
-		i2c_smbus_write_word_data(i2cFd,0xE0, 0x00);
-
-		uint8_t temp_h = i2c_smbus_read_byte(i2cFd);
-		uint8_t temp_l = i2c_smbus_read_byte(i2cFd);
-		uint8_t humidity_h = i2c_smbus_read_byte(i2cFd);
-		uint8_t humidity_l = i2c_smbus_read_byte(i2cFd);
-
-		environmentMutex.lock();
-		humidity = 100.0 * (float)((humidity_h << 8) | humidity_l) / 65535.0;
-		temp = -45.0 + 175 *(float)((temp_h << 8) | temp_l) / 65535.0;
-		environmentMutex.unlock();
-
-		// Request Status Register
-		i2c_smbus_write_word_data(i2cFd,0xF3, 0x2D);
-		std::cout << "Upper: " << std::hex << (i2c_smbus_read_byte(i2cFd)) << std::endl;
-		std::cout << "Lower: " << std::hex << (i2c_smbus_read_byte(i2cFd))  << std::endl;
-	}
-
-	void readI2CSensors()
-	{
-		while(true)
+		if (setupLSM6DS33() != true)
 		{
-			// readPressure();
+			std::cout << "Failed setting up LSM6DS33" << std::endl;
+			exit(1);
+		}
+
+		if (setupAPDS9960() != true)
+		{
+			std::cout << "Failed setting up APDS9960" << std::endl;
+			exit(1);
+		}
+		while (true)
+		{
+			// readMagField();
 			readSHT31D();
+			readPressure();
+			readLSM6DS33();
+			readProx();
+			readColor();
 			// add a sleep to test timing
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
@@ -256,6 +222,13 @@ private:
 	void readUart()
 	{
 		uint8_t buf[255];
+
+		if (tryUartLock())
+		{
+			uartInit();
+			unlockMutex();
+		}
+
 		while (true)
 		{
 			lockMutex();
@@ -372,11 +345,6 @@ private:
 int main(int argc, char *argv[])
 {
 	std::cout << "Starting" << std::endl;
-	if (tryUartLock())
-	{
-		uartInit();
-		unlockMutex();
-	}
 
 	std::cout << "Spinning ROS Node" << std::endl;
 	rclcpp::init(argc, argv);

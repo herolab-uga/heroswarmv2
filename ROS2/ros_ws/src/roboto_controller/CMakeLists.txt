@@ -30,7 +30,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(sensor_publisher src/sensor_pub/sensor_pub.cpp src/uart/uart.hpp src/uart/uart.cpp)
+add_executable(sensor_publisher src/sensor_pub/includes/sensor_pub.hpp src/sensor_pub/APDS9960.cpp src/sensor_pub/BMP280.cpp src/sensor_pub/LIS3MDL.cpp src/sensor_pub/LSM6DS33.cpp src/sensor_pub/SHT31D.cpp  src/sensor_pub/sensor_pub.cpp src/uart/uart.hpp  src/uart/uart.cpp)
 target_include_directories(sensor_publisher PRIVATE src/sensor_pub src/uart)
 target_link_libraries(sensor_publisher i2c)
 target_compile_options(sensor_publisher PUBLIC "-pthread")

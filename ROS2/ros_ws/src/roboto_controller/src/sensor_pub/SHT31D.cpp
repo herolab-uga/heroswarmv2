@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include "includes/sensor_pub.hpp"
+
 bool setupSHT31D()
 {
     std::cout << "Starting SHT31D Setup" << std::endl;

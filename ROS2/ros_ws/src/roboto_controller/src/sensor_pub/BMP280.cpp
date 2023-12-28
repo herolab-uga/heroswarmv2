@@ -1,7 +1,5 @@
-#include <stdio.h>
+#include "includes/sensor_pub.hpp"
 
-// I2C sensor's slave address
-#define BMP280 0x77
 // BMP280 Registers
 
 // Temperature
@@ -44,6 +42,43 @@ struct
     int32_t t_fine;
 
 } BMP280Params;
+
+bool setupBMP280()
+{
+    std::cout << "Starting BMP280 Setup" << std::endl;
+    if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
+    {
+        std::cout << "Faild to set I2C Slave" << std::endl;
+        return false;
+    }
+
+    if (readParamsBMP280() != true)
+    {
+        std::cout << "Faild to read parameters" << std::endl;
+        return false;
+    }
+
+    std::cout << "Writing BMP280 Register F4 and F5" << std::endl;
+    buf[0] = 0x5F;
+    if (i2c_smbus_write_byte_data(i2cFd, 0xF4, 0x5F) != 0)
+    {
+        std::cout << "Failed sending BMP280 config" << std::endl;
+        return false;
+    }
+
+    buf[0] = 0x10;
+    if (i2c_smbus_write_byte_data(i2cFd, 0xF5, 0x10) != 0)
+    {
+        std::cout << "Failed sending BMP280 config" << std::endl;
+        return false;
+    }
+
+    std::cout << "F5: " << i2c_smbus_read_byte_data(i2cFd, 0xF5) << std::endl;
+
+    std::cout << "F4: " << i2c_smbus_read_byte_data(i2cFd, 0xF4) << std::endl;
+
+    return true;
+}
 
 float bmp280_compensate_T_int32(int32_t adc_T)
 {
@@ -114,42 +149,6 @@ bool readParamsBMP280()
     return true;
 }
 
-bool setupBMP280()
-{
-    std::cout << "Starting BMP280 Setup" << std::endl;
-    if (ioctl(i2cFd, I2C_SLAVE, BMP280) < 0)
-    {
-        std::cout << "Faild to set I2C Slave" << std::endl;
-        return false;
-    }
-
-    if (readParamsBMP280() != true)
-    {
-        std::cout << "Faild to read parameters" << std::endl;
-        return false;
-    }
-
-    std::cout << "Writing BMP280 Register F4 and F5" << std::endl;
-    buf[0] = 0x5F;
-    if (i2c_smbus_write_byte_data(i2cFd, 0xF4, 0x5F) != 0)
-    {
-        std::cout << "Failed sending BMP280 config" << std::endl;
-        return false;
-    }
-
-    buf[0] = 0x10;
-    if (i2c_smbus_write_byte_data(i2cFd, 0xF5, 0x10) != 0)
-    {
-        std::cout << "Failed sending BMP280 config" << std::endl;
-        return false;
-    }
-
-    std::cout << "F5: " << i2c_smbus_read_byte_data(i2cFd, 0xF5) << std::endl;
-
-    std::cout << "F4: " << i2c_smbus_read_byte_data(i2cFd, 0xF4) << std::endl;
-
-    return true;
-}
 
 void readPressure()
 {

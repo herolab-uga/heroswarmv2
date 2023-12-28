@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include "includes/sensor_pub.hpp"
+
 bool setupLIS3MDL()
 {
     std::cout << "Starting LIS3MDL Setup" << std::endl;
@@ -41,6 +42,7 @@ bool setupLIS3MDL()
     return true;
 }
 
+// still need to figure out the transfer function for this
 void readMagField()
 {
     uint16_t magX = i2c_smbus_read_block_data(i2cFd, 0x28);
