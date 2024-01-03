@@ -43,10 +43,11 @@ bool SensorPublisher::setupLIS3MDL()
 }
 
 // still need to figure out the transfer function for this
-void SensorPublisher::readMagField()
+bool SensorPublisher::readMagField()
 {
     // uint16_t magX = i2c_smbus_read_block_data(i2cFd, 0x28);
     // uint16_t magY = i2c_smbus_read_block_data(i2cFd, 0x2a);
     // uint16_t magZ = i2c_smbus_read_block_data(i2cFd, 0x2c);
     // uint16_t temp = i2c_smbus_read_block_data(i2cFd, 0x2e);
+    return false;
 }

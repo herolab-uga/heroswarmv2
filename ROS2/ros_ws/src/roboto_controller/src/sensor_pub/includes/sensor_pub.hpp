@@ -133,11 +133,11 @@ private:
 	// Functions for setting up and reading I2C sensor
 	bool setupLIS3MDL();
 
-	void readMagField();
+	bool readMagField();
 
 	bool setupSHT31D();
 
-	void readSHT31D();
+	bool readSHT31D();
 
 	bool readParamsBMP280();
 
@@ -147,13 +147,13 @@ private:
 
 	bool setupLSM6DS33();
 
-	void readLSM6DS33();
+	bool readLSM6DS33();
 
 	bool setupAPDS9960();
 
-	void readColor();
+	bool readColor();
 
-	void readProx();
+	bool readProx();
 
 	void readI2CSensors();
 

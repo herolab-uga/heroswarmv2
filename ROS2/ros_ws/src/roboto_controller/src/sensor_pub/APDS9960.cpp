@@ -49,7 +49,7 @@ void SensorPublisher::readColor()
     lightMutex.unlock();
 }
 
-void SensorPublisher::readProx()
+bool SensorPublisher::readProx()
 {
 
     if (ioctl(i2cFd, I2C_SLAVE, APDS9960) < 0)
@@ -62,4 +62,5 @@ void SensorPublisher::readProx()
     proximityMutex.lock();
     prox = readProx;
     proximityMutex.unlock();
+    return true;
 }
