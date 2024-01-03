@@ -19,6 +19,13 @@ bool SensorPublisher::setupSHT31D()
 
 void SensorPublisher::readSHT31D()
 {
+
+    if (ioctl(i2cFd, I2C_SLAVE, SHT31D) < 0)
+    {
+        std::cout << "Faild to set SHT31D I2C Slave" << std::endl;
+        return false;
+    }
+
     // Request data
     i2c_smbus_write_word_data(i2cFd, 0xE0, 0x00);
 

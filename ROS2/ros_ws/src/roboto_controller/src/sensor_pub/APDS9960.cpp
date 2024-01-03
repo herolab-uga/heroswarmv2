@@ -28,6 +28,13 @@ bool SensorPublisher::setupAPDS9960()
 
 void SensorPublisher::readColor()
 {
+
+    if (ioctl(i2cFd, I2C_SLAVE, APDS9960) < 0)
+    {
+        std::cout << "Faild to set I2C Slave" << std::endl;
+        return false;
+    }
+
     // The color data is 16 bit
     uint16_t clear = i2c_smbus_read_word_data(i2cFd, CLEARREG);
     uint16_t red = i2c_smbus_read_word_data(i2cFd, REDREG);
@@ -44,6 +51,13 @@ void SensorPublisher::readColor()
 
 void SensorPublisher::readProx()
 {
+
+    if (ioctl(i2cFd, I2C_SLAVE, APDS9960) < 0)
+    {
+        std::cout << "Faild to set I2C Slave" << std::endl;
+        return false;
+    }
+
     uint8_t readProx = i2c_smbus_read_byte_data(i2cFd, PROXDATA);
     proximityMutex.lock();
     prox = readProx;
