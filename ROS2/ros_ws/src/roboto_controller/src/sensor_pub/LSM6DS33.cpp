@@ -11,7 +11,7 @@ bool SensorPublisher::setupLSM6DS33()
     return true;
 }
 
-void readLSM6DS33()
+bool readLSM6DS33()
 {
-    
+    return false;
 }
