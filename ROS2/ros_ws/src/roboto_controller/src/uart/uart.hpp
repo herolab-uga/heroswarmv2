@@ -16,9 +16,8 @@ enum uartState
 
 int uartRead(uint8_t* buffer, size_t len);
 int uartWrite(uint8_t* buffer, size_t len);
-bool tryUartLock();
 int uartInit();
-void lockMutex();
-void unlockMutex();
+int lockUartMutex();
+int unlockUartMutex();
 
 #endif

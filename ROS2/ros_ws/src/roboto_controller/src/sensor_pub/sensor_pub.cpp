@@ -198,10 +198,10 @@ void SensorPublisher::readUart()
 {
 	uint8_t buf[255];
 
-	if (tryUartLock())
+	if (int lockUartMutex())
 	{
 		uartInit();
-		unlockMutex();
+		unlockUartMutex();
 	}
 
 	while (true)

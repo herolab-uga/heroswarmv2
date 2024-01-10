@@ -10,10 +10,15 @@
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h> // write(), read(), close()
 
+/* ROS Headers */
+// add the headers for ros logger
+
 #include "uart.hpp"
 
+#define MUTEXNAME "/uart_mutex"
+
+int mutexFd;
 int serialPort;
-std::mutex uartMutex; 
 bool uartConfigured = false;
 
 int uartRead(uint8_t* buffer, size_t len)
@@ -28,23 +33,40 @@ int uartWrite(uint8_t* const buffer, size_t len)
     return write(serialPort,buffer,len);
 }
 
-bool tryUartLock()
+int lockUartMutex()
 {
-    return uartMutex.try_lock();
+    // Lock the mutex
+    struct flock fl;
+    fl.l_type = F_WRLCK;  // Write lock
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+    return fcntl(mutexFd, F_SETLKW, &fl);
 }
 
-void lockMutex()
+int unlockUartMutex() 
 {
-    uartMutex.lock();
+    // Lock the mutex
+    struct flock fl;
+    fl.l_type = F_UNLCK;  // Write lock
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+    return fcntl(mutexFd, F_SETLKW, &fl);
 }
 
-void unlockMutex() 
-{
-    uartMutex.unlock();
-}
-
+// will take in a node to log to
 int uartInit()
 {
+    // Create the mutex
+    mutexFd = open(MUTEXNAME,O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+
+    if (mutexFd == -1) 
+    {
+        std::cerr << "Error opening " << MUTEXNAME << std::endl;
+        return 1;
+    }
+
     std::cout << "Initializing UART" << std::endl;
     if (uartConfigured == true){
         return uartState::CONFIGURED; // return configured 
@@ -102,8 +124,6 @@ int uartInit()
         // try to fix error
         return uartState::ERRGETATTR; // if unable return uart set attr error code
     }
-
-    uartConfigured = true;
 
     std::cout << "Finished Initializing UART" << std::endl;
     
