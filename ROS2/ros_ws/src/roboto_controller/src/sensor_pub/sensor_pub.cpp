@@ -16,6 +16,17 @@
 
 #define DEFAULT_PUB_RATE std::chrono::milliseconds(16) /* The default publishing rate for sensor data is 60 hz*/
 
+float ODOM_COVARIANCE_MATRIX[36] = { 1e-2, 0.0, 0.0, 0.0, 0.0, 0.0,
+                           			0.0, 1e-2, 0.0, 0.0, 0.0, 0.0,
+                           			0.0, 0.0, 1e-2, 0.0, 0.0, 0.0,
+                           			0.0, 0.0, 0.0, 1e-2, 0.0, 0.0,
+                           			0.0, 0.0, 0.0, 0.0, 1e-2, 0.0,
+                           			0.0, 0.0, 0.0, 0.0, 0.0, 1e-2 };
+
+float IMU_COVARIANCE_MATRIX[9] = {1e-2, 0.0, 0.0, 
+									0.0, 1e-2, 0.0, 
+									0.0, 0.0, 1e-2};
+
 rclcpp::Publisher<robot_msgs::msg::Light>::SharedPtr lightPublisher;			 /* Light publisher for sensed RGB and gestures */
 rclcpp::Publisher<robot_msgs::msg::Environment>::SharedPtr environmentPublisher; /* Environment publisher for temperature, pressure, humidity, and altitude */
 rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPublisher;				 /* IMU publisher or IMU information */
@@ -113,6 +124,7 @@ std::thread readI2CThread;
 SensorPublisher::SensorPublisher():Node("sensorPublisher")
 {
 
+	// need to add parameters to know what sensors to turn on and subscirber so you can toggle them in real time
 	// Create the publishers
 	lightPublisher = this->create_publisher<robot_msgs::msg::Light>("/light", 5);
 	environmentPublisher = this->create_publisher<robot_msgs::msg::Environment>("/environment", 5);
@@ -198,7 +210,7 @@ void SensorPublisher::readUart()
 {
 	uint8_t buf[255];
 
-	if (int lockUartMutex())
+	if (lockUartMutex())
 	{
 		uartInit();
 		unlockUartMutex();
@@ -206,9 +218,9 @@ void SensorPublisher::readUart()
 
 	while (true)
 	{
-		lockMutex();
+		lockUartMutex();
 		uartRead(buf, sizeof(buf));
-		unlockMutex();
+		unlockUartMutex();
 
 		odomMutex.lock();
 		memcpy(&linX, buf, sizeof(float));
@@ -280,6 +292,21 @@ void SensorPublisher::pubProximity()
 	proximityPublisher->publish(proxMsg);
 }
 
+// def quaternion_from_rpy(self, roll, pitch, yaw):
+//         cy = math.cos(yaw * 0.5)
+//         sy = math.sin(yaw * 0.5)
+//         cp = math.cos(pitch * 0.5)
+//         sp = math.sin(pitch * 0.5)
+//         cr = math.cos(roll * 0.5)
+//         sr = math.sin(roll * 0.5)
+
+//         q = [0] * 4
+//         q[0] = sr * cp * cy - cr * sp * sy
+//         q[1] = cr * sp * cy + sr * cp * sy
+//         q[2] = cr * cp * sy - sr * sp * cy
+//         q[3] = cr * cp * cy + sr * sp * sy
+//         return q
+
 void SensorPublisher::pubOdom()
 {
 	auto odomMsg = nav_msgs::msg::Odometry();
@@ -289,9 +316,14 @@ void SensorPublisher::pubOdom()
 	odomMsg.pose.pose.position.y = linY;
 	odomMsg.pose.pose.position.z = 0;
 
-	odomMsg.pose.pose.orientation.x = 0;
-	odomMsg.pose.pose.orientation.y = 0;
-	odomMsg.pose.pose.orientation.z = angZ;
+	tf2::Quaternion m;
+	m.setRPY(0,0,angZ);
+
+	// I need to convert from rpy to quaternion
+	odomMsg.pose.pose.orientation.x = m.getX();
+	odomMsg.pose.pose.orientation.y = m.getY();
+	odomMsg.pose.pose.orientation.z = m.getZ();
+	odomMsg.pose.pose.orientation.w = m.getW();
 
 	odomMsg.twist.twist.linear.x = linVelX;
 	odomMsg.twist.twist.linear.y = linVelY;
@@ -312,6 +344,11 @@ void SensorPublisher::pubBattery()
 	battMsg.data = bat;
 	batteryMutex.unlock();
 	batteryPublisher->publish(battMsg);
+}
+
+void SensorPublisher::shutdown()
+{
+
 }
 
 // create function for service

@@ -26,7 +26,7 @@ bool SensorPublisher::setupAPDS9960()
     return true;
 }
 
-void SensorPublisher::readColor()
+bool SensorPublisher::readColor()
 {
 
     if (ioctl(i2cFd, I2C_SLAVE, APDS9960) < 0)
@@ -47,6 +47,7 @@ void SensorPublisher::readColor()
     rgbw[0] = blue;
     rgbw[0] = clear;
     lightMutex.unlock();
+    return true;
 }
 
 bool SensorPublisher::readProx()

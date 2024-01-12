@@ -16,6 +16,9 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "robot_msgs/msg/environment.hpp"
 #include "robot_msgs/msg/light.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/LinearMath/Matrix3x3.h"
+
 
 /* Linux headers */
 #include <errno.h> // Error integer and strerror() function
@@ -176,6 +179,8 @@ private:
 	void pubOdom();
 
 	void pubBattery();
+
+	void shutdown();
 
 	// create function for sensor enable service
 };
