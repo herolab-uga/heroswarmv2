@@ -25,11 +25,10 @@
 /* Communication Headers */
 #include "uart.hpp"
 
-class  Controller : public rclcpp::Node 
+class Controller : public rclcpp::Node
 {
 
 private:
-
     std::string robotId;
     std::string robotName;
 
@@ -45,6 +44,19 @@ private:
 
     float voltageBatt;
 
+    // Charger
+    struct
+    {
+        uint16_t chargerId;
+        float x;
+        float y;
+        float z;
+
+    } charger;
+
+    rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getChargerService;
+    rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseChargerService;
+
 public:
     Controller();
     ~Controller();
@@ -52,7 +64,7 @@ public:
 private:
     void getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg);
     void getPos(const nav_msgs::msg::Odometry::SharedPtr msg);
-    int sendValues(uint8_t* buff, size_t length);
+    int sendValues(uint8_t *buff, size_t length);
     void stop();
     void readTwist(const geometry_msgs::msg::Twist::SharedPtr msg);
     void neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr);
@@ -60,5 +72,4 @@ private:
     void requestCharger();
     void releaseCharger();
     void batteryCallback(const std_msgs::msg::Float32::SharedPtr);
-
 };

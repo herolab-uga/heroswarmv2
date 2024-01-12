@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <chrono>
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
@@ -20,17 +21,21 @@
 /* Communication Headers */
 #include "uart.hpp"
 
-#define MAX_LINEAR_SPEED 0.1
-#define LINEAR_THRESHOLD 0.01
-
-#define ANGULAR_THRESHOLD 0.05
-#define MAX_ANGULAR_SPEED 1.85
-
 #define EQUAL 0
+
+#define CHARGETHRESH 4.0f
+#define DISCHARGETHRESH 3.5f
+
+#define MAX_LINEAR_SPEED 0.1f
+#define LINEAR_THRESHOLD 0.01f
+
+#define ANGULAR_THRESHOLD 0.05f
+#define MAX_ANGULAR_SPEED 1.85f
 
 bool restart = false;
 
 using std::placeholders::_1;
+using namespace std::chrono_literals;
 
 Controller::Controller():Node("controller")
 {
@@ -63,8 +68,8 @@ Controller::Controller():Node("controller")
     this->create_subscription<robot_msgs::msg::RobotPos>("/position", 10, std::bind(&Controller::getGlobalPos, this, _1));
 
     // Charger Services
-    rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getCharger = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
-    rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseCharger = this->create_client<robot_msgs::srv::ReleaseCharger>("releaseCharger");
+    getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
+    releaseChargerService = this->create_client<robot_msgs::srv::ReleaseCharger>("releaseCharger");
 }
 
 // destructor stop send stop need a way to prioritize this call for uart communication priority mutex call?
@@ -148,8 +153,8 @@ void Controller::stop()
 
 void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    float x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? std::min(std::max(msg->linear.x, -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
-    float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(msg->linear.z, -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
+    float x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->linear.x), -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
+    float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->linear.z), -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
 
     uint8_t buff[13];
     std::memset(buff, 0, 13);
@@ -185,7 +190,32 @@ void Controller::shutdownCallback(const std_msgs::msg::String::SharedPtr msg)
 
 void Controller::batteryCallback(const std_msgs::msg::Float32::SharedPtr msg)
 {
-     voltageBatt = msg->data;
+    voltageBatt = msg->data;
+
+    // if (voltageBatt <= DISCHARGETHRESH)
+    // {
+    //     auto request = std::make_shared<robot_msgs::srv::GetCharger::Request>();
+    //     request -> name.set__name(this->robotName);
+
+    //     while (!this->getChargerService->wait_for_service(1s))
+    //     {
+    //         if (!rclcpp::ok())
+    //         {
+    //             std::cout << "Interrupted while waiting for Get Charger service" << std::endl;
+    //         }
+    //         std::cout << "Service not available, waiting again..." << std::endl;
+    //     }
+
+    //     auto result = this->getChargerService->async_send_request(request);
+
+    //     if (rclcpp::spin_until_future_complete(this,result) == rclcpp::FutureReturnCode::SUCCESS)
+    //     {
+    //         this->charger.chargerId = result.get()->id;
+    //         this->charger.x = result.get()->position.x
+    //         this->charger.y = result.get()->position.y
+    //         this->charger.z = result.get()->position.z
+    //     }
+    // }
 }
 
 
