@@ -59,6 +59,6 @@ private:
     void shutdownCallback(const std_msgs::msg::String::SharedPtr msg);
     void requestCharger();
     void releaseCharger();
-    void batteryCallback(const std_msgs::msg::Float32);
+    void batteryCallback(const std_msgs::msg::Float32::SharedPtr);
 
 };

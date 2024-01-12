@@ -7,7 +7,9 @@
 #include <vector>
 #include <iostream>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/reboot.h>
 #include <sys/syscall.h>
 #include <linux/reboot.h>
 #include "includes/controller.hpp"
@@ -52,7 +54,7 @@ Controller::Controller():Node("controller")
     robotId = std::getenv("ROBOTID");
 
     /*Get the robot namespace*/
-    robotName = this->namespace();
+    robotName = this->get_namespace();
 
     this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Controller::readTwist, this, _1));
     this->create_subscription<std_msgs::msg::Int16MultiArray>("neopixel", 10, std::bind(&Controller::neopixelCallback, this, _1));
@@ -98,9 +100,9 @@ void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
     }
 }
 
-void getPos(const nav_msgs::msg::Odometry::SharedPtr msg)
+void Controller::getPos(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
-    this->lineXPos = msg->pose.pose.position.x;
+    this->linXPos = msg->pose.pose.position.x;
     this->linYPos = msg->pose.pose.position.y;
 
     tf2::Quaternion q(
@@ -123,7 +125,6 @@ int Controller::sendValues(uint8_t *buff, size_t len)
     memset(buffer, 0, 64);
     buffer[0] = 0xBE;
     buffer[1] = 0xEF;
-    buffer[2] = opcode;
 
     // This is going to add the data to the message and the appropiate length
     memcpy(buffer + 2, buff, len);
@@ -145,15 +146,15 @@ void Controller::stop()
     this->sendValues(buff, 13);
 }
 
-void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr)
+void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? min(max(msg.linear.x, -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
-    ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? min(max(msg.linear.z, -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
+    float x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? std::min(std::max(msg->linear.x, -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
+    float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(msg->linear.z, -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
 
     uint8_t buff[13];
-    memset(buff, 0, 13);
-    memcpy(buff + 1, reinterpret_cast<uint8_t *>(x_velo), sizeof(float));
-    memcpy(buff + 9, reinterpret_cast<uint8_t *>(ang_z_velo), sizeof(float));
+    std::memset(buff, 0, 13);
+    std::memcpy(buff + 1, reinterpret_cast<uint8_t *>(&x_velo), sizeof(float));
+    std::memcpy(buff + 9, reinterpret_cast<uint8_t *>(&ang_z_velo), sizeof(float));
 
     this->sendValues(buff, 13);
 }
@@ -161,11 +162,11 @@ void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr)
 void Controller::neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg)
 {
     uint8_t buff[7];
-    memset(buff, 0, 7);
+    std::memset(buff, 0, 7);
     buff[0] = 1.0;
-    memcpy(buff + 1, reinterpret_cast<uint8_t *>(msg->data[0]), sizeof(uint16_t));
-    memcpy(buff + 2, reinterpret_cast<uint8_t *>(msg->data[1]), sizeof(uint16_t));
-    memcpy(buff + 5, reinterpret_cast<uint8_t *>(msg->data[2]), sizeof(uint16_t));
+    std::memcpy(buff + 1, reinterpret_cast<uint8_t *>(msg->data[0]), sizeof(uint16_t));
+    std::memcpy(buff + 2, reinterpret_cast<uint8_t *>(msg->data[1]), sizeof(uint16_t));
+    std::memcpy(buff + 5, reinterpret_cast<uint8_t *>(msg->data[2]), sizeof(uint16_t));
 
     this->sendValues(buff, 7);
 }
@@ -184,7 +185,7 @@ void Controller::shutdownCallback(const std_msgs::msg::String::SharedPtr msg)
 
 void Controller::batteryCallback(const std_msgs::msg::Float32::SharedPtr msg)
 {
-     voltageBatt = msg.data;
+     voltageBatt = msg->data;
 }
 
 

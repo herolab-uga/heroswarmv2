@@ -36,7 +36,7 @@ endif()
 add_executable(sensor_publisher src/sensor_pub/includes/sensor_pub.hpp src/sensor_pub/APDS9960.cpp src/sensor_pub/BMP280.cpp src/sensor_pub/LIS3MDL.cpp src/sensor_pub/LSM6DS33.cpp src/sensor_pub/SHT31D.cpp  src/sensor_pub/sensor_pub.cpp src/uart/uart.hpp  src/uart/uart.cpp)
 target_include_directories(sensor_publisher PRIVATE src/sensor_pub src/uart)
 target_link_libraries(sensor_publisher i2c)
-target_link_libraries(sensor_publisher tf2)
+target_link_libraries(sensor_publisher ${tf2_LIBRARIES})
 target_compile_options(sensor_publisher PUBLIC "-pthread")
 ament_target_dependencies(sensor_publisher rclcpp tf2 tf2_ros sensor_msgs std_msgs nav_msgs robot_msgs)
 
@@ -44,7 +44,8 @@ install(TARGETS sensor_publisher DESTINATION lib/${PROJECT_NAME})
 
 add_executable(robot_controller src/controller/includes/controller.hpp src/controller/controller.cpp src/uart/uart.cpp)
 target_include_directories(robot_controller PRIVATE src/controller src/uart)
-target_link_libraries(robot_controller tf2)
+target_link_libraries(sensor_publisher ${tf2_LIBRARIES})
+
 # target_compile_options(sensor_publisher PUBLIC "-pthread")
 ament_target_dependencies(robot_controller rclcpp tf2 tf2_ros sensor_msgs std_msgs nav_msgs robot_msgs geometry_msgs)
 
