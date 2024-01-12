@@ -78,16 +78,16 @@ void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
     for (robot = msg->robot_pos.begin(); robot < msg->robot_pos.end(); robot++)
     {
         // if the robotid == id of msg
-        if (this->robotId.compare(robot->.child_frame_id) == EQUAL)
+        if (this->robotId.compare(robot->child_frame_id) == EQUAL)
         {
-            this->lineXPos = robot->.pose.pose.position.x;
-            this->linYPos = robot->.pose.pose.position.y;
+            this->linXPos = robot->pose.pose.position.x;
+            this->linYPos = robot->pose.pose.position.y;
 
             tf2::Quaternion q(
-                robot->.pose.pose.orientation.x,
-                robot->.pose.pose.orientation.y,
-                robot->.pose.pose.orientation.z,
-                robot->.pose.pose.orientation.w);
+                robot->pose.pose.orientation.x,
+                robot->pose.pose.orientation.y,
+                robot->pose.pose.orientation.z,
+                robot->pose.pose.orientation.w);
 
             tf2::Matrix3x3 m(q);
 
@@ -98,7 +98,7 @@ void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
     }
 }
 
-void getPos(const nav_msgs::msg::Odom::SharedPtr msg)
+void getPos(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
     this->lineXPos = msg->pose.pose.position.x;
     this->linYPos = msg->pose.pose.position.y;
@@ -118,9 +118,9 @@ void getPos(const nav_msgs::msg::Odom::SharedPtr msg)
 
 int Controller::sendValues(uint8_t *buff, size_t len)
 {
-    uint8_t buffer[64]
+    uint8_t buffer[64];
 
-        memset(buffer, 0, 64);
+    memset(buffer, 0, 64);
     buffer[0] = 0xBE;
     buffer[1] = 0xEF;
     buffer[2] = opcode;
