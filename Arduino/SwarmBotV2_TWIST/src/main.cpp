@@ -206,14 +206,14 @@ void loop()
     // Serial.println("Command received");
     msgLen = Serial1.readBytesUntil('\n', msg, 255);
     int mode;
-    memcpy(&mode, msg + 2, sizeof(int));
+    memcpy(&mode, msg + 2, sizeof(uint8_t));
     // Serial.print("Mode: ");
     // Serial.println(mode);
     if (mode == 0)
     {
 
-      memcpy(&linearVelocity, msg + 6, sizeof(float));
-      memcpy(&angularVelocity, msg + 14, sizeof(float));
+      memcpy(&linearVelocity, msg + 3, sizeof(float));
+      memcpy(&angularVelocity, msg + 7, sizeof(float));
       // Serial.print("Linear Velocity: ");
       // Serial.println(linearVelocity);
       // Serial.print("Angular Velocity: ");
