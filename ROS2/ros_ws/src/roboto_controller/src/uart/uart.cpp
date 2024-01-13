@@ -15,7 +15,7 @@
 
 #include "uart.hpp"
 
-#define MUTEXNAME "/uart_mutex"
+#define MUTEXNAME "/tmp/uart_mutex"
 
 int mutexFd;
 int serialPort;
@@ -63,7 +63,7 @@ int uartInit()
 
     if (mutexFd == -1) 
     {
-        std::cerr << "Error opening " << MUTEXNAME << std::endl;
+        std::cerr << "Error opening " << MUTEXNAME << ": "  << strerror(errno)  << std::endl;
         return 1;
     }
 
@@ -76,7 +76,7 @@ int uartInit()
 
     // set up the serial port config
     
-    serialPort = open("/dev/serial1", O_RDWR);
+    serialPort = open("/dev/serial0", O_RDWR);
 
     if (serialPort < 0)
     {

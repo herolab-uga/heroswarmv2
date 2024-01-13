@@ -54,6 +54,12 @@ private:
 
     } charger;
 
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
+    rclcpp::Subscription<std_msgs::msg::Int16MultiArray>::SharedPtr neopixel;
+    rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr battery;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr shutdown;
+    rclcpp::Subscription<robot_msgs::msg::RobotPos>::SharedPtr pos;
+
     rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getChargerService;
     rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseChargerService;
 
