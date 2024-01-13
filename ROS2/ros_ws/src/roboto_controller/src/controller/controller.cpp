@@ -60,16 +60,20 @@ Controller::Controller():Node("controller")
 
     /*Get the robot namespace*/
     robotName = this->get_namespace();
+	
+    std::cout << "Creating Subscriptions" << std::endl;    
 
-    this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Controller::readTwist, this, _1));
-    this->create_subscription<std_msgs::msg::Int16MultiArray>("neopixel", 10, std::bind(&Controller::neopixelCallback, this, _1));
-    this->create_subscription<std_msgs::msg::Float32>("battery", 10, std::bind(&Controller::batteryCallback, this, _1));
-    this->create_subscription<std_msgs::msg::String>("shutdown", 10, std::bind(&Controller::shutdownCallback, this, _1));
-    this->create_subscription<robot_msgs::msg::RobotPos>("/position", 10, std::bind(&Controller::getGlobalPos, this, _1));
+    cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Controller::readTwist, this, _1));
+    neopixel = this->create_subscription<std_msgs::msg::Int16MultiArray>("neopixel", 10, std::bind(&Controller::neopixelCallback, this, _1));
+    battery = this->create_subscription<std_msgs::msg::Float32>("battery", 10, std::bind(&Controller::batteryCallback, this, _1));
+    shutdown = this->create_subscription<std_msgs::msg::String>("shutdown", 10, std::bind(&Controller::shutdownCallback, this, _1));
+    pos = this->create_subscription<robot_msgs::msg::RobotPos>("/position", 10, std::bind(&Controller::getGlobalPos, this, _1));
 
     // Charger Services
     getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
     releaseChargerService = this->create_client<robot_msgs::srv::ReleaseCharger>("releaseCharger");
+
+    std::cout << "Controller setup finished" << std::endl;
 }
 
 // destructor stop send stop need a way to prioritize this call for uart communication priority mutex call?
@@ -133,11 +137,18 @@ int Controller::sendValues(uint8_t *buff, size_t len)
 
     // This is going to add the data to the message and the appropiate length
     memcpy(buffer + 2, buff, len);
-    buffer[len + 4] = '\n';
+    buffer[len + 2] = '\n';
+	
+    for (size_t i = 0; i < len + 3; i++)
+    {
+    	std::cout << std::hex << static_cast<unsigned int>(buffer[i]) << " ";
+    }
+
+    std::cout << std::endl;
 
     // Log message
     lockUartMutex();
-    int ret = uartWrite(buffer, len + 4);
+    int ret = uartWrite(buffer, len + 3);
     unlockUartMutex();
 
     return ret;
@@ -153,15 +164,16 @@ void Controller::stop()
 
 void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
+    std::cout << "X: " << static_cast<float>(msg->linear.x) << " | Z: " <<  static_cast<float>(msg->angular.z) << std::endl; 
     float x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->linear.x), -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
-    float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->linear.z), -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
+    float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->angular.z), -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
 
-    uint8_t buff[13];
-    std::memset(buff, 0, 13);
+    uint8_t buff[9];
+    std::memset(buff, 0, 9);
     std::memcpy(buff + 1, reinterpret_cast<uint8_t *>(&x_velo), sizeof(float));
-    std::memcpy(buff + 9, reinterpret_cast<uint8_t *>(&ang_z_velo), sizeof(float));
+    std::memcpy(buff + 5, reinterpret_cast<uint8_t *>(&ang_z_velo), sizeof(float));
 
-    this->sendValues(buff, 13);
+    this->sendValues(buff, 9);
 }
 
 void Controller::neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg)
