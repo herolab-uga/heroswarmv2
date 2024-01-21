@@ -13,3 +13,6 @@
 [submodule "ROS2/ros_ws/src/camera_server/swarmexperiments"]
 	path = ROS2/ros_ws/src/camera_server/swarmexperiments
 	url = git@github.com:herolab-uga/swarmexperiments.git
+[submodule "ROS2/ros_ws/src/robot_msgs"]
+	path = ROS2/ros_ws/src/robot_msgs
+	url = git@github.com:herolab-uga/robot_msgs.git
