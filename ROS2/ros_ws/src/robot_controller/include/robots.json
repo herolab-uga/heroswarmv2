@@ -35,7 +35,7 @@
     },
     "11":{
         "name":"swarmcoral",
-        "type":"swarmv3"
+        "type":"herocube"
     },
     "12":{
         "name":"swarmhero",
@@ -54,7 +54,7 @@
         "type":"swarmv3"
     },
     "16":{
-        "name":"swarmduckworth",
+        "name":"swarmkraken",
         "type":"swarmv3"
     },
     "17":{
@@ -86,18 +86,15 @@
         "type":"swarmv3"
     },
     "24":{
-        "name":"",
+        "name":"swarmcapstone1",
         "type":"herocube"
     },
     "25":{
-        "name":"",
+        "name":"swarmsilverfish",
         "type":"herocube"
     },
     "26":{
         "name":"",
         "type":"herocube"
     }
-
-
-
 }
