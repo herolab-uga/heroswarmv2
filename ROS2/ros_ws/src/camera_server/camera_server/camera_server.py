@@ -103,7 +103,7 @@ class CameraServer(Node):
 
                 robot_names.data.append(String())
                 try:
-                    print("Robot Name:",self.robot_dictionary[str(detection["id"])]["name"])
+                    #print("Robot Name:",self.robot_dictionary[str(detection["id"])]["name"])
                     active_dict[str(detection["id"])] = self.robot_dictionary[str(detection["id"])]["name"]
                     robot_names.data[-1].data = self.robot_dictionary[str(detection["id"])]["name"]
                 except KeyError:
