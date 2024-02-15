@@ -75,7 +75,7 @@ This project is a part of the HeRoSwarm project at the Heterogeneous Robotics Re
 
 Please contact hero at uga . edu for any queries
 
-http://hero.uga.edu/
+https://hero.uga.edu/
 
 <p align="center">
 <img src="https://hero.uga.edu/wp-content/uploads/2021/04/herolab_newlogo_whitebg.png" width="300">
