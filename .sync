@@ -1,0 +1,4 @@
+#!/bin/bash 
+git add --all
+git commit -m "updated with script" 
+git push -u 
