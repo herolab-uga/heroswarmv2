@@ -1,0 +1,14 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from robot_msgs/msg/Light.msg
+// generated code does not contain a copyright notice
+
+
+module robot_msgs {
+  module msg {
+    struct Light {
+      sequence<int32> rgbw;
+
+      int32 gesture;
+    };
+  };
+};

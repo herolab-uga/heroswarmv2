@@ -1,0 +1,233 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-7ee99ebd030a788615c8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				},
+				{
+					"build" : "robot_msgs__py",
+					"jsonFile" : "directory-robot_msgs__py-8440e9ef2155a116c527.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/robot_msgs__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "robot_msgs",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_robot_msgs_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_robot_msgs_egg-cc164a6677dcba53e8bb.json",
+					"name" : "ament_cmake_python_build_robot_msgs_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_robot_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_robot_msgs-5d8f6c924f0d3c8beefc.json",
+					"name" : "ament_cmake_python_copy_robot_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs-1a17a77ae9714e07d10a.json",
+					"name" : "robot_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__cpp-1e0b705ff151692a2b54.json",
+					"name" : "robot_msgs__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "robot_msgs__py::@5fc6735b69ad7f9b66f4",
+					"jsonFile" : "target-robot_msgs__py-d8355519debd95a67b72.json",
+					"name" : "robot_msgs__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_generator_c-08bc58ae00b60a19c609.json",
+					"name" : "robot_msgs__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_generator_py-a862c1fef3a2734c300c.json",
+					"name" : "robot_msgs__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_c-48334e86c90b0cb8ed33.json",
+					"name" : "robot_msgs__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_c__pyext-bf9b746e03f6c4cce7b1.json",
+					"name" : "robot_msgs__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_cpp-7eb4300f5af3d82b32ee.json",
+					"name" : "robot_msgs__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_fastrtps_c-4bc7a5e8a97ffd27a3f1.json",
+					"name" : "robot_msgs__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_fastrtps_c__pyext-3a6328fd40e3bcd41a06.json",
+					"name" : "robot_msgs__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_fastrtps_cpp-290fd99210696cf0f8c4.json",
+					"name" : "robot_msgs__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_introspection_c-19494b91bf4be1a9424a.json",
+					"name" : "robot_msgs__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_introspection_c__pyext-1b53b495b72bf798c1ad.json",
+					"name" : "robot_msgs__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs__rosidl_typesupport_introspection_cpp-96a2a0463ce2a5eabc56.json",
+					"name" : "robot_msgs__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_msgs_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_msgs_uninstall-2e58215b6056522105d7.json",
+					"name" : "robot_msgs_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-2c87aa82a3595c1bac36.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_msgs",
+		"source" : "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

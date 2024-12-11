@@ -1,0 +1,31 @@
+running egg_info
+creating ../../build/robot_controller/robot_controller.egg-info
+writing ../../build/robot_controller/robot_controller.egg-info/PKG-INFO
+writing dependency_links to ../../build/robot_controller/robot_controller.egg-info/dependency_links.txt
+writing entry points to ../../build/robot_controller/robot_controller.egg-info/entry_points.txt
+writing requirements to ../../build/robot_controller/robot_controller.egg-info/requires.txt
+writing top-level names to ../../build/robot_controller/robot_controller.egg-info/top_level.txt
+writing manifest file '../../build/robot_controller/robot_controller.egg-info/SOURCES.txt'
+reading manifest file '../../build/robot_controller/robot_controller.egg-info/SOURCES.txt'
+writing manifest file '../../build/robot_controller/robot_controller.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build/lib
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build/lib/robot_controller
+copying robot_controller/__init__.py -> /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build/lib/robot_controller
+running install
+running install_lib
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller
+copying /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build/lib/robot_controller/__init__.py -> /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller
+byte-compiling /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index
+creating /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index/packages
+copying resource/robot_controller -> /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index/packages
+copying package.xml -> /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/robot_controller
+running install_egg_info
+Copying ../../build/robot_controller/robot_controller.egg-info to /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_controller/install.log'

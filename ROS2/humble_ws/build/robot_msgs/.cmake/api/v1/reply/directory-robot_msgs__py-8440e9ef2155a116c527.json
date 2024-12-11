@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "robot_msgs__py",
+		"source" : "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/robot_msgs__py"
+	}
+}

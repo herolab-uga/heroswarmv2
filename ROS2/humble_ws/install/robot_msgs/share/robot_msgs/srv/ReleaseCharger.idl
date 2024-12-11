@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from robot_msgs/srv/ReleaseCharger.srv
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Bool.idl"
+#include "std_msgs/msg/UInt16.idl"
+
+module robot_msgs {
+  module srv {
+    struct ReleaseCharger_Request {
+      std_msgs::msg::UInt16 id;
+    };
+    struct ReleaseCharger_Response {
+      std_msgs::msg::Bool released;
+    };
+  };
+};

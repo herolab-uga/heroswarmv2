@@ -1,0 +1,13 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from robot_msgs/msg/StringList.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/String.idl"
+
+module robot_msgs {
+  module msg {
+    struct StringList {
+      sequence<std_msgs::msg::String> data;
+    };
+  };
+};

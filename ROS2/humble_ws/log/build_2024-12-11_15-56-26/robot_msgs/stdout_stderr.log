@@ -1,0 +1,507 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is Clang 14.0.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found std_msgs: 4.2.4 (/opt/ros/humble/share/std_msgs/cmake)
+-- Found rosidl_generator_c: 3.1.6 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.6 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found nav_msgs: 4.2.4 (/opt/ros/humble/share/nav_msgs/cmake)
+-- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+-- Found ament_lint_auto: 0.12.11 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+-- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+-- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+-- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+-- Found PythonExtra: .so  
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_msgs
+[  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[  1%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[  1%] Built target ament_cmake_python_copy_robot_msgs
+running egg_info
+creating robot_msgs.egg-info
+writing robot_msgs.egg-info/PKG-INFO
+writing dependency_links to robot_msgs.egg-info/dependency_links.txt
+writing top-level names to robot_msgs.egg-info/top_level.txt
+writing manifest file 'robot_msgs.egg-info/SOURCES.txt'
+reading manifest file 'robot_msgs.egg-info/SOURCES.txt'
+writing manifest file 'robot_msgs.egg-info/SOURCES.txt'
+[  1%] Built target ament_cmake_python_build_robot_msgs_egg
+[  2%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/environment__functions.c.o[0m
+[  3%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/robot_pos__functions.c.o[0m
+[  5%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/sensor_enable__functions.c.o[0m
+[  5%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/light__functions.c.o[0m
+[  6%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/string_list__functions.c.o[0m
+[  7%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/distance_sensor__functions.c.o[0m
+[  8%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/srv/detail/get_charger__functions.c.o[0m
+[ 10%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/battery_status__functions.c.o[0m
+[ 10%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/dock_enable__functions.c.o[0m
+[ 11%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/srv/detail/release_charger__functions.c.o[0m
+[ 11%] Built target robot_msgs__cpp
+[ 12%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[ 13%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[ 14%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[ 15%] [32m[1mLinking C shared library librobot_msgs__rosidl_generator_c.so[0m
+[ 15%] Built target robot_msgs__rosidl_generator_c
+[ 16%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[ 17%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[ 18%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[ 21%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/robot_pos__type_support.cpp.o[0m
+[ 21%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/environment__type_support.cpp.o[0m
+[ 22%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/string_list__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/dock_enable__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/distance_sensor__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/sensor_enable__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/battery_status__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/light__type_support.cpp.o[0m
+[ 27%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/srv/get_charger__type_support.cpp.o[0m
+[ 28%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/srv/release_charger__type_support.cpp.o[0m
+[ 30%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/robot_pos__type_support.cpp.o[0m
+[ 30%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/environment__type_support.cpp.o[0m
+[ 31%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/environment__type_support.c.o[0m
+[ 32%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/robot_pos__type_support.c.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/environment__type_support.cpp.o[0m
+[ 34%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/light__type_support.c.o[0m
+[ 35%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/string_list__type_support.c.o[0m
+[ 36%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/sensor_enable__type_support.c.o[0m
+[ 37%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/distance_sensor__type_support.c.o[0m
+[ 38%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/battery_status__type_support.c.o[0m
+[ 39%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/environment__type_support.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/robot_pos__type_support.cpp.o[0m
+[ 41%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/dock_enable__type_support.c.o[0m
+[ 41%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/light__type_support.cpp.o[0m
+[ 42%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/robot_pos__type_support.cpp.o[0m
+[ 43%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/string_list__type_support.cpp.o[0m
+[ 44%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/light__type_support.cpp.o[0m
+[ 45%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/srv/detail/get_charger__type_support.c.o[0m
+[ 46%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/srv/detail/release_charger__type_support.c.o[0m
+[ 48%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/string_list__type_support.cpp.o[0m
+[ 48%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/sensor_enable__type_support.cpp.o[0m
+[ 49%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/sensor_enable__type_support.cpp.o[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/light__type_support.cpp.o[0m
+[ 51%] [32m[1mLinking C shared library librobot_msgs__rosidl_typesupport_introspection_c.so[0m
+[ 53%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/distance_sensor__type_support.cpp.o[0m
+[ 53%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/string_list__type_support.cpp.o[0m
+[ 54%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/battery_status__type_support.cpp.o[0m
+[ 55%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/sensor_enable__type_support.cpp.o[0m
+[ 56%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/dock_enable__type_support.cpp.o[0m
+[ 57%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_cpp.so[0m
+[ 57%] Built target robot_msgs__rosidl_typesupport_introspection_c
+[ 58%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/srv/detail/dds_fastrtps/get_charger__type_support.cpp.o[0m
+[ 59%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/distance_sensor__type_support.cpp.o[0m
+[ 60%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/srv/detail/dds_fastrtps/release_charger__type_support.cpp.o[0m
+[ 61%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/battery_status__type_support.cpp.o[0m
+[ 62%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/dock_enable__type_support.cpp.o[0m
+[ 62%] Built target robot_msgs__rosidl_typesupport_cpp
+[ 63%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/distance_sensor__type_support.cpp.o[0m
+[ 63%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/srv/get_charger__type_support.cpp.o[0m
+[ 64%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/srv/release_charger__type_support.cpp.o[0m
+[ 65%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/environment__type_support_c.cpp.o[0m
+[ 66%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_c.so[0m
+[ 66%] Built target robot_msgs__rosidl_typesupport_c
+[ 67%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/battery_status__type_support.cpp.o[0m
+[ 68%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/robot_pos__type_support_c.cpp.o[0m
+[ 69%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/light__type_support_c.cpp.o[0m
+[ 70%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/dock_enable__type_support.cpp.o[0m
+[ 71%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/string_list__type_support_c.cpp.o[0m
+[ 72%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/sensor_enable__type_support_c.cpp.o[0m
+[ 73%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/distance_sensor__type_support_c.cpp.o[0m
+[ 74%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/srv/detail/get_charger__type_support.cpp.o[0m
+[ 75%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/srv/detail/release_charger__type_support.cpp.o[0m
+[ 76%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/battery_status__type_support_c.cpp.o[0m
+[ 77%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/dock_enable__type_support_c.cpp.o[0m
+[ 78%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/srv/detail/get_charger__type_support_c.cpp.o[0m
+[ 79%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/srv/detail/release_charger__type_support_c.cpp.o[0m
+[ 80%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[ 80%] Built target robot_msgs__rosidl_typesupport_fastrtps_cpp
+[ 81%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[ 82%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[ 82%] Built target robot_msgs__rosidl_typesupport_fastrtps_c
+[ 82%] Built target robot_msgs__rosidl_typesupport_introspection_cpp
+[ 82%] Built target robot_msgs
+[ 83%] [34m[1mGenerating Python code for ROS interfaces[0m
+[ 83%] Built target robot_msgs__py
+[ 84%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_sensor_enable_s.c.o[0m
+[ 85%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_environment_s.c.o[0m
+[ 86%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_battery_status_s.c.o[0m
+[ 87%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_robot_pos_s.c.o[0m
+[ 88%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_dock_enable_s.c.o[0m
+[ 89%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_light_s.c.o[0m
+[ 90%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_string_list_s.c.o[0m
+[ 91%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_distance_sensor_s.c.o[0m
+[ 92%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/srv/_release_charger_s.c.o[0m
+[ 93%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/srv/_get_charger_s.c.o[0m
+[ 94%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/librobot_msgs__rosidl_generator_py.so[0m
+[ 94%] Built target robot_msgs__rosidl_generator_py
+[ 95%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[ 96%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[ 97%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[ 98%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[ 99%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[100%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[100%] Built target robot_msgs__rosidl_typesupport_c__pyext
+[100%] Built target robot_msgs__rosidl_typesupport_introspection_c__pyext
+[100%] Built target robot_msgs__rosidl_typesupport_fastrtps_c__pyext
+-- Install configuration: ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/rosidl_interfaces/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/get_charger.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/release_charger.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/distance_sensor.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/environment.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/robot_pos.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__functions.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__functions.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__type_support.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__struct.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_generator_c__visibility_control.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/dock_enable.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/sensor_enable.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/battery_status.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/light.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/string_list.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/library_path.sh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/library_path.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_c.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_c.so" to ""
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_fastrtps_c.h
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_c.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/get_charger.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/release_charger.hpp
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/distance_sensor.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/string_list.hpp
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__traits.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__builder.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__struct.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__type_support.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/sensor_enable.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/environment.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/light.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/robot_pos.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/battery_status.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/dock_enable.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/dds_fastrtps
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dds_fastrtps
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_cpp.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__type_support.c
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__type_support.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_introspection_c.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_c.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_c.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_c.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_c.so" to ""
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__type_support.cpp
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg
+-- Up-to-date: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__type_support.cpp
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_cpp.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_cpp.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_cpp.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/pythonpath.sh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/pythonpath.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/top_level.txt
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/PKG-INFO
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/dependency_links.txt
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/SOURCES.txt
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_introspection_c.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/__init__.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/__init__.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable_s.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/__init__.py
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/librobot_msgs__rosidl_generator_py.so
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_c.c
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+Listing '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/__init__.py'...
+Listing '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/__init__.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list.py'...
+Listing '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/__init__.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger.py'...
+Compiling '/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger.py'...
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_py.so
+-- Set runtime path of "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_py.so" to ""
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Environment.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/RobotPos.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Light.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/StringList.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/SensorEnable.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DistanceSensor.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/BatteryStatus.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DockEnable.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger.idl
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Environment.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/RobotPos.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Light.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/StringList.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/SensorEnable.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DistanceSensor.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/BatteryStatus.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DockEnable.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger.srv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger_Request.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger_Response.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger.srv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger_Request.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger_Response.msg
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/package_run_dependencies/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/parent_prefix_path/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/ament_prefix_path.sh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/ament_prefix_path.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/path.sh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/path.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.bash
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.sh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.zsh
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/package.dsv
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/packages/robot_msgs
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cppExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cppExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cppExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_pyExport.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_pyExport-noconfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_targets-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgsConfig.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgsConfig-version.cmake
+-- Installing: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/package.xml

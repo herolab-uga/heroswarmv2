@@ -1,0 +1,20 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from robot_msgs/srv/GetCharger.srv
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Pose.idl"
+#include "std_msgs/msg/String.idl"
+#include "std_msgs/msg/UInt16.idl"
+
+module robot_msgs {
+  module srv {
+    struct GetCharger_Request {
+      std_msgs::msg::String name;
+    };
+    struct GetCharger_Response {
+      std_msgs::msg::UInt16 id;
+
+      geometry_msgs::msg::Pose position;
+    };
+  };
+};

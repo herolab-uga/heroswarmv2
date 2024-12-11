@@ -1,0 +1,13 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from robot_msgs/msg/RobotPos.msg
+// generated code does not contain a copyright notice
+
+#include "nav_msgs/msg/Odometry.idl"
+
+module robot_msgs {
+  module msg {
+    struct RobotPos {
+      sequence<nav_msgs::msg::Odometry> robot_pos;
+    };
+  };
+};

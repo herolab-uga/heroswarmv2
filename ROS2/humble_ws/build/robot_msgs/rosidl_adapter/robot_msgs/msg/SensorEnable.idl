@@ -1,0 +1,20 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from robot_msgs/msg/SensorEnable.msg
+// generated code does not contain a copyright notice
+
+
+module robot_msgs {
+  module msg {
+    struct SensorEnable {
+      boolean environment;
+
+      boolean imu;
+
+      boolean light;
+
+      boolean proximity;
+
+      boolean mic;
+    };
+  };
+};
