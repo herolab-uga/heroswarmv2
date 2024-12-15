@@ -8,7 +8,7 @@ class TestPublisher(Node):
     def __init__(self): 
 
         super().__init__('test_publisher') 
-        self.pub = self.create_publisher(Twist, '/cmd_vel', 10) 
+        self.pub = self.create_publisher(Twist, 'swarmgoblin/cmd_vel', 10) 
         self.start() 
 
     def start(self): 
