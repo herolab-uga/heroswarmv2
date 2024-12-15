@@ -4,7 +4,7 @@
 #sudo apt install raspi-config python3-pip
 
 #! remove the entry of 'console=serial0,115200' in /boot/firmware/cmdline.txt
-#! comment out the spi configuration in /boot/firmware/config.txt
+#? comment out the spi configuration in /boot/firmware/config.txt
 #! reboot device
 
 #pip install \
@@ -16,3 +16,5 @@
 # adafruit-circuitpython-lsm6ds
 
 #! follow setup @ https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
+
+#sudo apt-get install python3-rpi.gpio
