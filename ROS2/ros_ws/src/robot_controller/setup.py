@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'robot_controller = robot_controller.robot_controller:main'
+            'robot_controller = robot_controller.robot_controller:main', 
+            'test_publisher = robot_controller.test_publisher:main'
         ],
     },
 )
