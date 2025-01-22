@@ -8,14 +8,15 @@ class TestPublisher(Node):
     def __init__(self): 
 
         super().__init__('test_publisher') 
-        self.pub = self.create_publisher(Twist, 'swarmgoblin/cmd_vel', 10) 
+        self.pub = self.create_publisher(Twist, 'swarmduckworth/cmd_vel', 10) 
         self.start() 
 
     def start(self): 
 
         twist_msg = Twist() 
-        twist_msg.linear.x = 1.0
-
+        #twist_msg.linear.x = -1.0
+        twist_msg.angular.x = 1.0
+        
         while True: 
 
             self.pub.publish(twist_msg) 

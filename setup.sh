@@ -13,7 +13,10 @@
 # adafruit-circuitpython-lis3mdl \
 # adafruit-circuitpython-sht31d \
 # adafruit-circuitpython-apds9960 \
-# adafruit-circuitpython-lsm6ds
+# adafruit-circuitpython-lsm6ds \ 
+
+
+adafruit_vl6180x
 
 #! follow setup @ https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
 
