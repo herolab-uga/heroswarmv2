@@ -2,6 +2,7 @@ import rclpy
 import time
 
 from rclpy.node import Node 
+from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Twist 
 
 class TestPublisher(Node):
@@ -9,7 +10,7 @@ class TestPublisher(Node):
     def __init__(self): 
 
         super().__init__('test_publisher') 
-        self.pub = self.create_publisher(Twist, 'swarmphoenix/cmd_vel', 10)
+        self.pub = self.create_publisher(Twist, 'swarmviper/cmd_vel', 10)
         self.start_time = time.perf_counter() 
         self.start() 
 
@@ -31,10 +32,6 @@ def main(args=None):
 
     rclpy.init(args=args) 
     publisher = TestPublisher() 
-
-
-    # testing here
-
     rclpy.spin(publisher)
     publisher.destroy_node() 
     rclpy.shutdown() 

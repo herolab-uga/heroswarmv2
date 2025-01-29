@@ -1,16 +1,1 @@
-// generated from rosidl_adapter/resource/msg.idl.em
-// with input from robot_msgs/msg/BatteryStatus.msg
-// generated code does not contain a copyright notice
-
-
-module robot_msgs {
-  module msg {
-    struct BatteryStatus {
-      float voltage;
-
-      float soc;
-
-      boolean charging;
-    };
-  };
-};
+/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/rosidl_adapter/robot_msgs/msg/BatteryStatus.idl

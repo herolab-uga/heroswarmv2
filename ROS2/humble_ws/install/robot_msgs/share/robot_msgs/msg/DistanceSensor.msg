@@ -1,4 +1,1 @@
-int32 sensor1
-int32 sensor2
-int32 sensor3
-int32 sensor4
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/DistanceSensor.msg

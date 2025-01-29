@@ -1,8 +1,8 @@
-# Install script for directory: /home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/robot_msgs__py
+# Install script for directory: /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/robot_msgs__py
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs")
+  set(CMAKE_INSTALL_PREFIX "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

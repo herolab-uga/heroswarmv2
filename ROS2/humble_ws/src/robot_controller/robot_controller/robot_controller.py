@@ -106,7 +106,7 @@ class Controller(Node):
             self.i2c.readfrom_into(self.arduino, data)
         # Get odom data from arduino
         except Exception as e:
-            self.get_logger().info(str(e))  # need to fix this
+            self.get_logger().info(str(e))   # need to fix this
         finally:
             self.i2c.unlock()
         print("got odom data from arduino")
@@ -499,7 +499,7 @@ def main():
     try:
         controller = Controller()
         rclpy.spin(controller)
-        print("controller is spinning")
+        print('controller is spinning')
         controller.destroy_node()
     except SystemExit:
         if restart:

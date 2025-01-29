@@ -1,1 +1,1 @@
-nav_msgs/Odometry[] robot_pos
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/RobotPos.msg

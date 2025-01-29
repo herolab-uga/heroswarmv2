@@ -1,5 +1,1 @@
-bool environment
-bool imu
-bool light
-bool proximity
-bool mic
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/SensorEnable.msg

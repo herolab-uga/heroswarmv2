@@ -1,3 +1,1 @@
-float32 voltage
-float32 soc
-bool charging
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/BatteryStatus.msg

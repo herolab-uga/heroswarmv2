@@ -7,6 +7,5 @@
 #include "robot_msgs/srv/detail/get_charger__struct.hpp"
 #include "robot_msgs/srv/detail/get_charger__builder.hpp"
 #include "robot_msgs/srv/detail/get_charger__traits.hpp"
-#include "robot_msgs/srv/detail/get_charger__type_support.hpp"
 
 #endif  // ROBOT_MSGS__SRV__GET_CHARGER_HPP_

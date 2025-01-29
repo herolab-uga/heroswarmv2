@@ -1,4 +1,1 @@
-uint8 dock1
-uint8 dock2
-uint8 dock3
-uint8 dock4
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/DockEnable.msg

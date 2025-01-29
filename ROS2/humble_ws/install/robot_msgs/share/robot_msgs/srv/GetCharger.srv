@@ -1,4 +1,1 @@
-std_msgs/String name
----
-std_msgs/UInt16 id
-geometry_msgs/Pose position
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/srv/GetCharger.srv

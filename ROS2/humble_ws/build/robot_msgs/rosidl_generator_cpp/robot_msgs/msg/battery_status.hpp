@@ -7,6 +7,5 @@
 #include "robot_msgs/msg/detail/battery_status__struct.hpp"
 #include "robot_msgs/msg/detail/battery_status__builder.hpp"
 #include "robot_msgs/msg/detail/battery_status__traits.hpp"
-#include "robot_msgs/msg/detail/battery_status__type_support.hpp"
 
 #endif  // ROBOT_MSGS__MSG__BATTERY_STATUS_HPP_

@@ -7,6 +7,5 @@
 #include "robot_msgs/msg/detail/string_list__struct.hpp"
 #include "robot_msgs/msg/detail/string_list__builder.hpp"
 #include "robot_msgs/msg/detail/string_list__traits.hpp"
-#include "robot_msgs/msg/detail/string_list__type_support.hpp"
 
 #endif  // ROBOT_MSGS__MSG__STRING_LIST_HPP_

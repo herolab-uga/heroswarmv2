@@ -1,0 +1,23 @@
+running develop
+running egg_info
+creating robot_controller.egg-info
+writing robot_controller.egg-info/PKG-INFO
+writing dependency_links to robot_controller.egg-info/dependency_links.txt
+writing entry points to robot_controller.egg-info/entry_points.txt
+writing requirements to robot_controller.egg-info/requires.txt
+writing top-level names to robot_controller.egg-info/top_level.txt
+writing manifest file 'robot_controller.egg-info/SOURCES.txt'
+reading manifest file 'robot_controller.egg-info/SOURCES.txt'
+writing manifest file 'robot_controller.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot-controller.egg-link (link to .)
+Installing robot_controller script to /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/robot_controller
+Installing test_publisher script to /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/robot_controller
+
+Installed /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller
+running symlink_data
+creating /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index
+creating /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index
+creating /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index/packages
+symbolically linking /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/resource/robot_controller -> /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/ament_index/resource_index/packages
+symbolically linking /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/package.xml -> /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/share/robot_controller

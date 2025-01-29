@@ -1,2 +1,1 @@
-int32[] rgbw
-int32 gesture
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/Light.msg

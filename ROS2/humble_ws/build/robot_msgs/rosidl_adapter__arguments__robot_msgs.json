@@ -1,15 +1,15 @@
 {
   "package_name": "robot_msgs",
   "non_idl_tuples": [
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/Environment.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/RobotPos.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/Light.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/StringList.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/SensorEnable.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/DistanceSensor.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/BatteryStatus.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/DockEnable.msg",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:srv/GetCharger.srv",
-    "/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:srv/ReleaseCharger.srv"
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/Environment.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/RobotPos.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/Light.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/StringList.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/SensorEnable.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/DistanceSensor.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/BatteryStatus.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:msg/DockEnable.msg",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:srv/GetCharger.srv",
+    "/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs:srv/ReleaseCharger.srv"
   ]
 }

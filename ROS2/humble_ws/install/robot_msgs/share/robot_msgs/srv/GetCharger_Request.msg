@@ -1,1 +1,1 @@
-std_msgs/String name
+/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/rosidl_cmake/srv/GetCharger_Request.msg

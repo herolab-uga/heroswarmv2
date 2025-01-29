@@ -1,0 +1,435 @@
+[0.007s] Invoking command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake /home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs
+[0.044s] -- The C compiler identification is GNU 11.4.0
+[0.083s] -- The CXX compiler identification is GNU 11.4.0
+[0.088s] -- Detecting C compiler ABI info
+[0.135s] -- Detecting C compiler ABI info - done
+[0.142s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.142s] -- Detecting C compile features
+[0.142s] -- Detecting C compile features - done
+[0.144s] -- Detecting CXX compiler ABI info
+[0.202s] -- Detecting CXX compiler ABI info - done
+[0.210s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.211s] -- Detecting CXX compile features
+[0.211s] -- Detecting CXX compile features - done
+[0.214s] -- Found ament_cmake: 1.3.10 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.332s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.381s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.408s] -- Found std_msgs: 4.2.4 (/opt/ros/humble/share/std_msgs/cmake)
+[0.436s] -- Found rosidl_generator_c: 3.1.5 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.442s] -- Found rosidl_adapter: 3.1.5 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.449s] -- Found rosidl_generator_cpp: 3.1.5 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.458s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.473s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.495s] -- Found nav_msgs: 4.2.4 (/opt/ros/humble/share/nav_msgs/cmake)
+[0.519s] -- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[0.527s] -- Found ament_lint_auto: 0.12.11 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[0.818s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[1.177s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.294s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.309s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+[1.310s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[1.329s] -- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+[1.329s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[1.329s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[1.329s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+[1.345s] -- Found PythonExtra: .so  
+[1.394s] -- Added test 'lint_cmake' to check CMake code style
+[1.395s] -- Added test 'xmllint' to check XML markup files
+[1.398s] -- Configuring done
+[1.428s] -- Generating done
+[1.430s] -- Build files have been written to: /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs
+[1.438s] Invoked command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake /home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs
+[1.440s] Invoking command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake --build /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs -- -j8 -l8
+[1.468s] [  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[1.475s] [  1%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[1.480s] [  1%] Built target ament_cmake_python_symlink_robot_msgs
+[1.697s] running egg_info
+[1.697s] creating robot_msgs.egg-info
+[1.697s] writing robot_msgs.egg-info/PKG-INFO
+[1.697s] writing dependency_links to robot_msgs.egg-info/dependency_links.txt
+[1.697s] writing top-level names to robot_msgs.egg-info/top_level.txt
+[1.698s] writing manifest file 'robot_msgs.egg-info/SOURCES.txt'
+[1.700s] reading manifest file 'robot_msgs.egg-info/SOURCES.txt'
+[1.700s] writing manifest file 'robot_msgs.egg-info/SOURCES.txt'
+[1.718s] [  1%] Built target ament_cmake_python_build_robot_msgs_egg
+[2.013s] [  1%] Built target robot_msgs__cpp
+[2.023s] [  2%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[2.027s] [  3%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[2.027s] [  4%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[2.108s] [  6%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/robot_pos__functions.c.o[0m
+[2.108s] [  6%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/environment__functions.c.o[0m
+[2.108s] [  7%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/light__functions.c.o[0m
+[2.108s] [  8%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/sensor_enable__functions.c.o[0m
+[2.109s] [  9%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/string_list__functions.c.o[0m
+[2.165s] [ 11%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/battery_status__functions.c.o[0m
+[2.166s] [ 11%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/distance_sensor__functions.c.o[0m
+[2.167s] [ 12%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/srv/detail/get_charger__functions.c.o[0m
+[2.169s] [ 13%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/msg/detail/dock_enable__functions.c.o[0m
+[2.172s] [ 14%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_c.dir/rosidl_generator_c/robot_msgs/srv/detail/release_charger__functions.c.o[0m
+[2.236s] [ 15%] [32m[1mLinking C shared library librobot_msgs__rosidl_generator_c.so[0m
+[2.267s] [ 15%] Built target robot_msgs__rosidl_generator_c
+[2.275s] [ 16%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[2.278s] [ 18%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[2.278s] [ 18%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[2.605s] [ 19%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/environment__type_support.cpp.o[0m
+[2.618s] [ 20%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/robot_pos__type_support.cpp.o[0m
+[2.623s] [ 21%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/light__type_support.cpp.o[0m
+[2.690s] [ 22%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/environment__type_support.cpp.o[0m
+[2.877s] [ 23%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/environment__type_support.cpp.o[0m
+[2.911s] [ 24%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/robot_pos__type_support.cpp.o[0m
+[2.921s] [ 25%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/environment__type_support.cpp.o[0m
+[2.950s] [ 27%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/robot_pos__type_support.cpp.o[0m
+[2.952s] [ 27%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/string_list__type_support.cpp.o[0m
+[2.955s] [ 28%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/robot_pos__type_support.cpp.o[0m
+[2.990s] [ 29%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/light__type_support.cpp.o[0m
+[3.025s] [ 30%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/string_list__type_support.cpp.o[0m
+[3.061s] [ 31%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/sensor_enable__type_support.cpp.o[0m
+[3.096s] [ 32%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/distance_sensor__type_support.cpp.o[0m
+[3.133s] [ 33%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/battery_status__type_support.cpp.o[0m
+[3.166s] [ 34%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/msg/dock_enable__type_support.cpp.o[0m
+[3.171s] [ 35%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/light__type_support.cpp.o[0m
+[3.203s] [ 35%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/srv/get_charger__type_support.cpp.o[0m
+[3.241s] [ 36%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/robot_msgs/srv/release_charger__type_support.cpp.o[0m
+[3.256s] [ 37%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/sensor_enable__type_support.cpp.o[0m
+[3.262s] [ 38%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/environment__type_support.c.o[0m
+[3.281s] [ 39%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_c.so[0m
+[3.302s] [ 40%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/robot_pos__type_support.c.o[0m
+[3.306s] [ 41%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/environment__type_support_c.cpp.o[0m
+[3.328s] [ 42%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/light__type_support.c.o[0m
+[3.334s] [ 42%] Built target robot_msgs__rosidl_typesupport_c
+[3.343s] [ 43%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/distance_sensor__type_support.cpp.o[0m
+[3.351s] [ 44%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/string_list__type_support.cpp.o[0m
+[3.371s] [ 45%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/string_list__type_support.c.o[0m
+[3.415s] [ 46%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/sensor_enable__type_support.c.o[0m
+[3.455s] [ 47%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/distance_sensor__type_support.c.o[0m
+[3.476s] [ 48%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/battery_status__type_support.cpp.o[0m
+[3.489s] [ 48%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/light__type_support.cpp.o[0m
+[3.497s] [ 49%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/battery_status__type_support.c.o[0m
+[3.534s] [ 50%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/msg/detail/dock_enable__type_support.c.o[0m
+[3.562s] [ 51%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/robot_pos__type_support_c.cpp.o[0m
+[3.578s] [ 52%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/srv/detail/get_charger__type_support.c.o[0m
+[3.624s] [ 53%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/robot_msgs/srv/detail/release_charger__type_support.c.o[0m
+[3.661s] [ 54%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/sensor_enable__type_support.cpp.o[0m
+[3.668s] [ 55%] [32m[1mLinking C shared library librobot_msgs__rosidl_typesupport_introspection_c.so[0m
+[3.672s] [ 56%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/light__type_support_c.cpp.o[0m
+[3.709s] [ 56%] Built target robot_msgs__rosidl_typesupport_introspection_c
+[3.714s] [ 57%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/string_list__type_support.cpp.o[0m
+[3.723s] [ 58%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/sensor_enable__type_support.cpp.o[0m
+[3.786s] [ 59%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/msg/dock_enable__type_support.cpp.o[0m
+[3.852s] [ 60%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/string_list__type_support_c.cpp.o[0m
+[3.968s] [ 61%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/distance_sensor__type_support.cpp.o[0m
+[4.024s] [ 62%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/sensor_enable__type_support_c.cpp.o[0m
+[4.088s] [ 63%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/distance_sensor__type_support.cpp.o[0m
+[4.121s] [ 64%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/srv/get_charger__type_support.cpp.o[0m
+[4.144s] [ 65%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/distance_sensor__type_support_c.cpp.o[0m
+[4.200s] [ 66%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/battery_status__type_support.cpp.o[0m
+[4.251s] [ 67%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/battery_status__type_support.cpp.o[0m
+[4.304s] [ 68%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/battery_status__type_support_c.cpp.o[0m
+[4.418s] [ 69%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/robot_msgs/srv/release_charger__type_support.cpp.o[0m
+[4.421s] [ 70%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/msg/detail/dds_fastrtps/dock_enable__type_support.cpp.o[0m
+[4.461s] [ 71%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/srv/detail/dds_fastrtps/get_charger__type_support.cpp.o[0m
+[4.542s] [ 72%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/robot_msgs/srv/detail/dds_fastrtps/release_charger__type_support.cpp.o[0m
+[4.600s] [ 73%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/msg/detail/dock_enable__type_support_c.cpp.o[0m
+[4.661s] [ 74%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/msg/detail/dock_enable__type_support.cpp.o[0m
+[4.722s] [ 75%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/srv/detail/get_charger__type_support.cpp.o[0m
+[4.725s] [ 76%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/srv/detail/get_charger__type_support_c.cpp.o[0m
+[4.741s] [ 77%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_cpp.so[0m
+[4.800s] [ 77%] Built target robot_msgs__rosidl_typesupport_cpp
+[4.806s] [ 78%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/robot_msgs/srv/detail/release_charger__type_support.cpp.o[0m
+[4.897s] [ 79%] [32mBuilding CXX object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/robot_msgs/srv/detail/release_charger__type_support_c.cpp.o[0m
+[5.053s] [ 80%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[5.126s] [ 80%] Built target robot_msgs__rosidl_typesupport_fastrtps_cpp
+[5.202s] [ 81%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[5.202s] [ 82%] [32m[1mLinking CXX shared library librobot_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[5.262s] [ 82%] Built target robot_msgs__rosidl_typesupport_fastrtps_c
+[5.264s] [ 82%] Built target robot_msgs__rosidl_typesupport_introspection_cpp
+[5.277s] [ 82%] Built target robot_msgs
+[5.293s] [ 83%] [34m[1mGenerating Python code for ROS interfaces[0m
+[6.104s] [ 83%] Built target robot_msgs__py
+[6.121s] [ 86%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_light_s.c.o[0m
+[6.121s] [ 86%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_robot_pos_s.c.o[0m
+[6.121s] [ 86%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_environment_s.c.o[0m
+[6.121s] [ 87%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_battery_status_s.c.o[0m
+[6.121s] [ 89%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_string_list_s.c.o[0m
+[6.121s] [ 89%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_distance_sensor_s.c.o[0m
+[6.121s] [ 90%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_sensor_enable_s.c.o[0m
+[6.121s] [ 91%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/msg/_dock_enable_s.c.o[0m
+[6.250s] [ 92%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/srv/_get_charger_s.c.o[0m
+[6.250s] [ 93%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_generator_py.dir/rosidl_generator_py/robot_msgs/srv/_release_charger_s.c.o[0m
+[6.320s] [ 94%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/librobot_msgs__rosidl_generator_py.so[0m
+[6.356s] [ 94%] Built target robot_msgs__rosidl_generator_py
+[6.371s] [ 97%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[6.371s] [ 97%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[6.371s] [ 97%] [32mBuilding C object CMakeFiles/robot_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[6.466s] [ 99%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.466s] [ 99%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.466s] [100%] [32m[1mLinking C shared library rosidl_generator_py/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.495s] [100%] Built target robot_msgs__rosidl_typesupport_fastrtps_c__pyext
+[6.495s] [100%] Built target robot_msgs__rosidl_typesupport_c__pyext
+[6.495s] [100%] Built target robot_msgs__rosidl_typesupport_introspection_c__pyext
+[6.504s] Invoked command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake --build /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs -- -j8 -l8
+[6.661s] Invoking command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake --install /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs
+[6.666s] -- Install configuration: ""
+[6.666s] -- Execute custom install script
+[6.666s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/rosidl_interfaces/robot_msgs
+[6.675s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/battery_status.h
+[6.681s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__functions.h
+[6.687s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__struct.h
+[6.693s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__type_support.h
+[6.698s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__functions.h
+[6.703s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__struct.h
+[6.709s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__type_support.h
+[6.714s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__functions.h
+[6.720s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__struct.h
+[6.725s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__type_support.h
+[6.731s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__functions.h
+[6.736s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__struct.h
+[6.742s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__type_support.h
+[6.747s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__functions.h
+[6.753s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__struct.h
+[6.759s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__type_support.h
+[6.765s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__functions.h
+[6.771s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__struct.h
+[6.776s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__type_support.h
+[6.781s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__functions.h
+[6.786s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__struct.h
+[6.792s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__type_support.h
+[6.797s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__functions.h
+[6.803s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__struct.h
+[6.808s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__type_support.h
+[6.813s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/distance_sensor.h
+[6.819s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/dock_enable.h
+[6.824s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/environment.h
+[6.829s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/light.h
+[6.835s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/robot_pos.h
+[6.840s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_generator_c__visibility_control.h
+[6.846s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/sensor_enable.h
+[6.852s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/string_list.h
+[6.859s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__functions.h
+[6.865s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__struct.h
+[6.871s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__type_support.h
+[6.876s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__functions.h
+[6.882s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__struct.h
+[6.888s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__type_support.h
+[6.893s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/get_charger.h
+[6.899s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/release_charger.h
+[6.904s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/library_path.sh
+[6.910s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/library_path.dsv
+[6.916s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_fastrtps_c.h
+[6.922s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_fastrtps_c.h
+[6.927s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_fastrtps_c.h
+[6.933s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_fastrtps_c.h
+[6.938s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_fastrtps_c.h
+[6.944s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_fastrtps_c.h
+[6.949s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_fastrtps_c.h
+[6.956s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_fastrtps_c.h
+[6.962s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[6.968s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_fastrtps_c.h
+[6.973s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_fastrtps_c.h
+[6.980s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/battery_status.hpp
+[6.985s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__builder.hpp
+[6.990s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__struct.hpp
+[6.996s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__traits.hpp
+[7.001s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__builder.hpp
+[7.008s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__struct.hpp
+[7.013s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__traits.hpp
+[7.019s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__builder.hpp
+[7.024s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__struct.hpp
+[7.030s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__traits.hpp
+[7.035s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__builder.hpp
+[7.041s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__struct.hpp
+[7.046s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__traits.hpp
+[7.052s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__builder.hpp
+[7.059s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__struct.hpp
+[7.064s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__traits.hpp
+[7.070s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__builder.hpp
+[7.075s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__struct.hpp
+[7.081s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__traits.hpp
+[7.087s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__builder.hpp
+[7.093s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__struct.hpp
+[7.099s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__traits.hpp
+[7.105s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__builder.hpp
+[7.111s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__struct.hpp
+[7.116s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__traits.hpp
+[7.122s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/distance_sensor.hpp
+[7.129s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/dock_enable.hpp
+[7.135s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/environment.hpp
+[7.141s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/light.hpp
+[7.147s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/robot_pos.hpp
+[7.153s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/sensor_enable.hpp
+[7.159s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/string_list.hpp
+[7.165s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__builder.hpp
+[7.170s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__struct.hpp
+[7.176s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__traits.hpp
+[7.182s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__builder.hpp
+[7.187s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__struct.hpp
+[7.193s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__traits.hpp
+[7.198s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/get_charger.hpp
+[7.204s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/release_charger.hpp
+[7.210s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_fastrtps_cpp.hpp
+[7.215s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_fastrtps_cpp.hpp
+[7.221s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_fastrtps_cpp.hpp
+[7.226s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_fastrtps_cpp.hpp
+[7.231s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_fastrtps_cpp.hpp
+[7.238s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_fastrtps_cpp.hpp
+[7.243s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_fastrtps_cpp.hpp
+[7.250s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_fastrtps_cpp.hpp
+[7.256s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[7.263s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_fastrtps_cpp.hpp
+[7.268s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_fastrtps_cpp.hpp
+[7.274s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_introspection_c.h
+[7.279s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_introspection_c.h
+[7.284s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_introspection_c.h
+[7.290s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_introspection_c.h
+[7.295s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_introspection_c.h
+[7.301s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_introspection_c.h
+[7.306s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_introspection_c.h
+[7.312s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_introspection_c.h
+[7.317s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[7.323s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_introspection_c.h
+[7.328s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_introspection_c.h
+[7.334s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/battery_status__rosidl_typesupport_introspection_cpp.hpp
+[7.339s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/distance_sensor__rosidl_typesupport_introspection_cpp.hpp
+[7.345s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/dock_enable__rosidl_typesupport_introspection_cpp.hpp
+[7.351s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/environment__rosidl_typesupport_introspection_cpp.hpp
+[7.357s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/light__rosidl_typesupport_introspection_cpp.hpp
+[7.364s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/robot_pos__rosidl_typesupport_introspection_cpp.hpp
+[7.369s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/sensor_enable__rosidl_typesupport_introspection_cpp.hpp
+[7.375s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/msg/detail/string_list__rosidl_typesupport_introspection_cpp.hpp
+[7.380s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/get_charger__rosidl_typesupport_introspection_cpp.hpp
+[7.386s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/include/robot_msgs/robot_msgs/srv/detail/release_charger__rosidl_typesupport_introspection_cpp.hpp
+[7.391s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/pythonpath.sh
+[7.397s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/pythonpath.dsv
+[7.402s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/PKG-INFO
+[7.408s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/SOURCES.txt
+[7.414s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/dependency_links.txt
+[7.419s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs-0.0.0-py3.10.egg-info/top_level.txt
+[7.425s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/__init__.py
+[7.431s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_c.c
+[7.437s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[7.444s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/_robot_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[7.450s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/librobot_msgs__rosidl_generator_py.so
+[7.457s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/__init__.py
+[7.463s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status.py
+[7.468s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status_s.c
+[7.474s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor.py
+[7.480s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor_s.c
+[7.485s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable.py
+[7.490s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable_s.c
+[7.496s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment.py
+[7.502s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment_s.c
+[7.508s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light.py
+[7.514s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light_s.c
+[7.519s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos.py
+[7.524s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos_s.c
+[7.530s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable.py
+[7.535s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable_s.c
+[7.541s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list.py
+[7.546s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list_s.c
+[7.552s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[7.558s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[7.565s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[7.570s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/__init__.py
+[7.576s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger.py
+[7.582s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger_s.c
+[7.587s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger.py
+[7.592s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger_s.c
+[7.597s] -- Up-to-date symlink: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[7.598s] -- Up-to-date symlink: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[7.598s] -- Up-to-date symlink: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/robot_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[7.598s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Environment.idl
+[7.603s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/RobotPos.idl
+[7.609s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Light.idl
+[7.614s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/StringList.idl
+[7.620s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/SensorEnable.idl
+[7.625s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DistanceSensor.idl
+[7.631s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/BatteryStatus.idl
+[7.636s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DockEnable.idl
+[7.643s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger.idl
+[7.650s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger.idl
+[7.657s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Environment.msg
+[7.665s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/RobotPos.msg
+[7.671s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/Light.msg
+[7.677s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/StringList.msg
+[7.683s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/SensorEnable.msg
+[7.690s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DistanceSensor.msg
+[7.696s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/BatteryStatus.msg
+[7.704s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/msg/DockEnable.msg
+[7.711s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger.srv
+[7.718s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger_Request.msg
+[7.725s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/GetCharger_Response.msg
+[7.732s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger.srv
+[7.739s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger_Request.msg
+[7.746s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/srv/ReleaseCharger_Response.msg
+[7.753s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/package_run_dependencies/robot_msgs
+[7.762s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/parent_prefix_path/robot_msgs
+[7.768s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/ament_prefix_path.sh
+[7.774s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/ament_prefix_path.dsv
+[7.780s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/path.sh
+[7.785s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/environment/path.dsv
+[7.790s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.bash
+[7.796s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.sh
+[7.801s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.zsh
+[7.806s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/local_setup.dsv
+[7.812s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/package.dsv
+[7.817s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/ament_index/resource_index/packages/robot_msgs
+[7.823s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake-extras.cmake
+[7.828s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[7.834s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[7.839s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[7.844s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[7.850s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[7.856s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[7.863s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgsConfig.cmake
+[7.868s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgsConfig-version.cmake
+[7.874s] -- Symlinking: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/package.xml
+[7.879s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_c.so
+[7.879s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_c.so" to ""
+[7.879s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_c.so
+[7.880s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[7.880s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_cpp.so
+[7.880s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[7.880s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_c.so
+[7.880s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_c.so" to ""
+[7.880s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_c.so
+[7.880s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_c.so" to ""
+[7.880s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_cpp.so
+[7.881s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[7.881s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_cpp.so
+[7.881s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_typesupport_cpp.so" to ""
+[7.910s] Listing '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/__init__.py'...
+[7.910s] Listing '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/__init__.py'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_battery_status.py'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_distance_sensor.py'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_dock_enable.py'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_environment.py'...
+[7.910s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_light.py'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_robot_pos.py'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_sensor_enable.py'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/msg/_string_list.py'...
+[7.911s] Listing '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/__init__.py'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_get_charger.py'...
+[7.911s] Compiling '/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages/robot_msgs/srv/_release_charger.py'...
+[7.913s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_py.so
+[7.913s] -- Set runtime path of "/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib/librobot_msgs__rosidl_generator_py.so" to ""
+[7.913s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cExport.cmake
+[7.913s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_cppExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cppExport.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/robot_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[7.914s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_pyExport.cmake
+[7.915s] -- Installing: /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/share/robot_msgs/cmake/export_robot_msgs__rosidl_generator_pyExport-noconfig.cmake
+[7.916s] Invoked command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller:/home/rishab/ros2_ws/install/package_test:/home/rishab/ros2_ws/install/final:/opt/ros/humble /usr/bin/cmake --install /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs

@@ -1,1 +1,1 @@
-std_msgs/UInt16 id
+/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/rosidl_cmake/srv/ReleaseCharger_Request.msg

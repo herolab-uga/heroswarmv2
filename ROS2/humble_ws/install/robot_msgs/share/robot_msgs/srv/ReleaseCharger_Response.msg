@@ -1,2 +1,1 @@
-
-std_msgs/Bool released
+/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/rosidl_cmake/srv/ReleaseCharger_Response.msg

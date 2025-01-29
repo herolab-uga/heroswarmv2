@@ -1,0 +1,20 @@
+[0.526s] Invoking command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller': AMENT_PREFIX_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py develop --editable --build-directory /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build --no-deps symlink_data
+[0.709s] running develop
+[0.709s] /usr/lib/python3/dist-packages/setuptools/command/easy_install.py:158: EasyInstallDeprecationWarning: easy_install command is deprecated. Use build and pip and other standards-based tools.
+[0.709s]   warnings.warn(
+[0.838s] running egg_info
+[0.838s] writing robot_controller.egg-info/PKG-INFO
+[0.838s] writing dependency_links to robot_controller.egg-info/dependency_links.txt
+[0.838s] writing entry points to robot_controller.egg-info/entry_points.txt
+[0.838s] writing requirements to robot_controller.egg-info/requires.txt
+[0.838s] writing top-level names to robot_controller.egg-info/top_level.txt
+[0.848s] reading manifest file 'robot_controller.egg-info/SOURCES.txt'
+[0.848s] writing manifest file 'robot_controller.egg-info/SOURCES.txt'
+[0.849s] running build_ext
+[0.849s] Creating /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages/robot-controller.egg-link (link to .)
+[0.850s] Installing robot_controller script to /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/robot_controller
+[0.850s] Installing test_publisher script to /home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/robot_controller
+[0.850s] 
+[0.850s] Installed /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller
+[0.850s] running symlink_data
+[0.868s] Invoked command in '/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller' returned '0': AMENT_PREFIX_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_controller/lib/python3.10/site-packages:/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py develop --editable --build-directory /home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_controller/build --no-deps symlink_data

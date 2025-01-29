@@ -2,7 +2,7 @@
 
 # since this file is sourced use either the provided AMENT_CURRENT_PREFIX
 # or fall back to the destination set at configure time
-: ${AMENT_CURRENT_PREFIX:="/home/g83r/Desktop/uga/hero-lab/heroswarmv2/ROS2/humble_ws/install/robot_msgs"}
+: ${AMENT_CURRENT_PREFIX:="/home/rishab/heroswarmv2/ROS2/humble_ws/install/robot_msgs"}
 if [ ! -d "$AMENT_CURRENT_PREFIX" ]; then
   if [ -z "$COLCON_CURRENT_PREFIX" ]; then
     echo "The compile time prefix path '$AMENT_CURRENT_PREFIX' doesn't " \

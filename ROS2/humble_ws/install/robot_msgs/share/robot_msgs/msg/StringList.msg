@@ -1,1 +1,1 @@
-std_msgs/String[] data
+/home/rishab/heroswarmv2/ROS2/humble_ws/src/robot_msgs/msg/StringList.msg

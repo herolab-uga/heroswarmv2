@@ -1,3 +1,1 @@
-
-std_msgs/UInt16 id
-geometry_msgs/Pose position
+/home/rishab/heroswarmv2/ROS2/humble_ws/build/robot_msgs/rosidl_cmake/srv/GetCharger_Response.msg
