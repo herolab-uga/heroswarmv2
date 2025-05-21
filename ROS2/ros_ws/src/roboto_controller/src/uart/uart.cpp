@@ -9,17 +9,49 @@
 #include <errno.h> // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h> // write(), read(), close()
+#include <sys/stat.h>
+#include <pthread.h>
+#include <mqueue.h>
 
 /* ROS Headers */
 // add the headers for ros logger
-
 #include "uart.hpp"
+#include "crc/crc.h"
+#include "utils/defines.h"
+#include "stream_header/stream_header.h"
 
-#define MUTEXNAME "/tmp/uart_mutex"
+#define BAUDRATE B921600
+#define MQBASE "/uart_mutex"
 
-int mutexFd;
+typedef enum
+{
+    SYNC,
+    HEADER,
+    DATA,
+} uart_state_t;
+
+typedef enum
+{
+    NO_ERROR = 0,
+    SYNC_ERROR = -1,
+    LENGTH_ERROR = -2,
+    NO_MORE_BITS = -3,
+    MAX_SIZE_EXCEEDED = -4,
+
+} uart_errors_t;
+
+typedef struct
+{
+    uint16_t apid;
+    uint16_t length;
+    uint8_t data[MAX_MSG_SIZE];
+} queue_data_t;
+
+const uint8_t SYNC_PATTERN[] = {0xDE, 0xAD, 0xBE, 0xEF};
+
 int serialPort;
 bool uartConfigured = false;
+mqd_t gUartMessageQueue;
 
 int uartRead(uint8_t* buffer, size_t len)
 {
@@ -28,49 +60,56 @@ int uartRead(uint8_t* buffer, size_t len)
     return bytes_read;
 }
 
-int uartWrite(uint8_t* const buffer, size_t len)
+int32_t dispatch_serial(void* buff, size_t len)
 {
-    return write(serialPort,buffer,len);
+
+    return mq_send(gUartMessageQueue, (char*) buff, len, NULL);
+
 }
 
-int lockUartMutex()
+void uartTx(void* parameters)
 {
-    // Lock the mutex
-    struct flock fl;
-    fl.l_type = F_WRLCK;  // Write lock
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-    return fcntl(mutexFd, F_SETLKW, &fl);
-}
+    uint16_t ret = 0;
+    uint16_t crc = 0;
 
-int unlockUartMutex() 
-{
-    // Lock the mutex
-    struct flock fl;
-    fl.l_type = F_UNLCK;  // Write lock
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-    return fcntl(mutexFd, F_SETLKW, &fl);
+    uint8_t data = 0;
+
+    uint8_t buff[MAX_MSG_SIZE];
+
+    mqd_t uart_tx_mq = mq_open(MQBASE, O_RDONLY);
+
+    while (true)
+    {
+
+        ret = mq_receive(uart_tx_mq, (char*) buff, sizeof(buff), NULL);
+
+        crc = calculate_crc(buff, ret);
+
+        memcpy(&buff[ret], &crc, sizeof(crc));
+
+        memmove(&buff[sizeof(SYNC_PATTERN)], buff, ret + CRC_SIZE);
+
+        memcpy(buff, SYNC_PATTERN, sizeof(SYNC_PATTERN));
+
+        write(serialPort, buff, ret + sizeof(SYNC_PATTERN) + CRC_SIZE); 
+    }
 }
 
 // will take in a node to log to
 int uartInit()
 {
-    // Create the mutex
-    mutexFd = open(MUTEXNAME,O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-
-    if (mutexFd == -1) 
-    {
-        std::cerr << "Error opening " << MUTEXNAME << ": "  << strerror(errno)  << std::endl;
-        return 1;
-    }
 
     std::cout << "Initializing UART" << std::endl;
     if (uartConfigured == true){
         return uartState::CONFIGURED; // return configured 
     }
+
+    mq_attr attributes;
+
+    attributes.mq_maxmsg = MAX_MSG_SIZE;
+    attributes.mq_maxmsg = MAX_QUEUE_DEPTH;
+
+    gUartMessageQueue = mq_open(MQBASE, O_WRONLY | O_CREAT | O_NONBLOCK, &attributes);
         
     struct termios tty;
 

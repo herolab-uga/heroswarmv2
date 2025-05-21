@@ -19,11 +19,6 @@ byte msg[256];
 int msgLen = 0;
 char recvChar;
 
-// buffer to read samples into, each sample is 16-bits
-short sampleBuffer[256];
-
-// number of samples read
-volatile int samplesRead = 0;
 
 void stop()
 {
@@ -144,17 +139,7 @@ extern "C"
   }
 }
 
-void onPDMdata()
-{
-  // query the number of bytes available
-  int bytesAvailable = PDM.available();
 
-  // read into the sample buffer
-  PDM.read(sampleBuffer, bytesAvailable);
-
-  // 16-bit, 2 bytes per sample
-  samplesRead = bytesAvailable / 2;
-}
 
 void setup()
 {
@@ -184,15 +169,7 @@ void setup()
 
   steve.setColor(0, 0, 0);
   init_timer();
-  PDM.onReceive(onPDMdata);
 
-  if (!PDM.begin(1, 16000))
-  {
-    Serial.println("Failed to start PDM!");
-    while (1)
-      yield();
-  }
-  PDM.setGain(.75);
   steve.setPIDSetpoint(0, 0);
   steve.setVelocity(0, 0);
   // steve.updateOdometery();

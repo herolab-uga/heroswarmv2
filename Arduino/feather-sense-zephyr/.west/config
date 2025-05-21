@@ -1,7 +1,0 @@
-[manifest]
-path = zephyr
-file = west.yml
-
-[zephyr]
-base = zephyr
-

@@ -1,0 +1,451 @@
+#include "math.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "pico/time.h"
+#include "pico/stdlib.h"
+#include "hardware/rtc.h"
+#include "hardware/pwm.h"
+#include "hardware/pio.h"
+#include "hardware/gpio.h"
+#include "quadrature.h"
+#include "includes/motor_control.h"
+
+#define MAX_ROTATIONS_SEC 195.0f
+// Define the motor control and encoder pins
+#define motor3Forward   7
+#define motor3Backward  6
+#define motor3EncoderB  9
+#define motor3EncoderA  8
+
+#define motor2Forward   3
+#define motor2Backward  2
+#define motor2EncoderB  15
+#define motor2EncoderA  14
+
+#define motor1Forward   10
+#define motor1Backward  11
+#define motor1EncoderB  13
+#define motor1EncoderA  12
+
+#define PWM_RES_decimal 65535.0f
+
+#define TICK_PER_REV 7.0f
+#define GEAR_RATIO 42.0f
+
+uint motor1Slice;
+uint motor2Slice;
+uint motor3Slice;
+
+PIO pio_motor1;
+PIO pio_motor2;
+PIO pio_motor3;
+
+uint sm0;
+uint sm1;
+uint sm2;
+
+float max_radians_sec = (MAX_ROTATIONS_SEC/30.0f) * PI;
+
+// PID variables
+uint8_t errorPointer = 0; 
+// Motor 1
+float P_motor1 = .5;
+float I_motor1 = 0.0;
+float D_motor1 = 0.0;
+float motor1LastError = 0;
+float motor1IntegralError = 0;
+// int xFeedForward = 0;
+float prevXError[10] = {0,0,0,0,0,0,0,0,0,0};
+
+// Motor 2
+float P_motor2 = .5;
+float I_motor2 = 0.0;
+float D_motor2 = 0.0;
+float motor2LastError = 0;
+float motor2IntegralError = 0;
+// int yFeedForward = 0;
+float prevYError[10] = {0,0,0,0,0,0,0,0,0,0};
+
+// Motor 3
+float P_motor3 = .5;//10.0;
+float I_motor3 = 0.0;
+float D_motor3 = 0.0;//.75;
+float motor3LastError = 0;
+float motor3IntegralError = 0;
+// int angularFeedForward = 0;
+float prevAngularError[10] = {0,0,0,0,0,0,0,0,0,0};
+
+uint32_t current_time;
+uint32_t last_time;
+uint32_t delta_time = 0;
+
+float xVel;
+float yVel;
+float thetaVel;
+
+float x;
+float y;
+float theta;
+
+float delta_1 = 0;
+float delta_2 = 0;
+float delta_3 = 0;
+
+float delta_x = 0;
+float delta_y = 0;
+float delta_theta = 0;
+
+float motor1Setpoint = 0;
+float motor2Setpoint = 0;
+float motor3Setpoint = 0;
+
+// Motor 1 PID variables
+int motor1Encoder = 0;
+int motor1LastEncoder = 0;
+float motor1Speed = 0;
+float motor1LastSpeed = 0;
+int motor1FeedForward = 750;
+
+int motor2Encoder = 0;
+int motor2LastEncoder = 0;
+float motor2Speed = 0;
+float motor2LastSpeed = 0;
+int motor2FeedForward = 250;
+
+int motor3Encoder = 0;
+int motor3LastEncoder = 0;
+float motor3Speed = 0;
+float motor3LastSpeed = 0;
+int motor3FeedForward = 250;
+
+quadrature_decoder motor1_decoder;
+int32_t motor1_index = 0;
+
+quadrature_decoder motor2_decoder;
+int32_t motor2_index = 0;
+
+quadrature_decoder motor3_decoder;
+int32_t motor3_index = 0;
+
+void sendOdom(odomData* data){
+    data->xVel = delta_x;
+    data->yVel = delta_y;
+    data->omega = delta_theta;
+    data->x = x;
+    data->y = y;
+    data->theta = theta;
+}
+
+
+float updateMotor1Vel(float motor1Vel){
+    float error = motor1Setpoint - motor1Vel;
+    printf("Error Motor 1: %f -  %f = %f\r\n",motor1Setpoint,motor1Vel,error);
+    motor1IntegralError += error;
+    float derivative_error = motor1LastSpeed + error;
+    if (error < .025)
+    {
+        motor1IntegralError = 0;
+    }
+    // prevXError[errorPointer] = error;
+    motor1LastError = error;
+
+    return P_motor1 * error +  I_motor1 * motor1IntegralError + D_motor1 * derivative_error;
+}
+
+float updateMotor2Vel(float motor2Vel){
+    float error = motor2Setpoint - motor2Vel;
+    printf("Error Motor 2: %f -  %f = %f\r\n",motor2Setpoint,motor2Vel,error);
+    motor2IntegralError += error;
+    if (error < .025)
+    {
+        motor2IntegralError = 0;
+    }
+    float derivative_error = motor2LastError - error;
+    // prevYError[errorPointer] = error;
+    motor2LastError = error;
+    return P_motor2 * error +  I_motor2 * motor2IntegralError + D_motor2 * derivative_error;
+
+}
+
+float updateMotor3Vel(float motor3Vel){
+    float error = motor3Setpoint - motor3Vel;
+    printf("Error Motor 3: %f -  %f = %f\r\n",motor3Setpoint,motor3Vel,error);
+    motor3IntegralError += error;
+    if (error < .025)
+    {
+        motor3IntegralError = 0;
+    }
+    float derivative_error = motor3LastError - error;
+    // prevYError[errorPointer] = error;
+    motor3LastError = error;
+    return P_motor3 * error +  I_motor3 * motor3IntegralError + D_motor3 * derivative_error;
+
+}
+
+void setMotor1Speed(float vel){
+    int speed = ((fabs(vel) * PWM_RES_decimal)/max_radians_sec); 
+    speed = speed > 65535 ? 65535 : speed;
+    if (motor1LastSpeed == 0 &&  (speed - motor1FeedForward) < PWM_RES_decimal){
+        speed += motor1FeedForward;
+    }
+    motor1LastSpeed = vel;
+    if (vel < 0){
+        // printf("Motor 1 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor1Slice,PWM_CHAN_B,speed);
+        pwm_set_chan_level(motor1Slice,PWM_CHAN_A,0);
+    } else{
+        // printf("Motor 1 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor1Slice,PWM_CHAN_B,0);
+        pwm_set_chan_level(motor1Slice,PWM_CHAN_A,speed);
+    }
+
+}
+
+void setMotor2Speed(float vel){
+    int speed = ((fabs(vel) * PWM_RES_decimal)/max_radians_sec); 
+    speed = speed > 65535 ? 65535 : speed;
+    if (motor2LastSpeed == 0 && (speed - motor2FeedForward) < PWM_RES_decimal){
+        speed += motor2FeedForward;
+    }
+    motor2LastSpeed = vel;
+    if (vel < 0){
+        // printf("Motor 2 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor2Slice,PWM_CHAN_A,0);
+        pwm_set_chan_level(motor2Slice,PWM_CHAN_B,speed);
+    } else{
+        // printf("Motor 2 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor2Slice,PWM_CHAN_A,speed);
+        pwm_set_chan_level(motor2Slice,PWM_CHAN_B,0);
+    }
+}
+
+void setMotor3Speed(float vel){
+    // printf("Vel 3: %f\r\n",vel); 
+    int speed = ((fabs(vel) * PWM_RES_decimal)/max_radians_sec);
+    // printf("Speed3: %d\r\n",speed); 
+    speed = speed > 65535 ? 65535 : speed;
+    if (motor2LastSpeed == 0 && (speed - motor3FeedForward) < PWM_RES_decimal){
+        speed += motor3FeedForward;
+    }
+    motor3LastSpeed = vel;
+    if (vel < 0){
+        // printf("Motor 3 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor3Slice,PWM_CHAN_B,0);
+        pwm_set_chan_level(motor3Slice,PWM_CHAN_A,speed);
+    } else{
+        // printf("Motor 3 Speed: %d\n\r",speed);
+        pwm_set_chan_level(motor3Slice,PWM_CHAN_B,speed);
+        pwm_set_chan_level(motor3Slice,PWM_CHAN_A,0);
+    }
+}
+
+void updateVelocity(float delta_1,float delta_2, float delta_3){
+    
+    // updated the current velocity
+    float motor1Update = updateMotor1Vel(delta_1);
+    float motor2Update = updateMotor2Vel(delta_2);
+    float motor3Update = updateMotor3Vel(delta_3);
+
+    
+    setMotor1Speed(motor1LastSpeed - motor1Update);
+    setMotor2Speed(motor2LastSpeed + motor2Update);
+    setMotor3Speed(motor3LastSpeed + motor3Update);
+
+    errorPointer = errorPointer == 9 ? 0 : errorPointer++;
+}
+
+void updateOdom(){
+    current_time = to_ms_since_boot (get_absolute_time());
+    delta_time = current_time - last_time;
+    last_time = current_time;
+
+    motor1Encoder = -get_count(&motor1_decoder, motor1_index);
+    motor2Encoder = -get_count(&motor2_decoder, motor2_index);
+    motor3Encoder = -get_count(&motor3_decoder, motor3_index);
+
+    printf("Motor Encoder: %d %d %d %d\r\n",motor1Encoder,motor2Encoder,motor3Encoder,current_time);
+
+    delta_1 = (float) (motor1Encoder - motor1LastEncoder); // change in ticks
+    delta_2 = (float) (motor2Encoder - motor2LastEncoder); // change in ticks
+    delta_3 = (float) (motor3Encoder - motor3LastEncoder); // change in ticks
+
+    printf("Motor Encoder Delta: %f %f %f %d\n\r",delta_1,delta_2,delta_3,delta_time);
+
+    motor1LastEncoder = motor1Encoder;
+    motor2LastEncoder = motor2Encoder;
+    motor3LastEncoder = motor3Encoder;
+    
+    delta_1 = (delta_1 / (TICK_PER_REV * GEAR_RATIO)) / ((float) delta_time/1000.0f); // change in revolutions per second;
+    delta_2 = (delta_2 / (TICK_PER_REV * GEAR_RATIO)) / ((float) delta_time/1000.0f); // change in revolutions per second;
+    delta_3 = (delta_3 / (TICK_PER_REV * GEAR_RATIO)) / ((float) delta_time/1000.0f); // change in revolutions per second;
+
+    delta_1 = delta_1 * 2.0f * PI;// change in radians per second
+    delta_2 = delta_2 * 2.0f * PI;// change in radians per second
+    delta_3 = delta_3 * 2.0f * PI;// change in radians per second
+
+    motor1Speed = delta_1;
+    motor2Speed = delta_2;
+    motor3Speed = delta_3;
+
+    // printf("Motor Speed: %f %f %f\n\r",delta_1,delta_2,delta_3);
+
+    delta_x = 0.01277429 * delta_1 - 0.00633513  * delta_2 - 0.00643915 * delta_3;
+    delta_y = -0.0001864 * delta_1 + 0.01097277 * delta_2 - 0.01078637* delta_3;
+    delta_theta = 0.454265885 * delta_1 + 0.462249654 * delta_2 + 0.469839806 * delta_3;
+
+    //printf("Speed meters/s: %f %f %f\n\r",delta_x,delta_y,delta_theta);
+
+    x += delta_x;
+    y += delta_y;
+    theta = fmod((theta + delta_theta),(2.f * PI));
+}
+
+void getWheelVel(float xVel, float yVel, float thetaVel, wheelVel* velStrcut){
+    velStrcut -> wheel1Vel = 52.6315789 * xVel + 0 * yVel  +  0.721316 * thetaVel;
+    velStrcut -> wheel2Vel = -24.9746545 * xVel  + 46.3287140 * yVel + 0.721316 * thetaVel;
+    velStrcut -> wheel3Vel = -26.3157895 * xVel -45.5802844 * yVel + 0.721316 * thetaVel;
+}
+
+void setVelocity(float xVel, float yVel, float thetaVel) {
+    // printf("X Vel: %f\r\n",xVel);
+    // printf("Y Vel: %f\r\n",yVel);
+    // printf("Theta Vel: %f\r\n",thetaVel);
+
+    // We need to fix this so positive is forward for both directions
+    wheelVel velStruct;
+    getWheelVel(xVel,yVel,thetaVel,&velStruct);
+
+    motor1Setpoint = velStruct.wheel1Vel;
+    motor2Setpoint = velStruct.wheel2Vel;
+    motor3Setpoint = velStruct.wheel3Vel;
+
+    // printf("Motor 1: %f\n\r",velStruct.wheel1Vel);
+    // printf("Motor 2: %f\n\r",velStruct.wheel2Vel);
+    // printf("Motor 3: %f\n\r",velStruct.wheel3Vel);
+
+    // setMotor1Speed((int) 65535*(xVel/.06f));
+    setMotor1Speed(velStruct.wheel1Vel);
+    setMotor2Speed(velStruct.wheel2Vel);
+    setMotor3Speed(velStruct.wheel3Vel);
+}
+
+void motorControlInit(){
+    printf("Motor Init\r\n");
+
+    current_time = 0;
+    last_time = 0;
+
+    // Set the gpio pwm control
+    gpio_set_function(motor1Forward,GPIO_FUNC_PWM);
+    gpio_set_function(motor1Backward,GPIO_FUNC_PWM);
+    
+    gpio_set_function(motor2Forward,GPIO_FUNC_PWM);
+    gpio_set_function(motor2Backward,GPIO_FUNC_PWM);
+
+    gpio_set_function(motor3Forward,GPIO_FUNC_PWM);
+    gpio_set_function(motor3Backward,GPIO_FUNC_PWM);
+
+    // Setting up pwm frequency
+
+    // Getting the slices for the motor PWMs
+    motor1Slice = pwm_gpio_to_slice_num(motor1Forward);
+    motor2Slice = pwm_gpio_to_slice_num(motor2Forward);
+    motor3Slice = pwm_gpio_to_slice_num(motor3Forward);
+
+    // Enable the PWM
+    pwm_set_enabled(motor1Slice,pdTRUE);
+    pwm_set_enabled(motor2Slice,pdTRUE);
+    pwm_set_enabled(motor3Slice,pdTRUE);
+
+    // Set the wrap point for the PWM timer.
+    // This sets the PWM frequency
+    // The PWM timer has a max period of 8 nano seconds or a count of 65535
+    // Use a proportion to find the needed wrap count
+    // Currently set for a 1k Hz PWM signal
+    pwm_set_wrap(motor1Slice,12500);
+    pwm_set_wrap(motor2Slice,12500);
+    pwm_set_wrap(motor3Slice,12500);
+
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_clkdiv(&config, 10.f);
+
+    pwm_init(motor1Slice, &config, pdTRUE);
+    pwm_init(motor2Slice, &config, pdTRUE);
+    pwm_init(motor3Slice, &config, pdTRUE);
+
+    printf("Finished Motor Init\r\n");
+
+    // End of PWM set up
+
+    uint offset;
+
+    gpio_init(motor1EncoderA);
+    gpio_init(motor1EncoderB);
+
+    gpio_pull_down(motor1EncoderA);
+    gpio_pull_down(motor1EncoderB);
+
+    quadrature_decoder_init(&motor1_decoder, pio0);
+    motor1_index = add_quadrature_decoder(&motor1_decoder, motor1EncoderA);
+
+
+    gpio_init(motor2EncoderA);
+    gpio_init(motor2EncoderB);
+
+    gpio_pull_down(motor2EncoderA);
+    gpio_pull_down(motor2EncoderB);
+
+    quadrature_decoder_init(&motor2_decoder, pio0);
+    motor2_index = add_quadrature_decoder(&motor2_decoder, motor2EncoderA);
+
+
+    gpio_init(motor3EncoderA);
+    gpio_init(motor3EncoderB);
+
+    gpio_pull_down(motor3EncoderA);
+    gpio_pull_down(motor3EncoderB);
+
+    quadrature_decoder_init(&motor3_decoder, pio0);
+    motor3_index = add_quadrature_decoder(&motor3_decoder, motor3EncoderA);
+
+    // PID and Odom setup
+    x = 0;
+    y = 0;
+    theta = 0;
+    setMotor1Speed(1.0);
+}
+
+void test() {
+    setVelocity(0.5,0.0,0.0);
+    sleep_ms(10000);
+
+    setVelocity(-0.5,0.0,0.0);
+    sleep_ms(10000);
+
+    setVelocity(0,0.5,0.0);
+    sleep_ms(10000);
+
+    setVelocity(0.0,-0.5,0.0);
+    sleep_ms(10000);
+
+    setVelocity(0.0,0.0,1.5);
+    sleep_ms(10000);
+
+    setVelocity(0,0.0,-1.5);
+    sleep_ms(10000);
+}
+
+void motorControlTask(void* parameters){
+
+    setVelocity(0.25, 0.0, 0);
+    while(pdTRUE){
+        updateOdom();
+        if (!(motor1Setpoint == 0 && motor2Setpoint == 0 && motor3Setpoint == 0)){
+            // printf("Update\r\n");
+            // updateVelocity(motor1Speed,motor2Speed,motor3Speed);
+        }
+
+        sleep_ms(15);
+    }
+
+}

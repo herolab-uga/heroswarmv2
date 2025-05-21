@@ -529,9 +529,3 @@ float SwarmBot::setAngVel(float omega)
         return 0;
     }
 }
-
-void SwarmBot::setColor(int R, int G, int B){
-    this->pixels.clear();
-    this->pixels.setPixelColor(0, this->pixels.Color(R,G,B));
-    this->pixels.show();
-}

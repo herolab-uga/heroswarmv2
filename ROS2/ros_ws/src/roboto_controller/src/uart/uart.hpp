@@ -1,7 +1,7 @@
 #pragma once
 #ifndef UARTHEADER
 #define UARTHEADER
-#define BAUDRATE B115200
+
 
 // error enumeration?
 
