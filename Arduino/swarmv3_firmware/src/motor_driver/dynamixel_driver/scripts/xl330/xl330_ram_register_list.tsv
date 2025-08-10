@@ -1,0 +1,44 @@
+Address 	Size(Byte) 	Data Name 	Access 	Initial Value 	Range 	Unit
+64	1	Torque Enable 	RW 	0	0 +AH4- 1 	+AC0-
+65	1	LED 	RW 	0	0 +AH4- 1 	+AC0-
+68	1	Status Return Level 	RW 	2	0 +AH4- 2 	+AC0-
+69	1	Registered Instruction 	R 	0	0 +AH4- 1 	+AC0-
+70	1	Hardware Error Status 	R 	0	+AC0- 	+AC0-
+76	2	Velocity I Gain 	RW 	1600	0 +AH4- 16,383 	+AC0-
+78	2	Velocity P Gain 	RW 	180	0 +AH4- 16,383 	+AC0-
+80	2	Position D Gain 	RW 	0	0 +AH4- 16,383 	+AC0-
+82	2	Position I Gain 	RW 	0	0 +AH4- 16,383 	+AC0-
+84	2	Position P Gain 	RW 	400	0 +AH4- 16,383 	+AC0-
+88	2	Feedforward 2nd Gain 	RW 	0	0 +AH4- 16,383 	+AC0-
+90	2	Feedforward 1st Gain 	RW 	0	0 +AH4- 16,383 	+AC0-
+98	1	Bus Watchdog 	RW 	0	1 +AH4- 127 	20 +AFs-msec+AF0-
+100	2	Goal PWM 	RW 	+AC0- 	+AC0-PWM Limit(36) +AH4-
+102	2	Goal Current 	RW 	+AC0- 	+AC0-Current Limit(38) +AH4-	1 +AFs-mA+AF0-
+104	4	Goal Velocity 	RW 	+AC0- 	+AC0-Velocity Limit(44) +AH4-	0.229 +AFs-rev/min+AF0-
+108	4	Profile Acceleration 	RW 	0	0 +AH4- 32,767 0 +AH4- 32,737 	214.577 +AFs-rev/min2+AF0- 1 +AFs-ms+AF0-
+112	4	Profile Velocity 	RW 	0	0 +AH4- 32,767 	0.229 +AFs-rev/min+AF0-
+116	4	Goal Position 	RW 	+AC0- 	Min Position Limit(52) +AH4-	1 +AFs-pulse+AF0-
+120	2	Realtime Tick 	R 	+AC0- 	0 +AH4- 32,767 	1 +AFs-msec+AF0-
+122	1	Moving 	R 	0	0 +AH4- 1 	+AC0-
+123	1	Moving Status 	R 	0	+AC0- 	+AC0-
+124	2	Present PWM 	R 	+AC0- 	+AC0- 	+AC0-
+126	2	Present Current 	R 	+AC0- 	+AC0- 	1 +AFs-mA+AF0-
+128	4	Present Velocity 	R 	+AC0- 	+AC0- 	0.229 +AFs-rev/min+AF0-
+132	4	Present Position 	R 	+AC0- 	+AC0- 	1 +AFs-pulse+AF0-
+136	4	Velocity Trajectory 	R 	+AC0- 	+AC0- 	0.229 +AFs-rev/min+AF0-
+140	4	Position Trajectory 	R 	+AC0- 	+AC0- 	1 +AFs-pulse+AF0-
+144	2	Present Input Voltage 	R 	+AC0- 	+AC0- 	0.1 +AFs-V+AF0-
+146	1	Present Temperature 	R 	+AC0- 	+AC0- 	1 +AFv//f/9-C+AF0-
+147	1	Backup Ready 	R 	+AC0- 	0 +AH4- 1 	+AC0-
+168	2	Indirect Address 1 	RW 	208	64 +AH4- 227 	+AC0-
+170	2	Indirect Address 2 	RW 	209	64 +AH4- 227 	+AC0-
+172	2	Indirect Address 3 	RW 	210	64 +AH4- 227 	+AC0-
+202	2	Indirect Address 18 	RW 	225	64 +AH4- 227 	+AC0-
+204	2	Indirect Address 19 	RW 	226	64 +AH4- 227 	+AC0-
+206	2	Indirect Address 20 	RW 	227	64 +AH4- 227 	+AC0-
+208	1	Indirect Data 1 	RW 	0	0 +AH4- 255 	+AC0-
+209	1	Indirect Data 2 	RW 	0	0 +AH4- 255 	+AC0-
+210	1	Indirect Data 3 	RW 	0	0 +AH4- 255 	+AC0-
+225	1	Indirect Data 18 	RW 	0	0 +AH4- 255 	+AC0-
+226	1	Indirect Data 19 	RW 	0	0 +AH4- 255 	+AC0-
+227	1	Indirect Data 20 	RW 	0	0 +AH4- 255 	+AC0-

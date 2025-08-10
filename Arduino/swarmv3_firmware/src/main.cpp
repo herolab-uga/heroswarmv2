@@ -23,7 +23,7 @@ void debug(void* paramters)
     
     while (pdTRUE)
     {
-        vTaskDelayUntil(&last_wake_time, 1000/portTICK_PERIOD_MS);
+        vTaskDelayUntil(&last_wake_time, 10000/1024);
         memset(task_time_data, 0, sizeof(task_time_data));
         vTaskGetRunTimeStats(task_time_data);
         DEBUG_PRINTF("%s", task_time_data);

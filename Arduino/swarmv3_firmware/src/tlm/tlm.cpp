@@ -58,7 +58,7 @@ uint32_t get_tlm_period_ms()
 void tlm_task(void* params)
 {
     DEBUG_PRINTF("Starting Tlm Task");
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(10000/1024);
     odom_t tmp_odom;
     uint32_t sleep_time = 0;
 
@@ -85,7 +85,7 @@ void tlm_task(void* params)
         memcpy(tlm_array, &tlm_struct, sizeof(tlm_struct));
         uart_send_message(0xFF,tlm_array, sizeof(tlm_array));
 
-        vTaskDelayUntil(&last_wake_time, sleep_time/portTICK_PERIOD_MS);
+        vTaskDelayUntil(&last_wake_time, (10*sleep_time)/1024);
     }
 
 }

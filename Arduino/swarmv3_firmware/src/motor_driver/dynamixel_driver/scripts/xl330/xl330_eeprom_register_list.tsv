@@ -1,0 +1,24 @@
+Address 	Size(Byte) 	Data Name 	Access 	Initial Value 	Range 	Unit
+0	2	Model Number 	R 	1200	+AC0- 	+AC0-
+2	4	Model Information 	R 	+AC0- 	+AC0- 	+AC0-
+6	1	Firmware Version 	R 	+AC0- 	+AC0- 	+AC0-
+7	1	ID 	RW 	1	0 +AH4- 252 	+AC0-
+8	1	Baud Rate 	RW 	1	0 +AH4- 6 	+AC0-
+9	1	Return Delay Time 	RW 	250	0 +AH4- 254 	2 +AFv//f/9-sec +AF0-
+10	1	Drive Mode 	RW 	0	0 +AH4- 13 	+AC0-
+11	1	Operating Mode 	RW 	3	0 +AH4- 16 	+AC0-
+12	1	Secondary(Shadow) ID 	RW 	255	0 +AH4- 252 	+AC0-
+13	1	Protocol Type 	RW 	2	2 +AH4- 22 	+AC0-
+20	4	Homing Offset 	RW 	0	+AC0-1,044,479+AH4-1,044,479 	1 +AFs-pulse +AF0-
+24	4	Moving Threshold 	RW 	10	0 +AH4- 1,023 	0.229 +AFs-rev/min+AF0-
+31	1	Temperature Limit 	RW 	70	0 +AH4- 100 	1 +AFv//f/9-C+AF0-
+32	2	Max Voltage Limit 	RW 	70	31 +AH4- 70 	0.1 +AFs-V+AF0-
+34	2	Min Voltage Limit 	RW 	35	31 +AH4- 70 	0.1 +AFs-V+AF0-
+36	2	PWM Limit 	RW 	885	0 +AH4- 885 	0.113 +AFsAJQBd-
+38	2	Current Limit 	RW 	1750	0 +AH4- 1,750 	1 +AFs-mA +AF0-
+44	4	Velocity Limit 	RW 	445	0 +AH4- 2,047 	0.229 +AFs-rev/min+AF0-
+48	4	Max Position Limit 	RW 	4095	0 +AH4- 4,095 	1 +AFs-pulse+AF0-
+52	4	Min Position Limit 	RW 	0	0 +AH4- 4,095 	1 +AFs-pulse+AF0-
+60	1	Startup Configuration 	RW 	0	3	+AC0-
+62	1	PWM Slope 	RW 	140	1 +AH4- 255 	1.977 +AFs-mV/msec+AF0-
+63	1	Shutdown 	RW 	53	+AC0- 	+AC0-
