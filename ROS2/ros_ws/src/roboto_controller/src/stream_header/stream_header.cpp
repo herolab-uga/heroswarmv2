@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "crc/crc.h"
+#include "crc.hpp"
 #include "stream_header.h"
-#include "utils/defines.h"
-#include <Arduino.h>
+#include "defines.hpp"
 
 #define PKT_PROTOCOL_VERSION (0)
 
@@ -15,7 +14,7 @@ uint16_t wrap_pkt(const uint16_t apid, uint8_t* src_buff, uint8_t* dest_buff, si
 
 	if ((MAX_MSG_SIZE - sizeof(stream_header_t) - CRC_SIZE) < len)
 	{
-		Serial.println("Packet too large");
+		// Serial.println("Packet too large");
 	}
 
 	header.version = PKT_PROTOCOL_VERSION;
@@ -36,11 +35,7 @@ uint16_t wrap_pkt(const uint16_t apid, uint8_t* src_buff, uint8_t* dest_buff, si
 
 uint16_t read_stream_pkt(uint8_t* buff, size_t len, stream_pkt_t* stream_pkt)
 {
-	memcpy(&stream_pkt->header, buff, sizeof(stream_header_t));
+	memcpy(&stream_pkt, buff, len);
 	stream_pkt->header.length -= CRC_SIZE;
-	// Will reevaluate this later if we are running into buffer overflow problems
-	// could potentially be tying up the buffer for too long
-	stream_pkt->payload = &buff[sizeof(stream_header_t)];
-	memcpy(&stream_pkt->crc, &buff[sizeof(stream_header_t) + (stream_pkt->header.length)], CRC_SIZE);
 	return stream_pkt->header.length + STREAM_HEADER_SIZE + CRC_SIZE;
 }

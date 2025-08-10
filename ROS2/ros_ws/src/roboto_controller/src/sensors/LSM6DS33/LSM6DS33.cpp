@@ -1,4 +1,6 @@
-#include "includes/sensor_pub.hpp"
+#include "sensor_manager/sensor_manager.hpp"
+
+#define LSM6DS33 0x69
 
 bool SensorPublisher::setupLSM6DS33()
 {

@@ -1,4 +1,4 @@
-#include "crc/crc.h"
+#include "crc.hpp"
 #include <stdio.h>
 
 uint16_t calculate_crc(uint8_t *data, uint16_t length)

@@ -55,13 +55,17 @@ private:
     } charger;
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
-    rclcpp::Subscription<std_msgs::msg::Int16MultiArray>::SharedPtr neopixel;
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr battery;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr shutdown;
     rclcpp::Subscription<robot_msgs::msg::RobotPos>::SharedPtr pos;
 
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;			 /* Odometry publisher for odom data from feather senese */
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr batteryPublisher;			 /* Battery publisher for battery inforation */
+
+
     rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getChargerService;
     rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseChargerService;
+    
 
 public:
     Controller();
@@ -73,9 +77,10 @@ private:
     int sendValues(uint8_t *buff, size_t length);
     void stop();
     void readTwist(const geometry_msgs::msg::Twist::SharedPtr msg);
-    void neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr);
     void shutdownCallback(const std_msgs::msg::String::SharedPtr msg);
     void requestCharger();
     void releaseCharger();
     void batteryCallback(const std_msgs::msg::Float32::SharedPtr);
+    void pubOdom();
+    void pubBattery();
 };

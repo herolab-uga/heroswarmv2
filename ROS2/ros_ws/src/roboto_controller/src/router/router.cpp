@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "router.h"
 #include <string.h>
-#include <Arduino.h>
 
 #define MAX_REGISTERED_APIDS    (256)
 
@@ -11,7 +10,7 @@ int router_dispatch(uint16_t apid, uint16_t legnth, void* args)
 {
     if (MAX_REGISTERED_APIDS < apid)
     {
-        Serial.println("APID out of range");
+        // Serial.println("APID out of range");
         return -1;
     }
     else
@@ -22,7 +21,7 @@ int router_dispatch(uint16_t apid, uint16_t legnth, void* args)
         }
         else
         {
-            Serial.println("No function registered for this APID");
+            // Serial.println("No function registered for this APID");
             return -1;
         }
         
@@ -33,7 +32,7 @@ void router_register_apid(uint16_t apid, router_dispatch_fuction_t func)
 {
     if (MAX_REGISTERED_APIDS < apid)
     {
-        Serial.println("Apid too large");
+        // Serial.println("Apid too large");
     }
     else
     {
@@ -43,7 +42,7 @@ void router_register_apid(uint16_t apid, router_dispatch_fuction_t func)
         }
         else
         {
-            Serial.println("An function is already registered for this APID");
+            // Serial.println("An function is already registered for this APID");
         }
         
     }

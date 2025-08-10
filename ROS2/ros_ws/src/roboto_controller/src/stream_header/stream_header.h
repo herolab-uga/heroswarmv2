@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "defines.hpp"
 
 typedef struct
 {
@@ -12,7 +13,7 @@ typedef struct
 typedef struct
 {
 	stream_header_t header;
-	uint8_t* payload;
+	uint8_t payload[MAX_MSG_SIZE];
 	uint16_t crc;
 } stream_pkt_t;
 

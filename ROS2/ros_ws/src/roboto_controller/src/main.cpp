@@ -12,10 +12,7 @@
 
 
 void main(int argc, char * argv[])
-{
-
-
-    
+{    
     std::string ns = ros::getNamespace(); /* This is the node namespace, this is the robot's hostname*/
     
     

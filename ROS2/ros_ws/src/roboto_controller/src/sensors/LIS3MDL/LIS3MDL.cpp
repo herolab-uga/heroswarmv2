@@ -1,5 +1,27 @@
 #include "includes/sensor_pub.hpp"
 
+#define LIS3MDL 0x1C
+
+rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPublisher;				 /* IMU publisher or IMU information */
+
+/**
+ * These variables will hold the sensor timmer objects
+ **/
+
+rclcpp::TimerBase::SharedPtr imuTimer;
+
+/**
+ * IMU message variables
+ **/
+ std::mutex imuMutex;
+
+// need to add parameters to know what sensors to turn on and subscirber so you can toggle them in real time
+	// Create the publishers	
+	imuPublisher = this->create_publisher<sensor_msgs::msg::Imu>("/imu/data_raw", 5);
+
+	
+	// imuTimer = this->create_wall_timer(DEFAULT_PUB_RATE,std::bind(&SensorPublisher::pubIMU,this));
+
 bool SensorPublisher::setupLIS3MDL()
 {
     std::cout << "Starting LIS3MDL Setup" << std::endl;
