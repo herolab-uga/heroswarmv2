@@ -9,7 +9,7 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
 # --- [ Adjust these paths to your setup ] ---
 # Path to cross-compilers
-# TOOD: cross-compilers 
+#TODO: cross-compilers 
 set(CMAKE_C_COMPILER   /path/to/toolchain/bin/aarch64-linux-gnu-gcc)
 set(CMAKE_CXX_COMPILER /path/to/toolchain/bin/aarch64-linux-gnu-g++)
 set(CMAKE_ASM_COMPILER /path/to/toolchain/bin/aarch64-linux-gnu-gcc)
