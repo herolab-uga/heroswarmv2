@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(robot_msgs)
 
 # Default to C99
@@ -36,12 +36,15 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-
 "msg/Environment.msg"
 "msg/RobotPos.msg"
 "msg/Light.msg"
 "msg/StringList.msg"
 "msg/SensorEnable.msg"
+"msg/DistanceSensor.msg"
+"msg/UartMessage.msg"
+"msg/BatteryStatus.msg"
+"msg/DockEnable.msg"
 "srv/GetCharger.srv"
 "srv/ReleaseCharger.srv"
 DEPENDENCIES std_msgs nav_msgs
