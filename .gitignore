@@ -9,3 +9,6 @@ angle data.ods
 **/__pychache__
 **/*.bag
 ROS1
+**/build/*
+**/install/*
+**/log/*

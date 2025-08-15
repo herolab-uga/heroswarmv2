@@ -2,6 +2,7 @@
 #ifndef UARTHEADER
 #define UARTHEADER
 
+#include <sys/types.h>
 
 // error enumeration?
 
@@ -14,10 +15,7 @@ enum uartState
     LOCKNOTSET      /* Lock not set */
 };
 
-int uartRead(uint8_t* buffer, size_t len);
-int uartWrite(uint8_t* buffer, size_t len);
-int uartInit();
-int lockUartMutex();
-int unlockUartMutex();
+void init_uart();
+void uart_send_message(uint16_t apid, uint8_t *data, size_t length);
 
 #endif

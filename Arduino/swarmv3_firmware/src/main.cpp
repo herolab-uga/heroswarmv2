@@ -12,6 +12,13 @@
 #include "motors.h"
 // #include "Adafruit_TinyUSB.h"
 
+extern "C" void SoftwareSerial_TIMER2_IRQHandler(void);
+
+extern "C" void TIMER2_IRQHandler(void) {
+    SoftwareSerial_TIMER2_IRQHandler();
+    // Other timer2 handling...
+}
+
 #if defined(TIMESTATS)
 #if defined(DEBUG)
 void debug(void* paramters)
@@ -23,7 +30,7 @@ void debug(void* paramters)
     
     while (pdTRUE)
     {
-        vTaskDelayUntil(&last_wake_time, 1000/portTICK_PERIOD_MS);
+        vTaskDelayUntil(&last_wake_time, 10000/1024);
         memset(task_time_data, 0, sizeof(task_time_data));
         vTaskGetRunTimeStats(task_time_data);
         DEBUG_PRINTF("%s", task_time_data);
@@ -48,6 +55,8 @@ void setup() {
     // init_battery_adc();
     init_motor_control();
 
+    DEBUG_PRINTF("Finished Setup");
+
 
     // Start the UART Task
     xTaskCreate(uart_rx_task, "UART RX Task",3072,NULL,tskIDLE_PRIORITY + 1,NULL);
@@ -61,10 +70,6 @@ void setup() {
     xTaskCreate(motor_task, "Time Stats",2048,NULL,tskIDLE_PRIORITY + 1,NULL);
 #endif
 #endif
-
-
-
-    DEBUG_PRINTF("Finished Setup");
     
     // vTaskStartScheduler returning is an error state and thus the program should end. I may implement the watchdog to reset the system
     // if the function ever returns.

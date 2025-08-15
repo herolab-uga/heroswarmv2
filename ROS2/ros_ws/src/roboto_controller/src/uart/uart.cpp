@@ -1,27 +1,26 @@
-/* C Library Headers */
-#include <stdio.h>
-#include <string.h>
-#include <mutex>
-#include <iostream>
-
-/* Linux headers */
-#include <fcntl.h> // Contains file controls like O_RDWR
-#include <errno.h> // Error integer and strerror() function
-#include <termios.h> // Contains POSIX terminal control definitions
-#include <unistd.h> // write(), read(), close()
-#include <sys/stat.h>
-#include <pthread.h>
-#include <mqueue.h>
-
-/* ROS Headers */
-// add the headers for ros logger
+#include "crc.hpp"
 #include "uart.hpp"
-#include "crc/crc.h"
-#include "utils/defines.h"
-#include "stream_header/stream_header.h"
+#include "router.h"
+#include <string.h>
+#include <limits.h>
+#include "defines.hpp"
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <mqueue.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <thread>
 
-#define BAUDRATE B921600
-#define MQBASE "/uart_mutex"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/select.h>
+
+#include "stream_header.h"
+
+#define BAUDRATE        (921600)
+    
+#define UART_FILE       "/dev/ttyACM0"
 
 typedef enum
 {
@@ -37,149 +36,263 @@ typedef enum
     LENGTH_ERROR = -2,
     NO_MORE_BITS = -3,
     MAX_SIZE_EXCEEDED = -4,
+    NOT_IMPLEMENTED = -5,
 
 } uart_errors_t;
 
-typedef struct
-{
-    uint16_t apid;
-    uint16_t length;
-    uint8_t data[MAX_MSG_SIZE];
-} queue_data_t;
-
 const uint8_t SYNC_PATTERN[] = {0xDE, 0xAD, 0xBE, 0xEF};
 
-int serialPort;
-bool uartConfigured = false;
-mqd_t gUartMessageQueue;
+int gUartFd = 0;
+mqd_t gUartTxQueue;
 
-int uartRead(uint8_t* buffer, size_t len)
-{
-    int bytes_read = 0;
-    bytes_read = read(serialPort,buffer,len);
-    return bytes_read;
-}
+std::thread gUartTxThread;
+std::thread gUartRxThread;
 
-int32_t dispatch_serial(void* buff, size_t len)
-{
-
-    return mq_send(gUartMessageQueue, (char*) buff, len, NULL);
-
-}
-
-void uartTx(void* parameters)
+void uart_send_message(uint16_t apid, uint8_t *data, size_t length)
 {
     uint16_t ret = 0;
+    uint8_t buffer[MAX_MSG_SIZE] = {0};
+
+    if (MAX_MSG_SIZE - (sizeof(SYNC_PATTERN) + STREAM_HEADER_SIZE + CRC_SIZE) >= length)
+    {
+        ret = wrap_pkt(apid, data, buffer, length);
+        mq_send(gUartTxQueue, (char*) buffer, ret, 0);
+    }
+    else
+    {
+        
+    }
+}
+
+void uart_tx_thread()
+{
+
+    int16_t ret = 0;
     uint16_t crc = 0;
-
-    uint8_t data = 0;
-
     uint8_t buff[MAX_MSG_SIZE];
-
-    mqd_t uart_tx_mq = mq_open(MQBASE, O_RDONLY);
 
     while (true)
     {
+        memset(buff, 0, sizeof(buff));
+        ret = mq_receive(gUartTxQueue, (char*) buff, sizeof(buff), NULL);
+        if (ret > 0)
+        {
+            crc = calculate_crc(buff, ret);
+    
+            memcpy(&buff[ret], &crc, sizeof(crc));
+    
+            memmove(&buff[sizeof(SYNC_PATTERN)], buff, ret + CRC_SIZE);
+    
+            memcpy(buff, SYNC_PATTERN, sizeof(SYNC_PATTERN));
+    
+            ret = write(gUartFd, (char*) buff, ret);
 
-        ret = mq_receive(uart_tx_mq, (char*) buff, sizeof(buff), NULL);
+        }
 
-        crc = calculate_crc(buff, ret);
-
-        memcpy(&buff[ret], &crc, sizeof(crc));
-
-        memmove(&buff[sizeof(SYNC_PATTERN)], buff, ret + CRC_SIZE);
-
-        memcpy(buff, SYNC_PATTERN, sizeof(SYNC_PATTERN));
-
-        write(serialPort, buff, ret + sizeof(SYNC_PATTERN) + CRC_SIZE); 
     }
 }
 
-// will take in a node to log to
-int uartInit()
+uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
 {
+    int ret = 0;
+    uart_errors_t error = NO_ERROR;
+    uint16_t read_len = 0;
+    uart_state_t state = SYNC;
 
-    std::cout << "Initializing UART" << std::endl;
-    if (uartConfigured == true){
-        return uartState::CONFIGURED; // return configured 
-    }
-
-    mq_attr attributes;
-
-    attributes.mq_maxmsg = MAX_MSG_SIZE;
-    attributes.mq_maxmsg = MAX_QUEUE_DEPTH;
-
-    gUartMessageQueue = mq_open(MQBASE, O_WRONLY | O_CREAT | O_NONBLOCK, &attributes);
-        
-    struct termios tty;
-
-    // set up the serial port config
-    
-    serialPort = open("/dev/serial0", O_RDWR);
-
-    if (serialPort < 0)
+    do
     {
-        // try to fix error
-        return uartState::ERRFILO; // if unable to fix error return uart open error code
-    }
+        error = NO_ERROR;
 
-    /* Get the default setting for the tty port. Applying setting without calling this function is undefined behavior*/
-    if (tcgetattr(serialPort, &tty) != 0)
-    {
-        // try to fix error
-        return uartState::ERRGETATTR; // if unable to fix return uart get attr error code
-    }
+        switch (state)
+        {
+        case SYNC:
+        {
+            
+            for (; *length < sizeof(SYNC_PATTERN); (*length)++)
+            {
+                ret = read(gUartFd, &buff[*length], 1);
+                
+                if (0 != memcmp(&buff[*length], &SYNC_PATTERN[*length], sizeof(buff[*length])))
+                {
+                    error = SYNC_ERROR;
+                    break;
+                }
+            }
+            if (sizeof(SYNC_PATTERN) != *length)
+            {
+                error = NO_MORE_BITS;
+            }
+            else
+            {
+                
+                state = HEADER;
+                *length = 0;
+            }
+            break;
+        }
+        case HEADER:
+        {
+            
+            for (; *length < sizeof(stream_header_t); (*length)++)
+            {
+                ret = read(gUartFd, &buff[*length], 1);
+                
+            }
 
-    /**
-    * Setup the serial port.
-    **/
-    tty.c_cflag &= ~PARENB;                                             /* Clear parity bit, disable parity Raspberry Pi does not use it */
-    tty.c_cflag &= ~CSTOPB;                                             /* Clear stop field, onle one stop bit used in communication Raspberry Pi only uses on stop bit */
-    tty.c_cflag &= ~CSIZE;                                              /* Clear all the size bits, then use one of the statements below */
-    tty.c_cflag |= CS8;                                                 /* 8 bits per byte */
-    tty.c_cflag &= ~CRTSCTS;                                            /* Disable flow control not used */
-    tty.c_cflag |= CREAD | CLOCAL;                                      /* Turn on READ and ignore ctrl lines */
+            if (STREAM_HEADER_SIZE != *length)
+            {
+                error = NO_MORE_BITS;
+            }
+            else
+            {
+                state = DATA;
+                
+                // 4 is the start index of the data length in the header
+                memcpy(&read_len, &buff[4], sizeof(uint16_t));
+                if ( MAX_MSG_SIZE < read_len)
+                {
+                    error = MAX_SIZE_EXCEEDED;
+                    break;
+                }
+            }
+            break;
+        }
+        case DATA:
+        {
+            for (int32_t i = 0; i < read_len; i++)
+            {
+                ret = read(gUartFd, &buff[*length], 1);
+                
+                (*length)++;
+            }
 
-    tty.c_lflag &= ~ICANON;                                             /* Disable Canonical Mode */
-    tty.c_lflag &= ~ECHO;                                               /* Disable echo */
-    tty.c_lflag &= ~ECHOE;                                              /* Disable erasure */ 
-    tty.c_lflag &= ~ECHONL;                                             /* Disable new-line echo */ 
-    tty.c_lflag &= ~ISIG;                                               /* Disable interpretation of INTR, QUIT and SUSP */ 
+            if (STREAM_HEADER_SIZE +  read_len != *length)
+            {
+                error = NO_MORE_BITS;
+            }
+            else
+            {
+                
+            }
+            
+            break;
+        }
+        }
 
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY);                             /* Turn off s/w flow ctrl */
-    tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);    /* Disable any special handling of received bytes */ 
+    } while ((ret != 0) && (NO_ERROR == error));
 
-    tty.c_oflag &= ~OPOST;                                              /* Prevent special interpretation of output bytes (e.g. newline chars) */
-    tty.c_oflag &= ~ONLCR;                                              /* Prevent conversion of newline to carriage return/line feed */
-
-    tty.c_cc[VTIME] = 1;    /* Wait for up to 1s (1 deciseconds), returning as soon as any data is received. */
-    tty.c_cc[VMIN] = 0;
-
-    cfsetispeed(&tty,BAUDRATE);
-    cfsetospeed(&tty,BAUDRATE);
-
-    /* Save tty settings, also checking for error */
-    if (tcsetattr(serialPort, TCSANOW, &tty) != 0) {
-        // try to fix error
-        return uartState::ERRGETATTR; // if unable return uart set attr error code
-    }
-
-    std::cout << "Finished Initializing UART" << std::endl;
-    
-    return uartState::CONFIGURED;
+    return error;
 }
 
-//int main()
-//{
-//    
-//    int ret = uartInit();
-//
-//    std::cout << ret << std::endl; 
-//
-//    std::string test = "Hello World";
-//    while (true)
-//    {
-//	    std::cout << uartWrite(reinterpret_cast<const uint8_t*>(&test[0]),test.size()) << std::endl;
-//    }
-//    
-//}
+void uart_rx_thread()
+{
+    
+    int32_t ret = 0;
+
+    uint16_t crc = 0;
+
+    size_t length = 0;
+
+    stream_pkt_t incoming_pkt;
+
+    fd_set select_fds;
+
+    FD_ZERO(&select_fds);
+    FD_SET(gUartFd, &select_fds);
+    uint8_t buff[MAX_MSG_SIZE];
+
+    while (true)
+    {
+        if (select(gUartFd + 1, &select_fds, NULL, NULL, NULL))
+        {
+            
+            length = 0;
+            memset(buff, 0, sizeof(buff));
+
+            ret = read_incoming_data(buff, &length);
+
+            if (ret >= 0)
+            {
+                ret = (int32_t)read_stream_pkt(buff, length, &incoming_pkt);
+                crc = calculate_crc(buff, ret - CRC_SIZE);
+
+                if (crc != incoming_pkt.crc)
+                {
+                    
+                }
+                else
+                {
+                    router_dispatch(incoming_pkt.header.apid, incoming_pkt.header.length, incoming_pkt.payload);
+                }
+            }
+        }
+    }
+}
+
+#include <errno.h>
+#include <fcntl.h> 
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
+
+int set_interface_attribs (int fd, int speed, int parity)
+{
+        struct termios tty;
+        if (tcgetattr (fd, &tty) != 0)
+        {
+                // error_message ("error %d from tcgetattr", errno);
+                return -1;
+        }
+
+        cfsetospeed (&tty, speed);
+        cfsetispeed (&tty, speed);
+
+        tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+        // disable IGNBRK for mismatched speed tests; otherwise receive break
+        // as \000 chars
+        tty.c_iflag &= ~IGNBRK;         // disable break processing
+        tty.c_lflag = 0;                // no signaling chars, no echo,
+                                        // no canonical processing
+        tty.c_oflag = 0;                // no remapping, no delays
+        tty.c_cc[VMIN]  = 0;            // read doesn't block
+        tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+
+        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+
+        tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
+                                        // enable reading
+        tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
+        tty.c_cflag |= parity;
+        tty.c_cflag &= ~CSTOPB;
+        tty.c_cflag &= ~CRTSCTS;
+
+        if (tcsetattr (fd, TCSANOW, &tty) != 0)
+        {
+                // error_message ("error %d from tcsetattr", errno);
+                return -1;
+        }
+        return 0;
+}
+
+/// @brief
+void init_uart()
+{
+    struct mq_attr queue_attr;
+    queue_attr.mq_maxmsg = 20;
+    queue_attr.mq_msgsize = MAX_MSG_SIZE;
+
+    // This queue will only be used in the 
+    gUartTxQueue = mq_open("uart_tx_queue", O_CREAT | O_NONBLOCK, queue_attr);
+
+    gUartFd = open(UART_FILE, O_NONBLOCK);
+
+    // Configure UART
+    set_interface_attribs(gUartFd, BAUDRATE, 0);
+
+    // Spawn the RX thread
+    gUartRxThread = std::thread(uart_tx_thread);
+    gUartTxThread = std::thread(uart_rx_thread);
+
+    
+    
+}

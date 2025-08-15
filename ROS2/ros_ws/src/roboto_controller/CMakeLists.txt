@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.14)
 project(roboto_controller)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -33,20 +33,39 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(sensor_publisher src/sensor_pub/includes/sensor_pub.hpp src/sensor_pub/APDS9960.cpp src/sensor_pub/BMP280.cpp src/sensor_pub/LIS3MDL.cpp src/sensor_pub/LSM6DS33.cpp src/sensor_pub/SHT31D.cpp  src/sensor_pub/sensor_pub.cpp src/uart/uart.hpp  src/uart/uart.cpp)
-target_include_directories(sensor_publisher PRIVATE src/sensor_pub src/uart)
-target_link_libraries(sensor_publisher i2c)
-target_link_libraries(sensor_publisher ${tf2_LIBRARIES})
-target_compile_options(sensor_publisher PUBLIC "-pthread")
-ament_target_dependencies(sensor_publisher rclcpp tf2 tf2_ros sensor_msgs std_msgs nav_msgs robot_msgs)
+add_executable(
+  apds9960_publisher 
+  src/sensors/APDS9960/APDS9960.cpp 
+)
 
-install(TARGETS sensor_publisher DESTINATION lib/${PROJECT_NAME})
+target_include_directories(apds9960_publisher PRIVATE src/sensors)
+target_link_libraries(apds9960_publisher i2c)
+target_link_libraries(apds9960_publisher ${tf2_LIBRARIES})
+target_compile_options(apds9960_publisher PUBLIC "-pthread")
+ament_target_dependencies(apds9960_publisher rclcpp tf2 tf2_ros sensor_msgs std_msgs robot_msgs)
 
-add_executable(robot_controller src/controller/includes/controller.hpp src/controller/controller.cpp src/uart/uart.cpp)
-target_include_directories(robot_controller PRIVATE src/controller src/uart)
-target_link_libraries(sensor_publisher ${tf2_LIBRARIES})
+install(TARGETS apds9960_publisher DESTINATION lib/${PROJECT_NAME})
 
-# target_compile_options(sensor_publisher PUBLIC "-pthread")
+add_executable(robot_controller
+  src/crc/crc.cpp 
+  src/router/router.cpp
+  src/stream_header/stream_header.cpp
+  src/uart/uart.cpp
+  src/controller/controller.cpp
+)
+
+target_include_directories(robot_controller PRIVATE 
+  src/controller 
+  src/uart 
+  src/crc
+  src/utils
+  src/router
+  src/stream_header
+)
+
+target_link_libraries(robot_controller ${tf2_LIBRARIES})
+
+# target_compile_options(apds9960_publisher PUBLIC "-pthread")
 ament_target_dependencies(robot_controller rclcpp tf2 tf2_ros sensor_msgs std_msgs nav_msgs robot_msgs geometry_msgs)
 
 install(TARGETS robot_controller DESTINATION lib/${PROJECT_NAME})

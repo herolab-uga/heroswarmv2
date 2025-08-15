@@ -68,18 +68,20 @@ void uart_send_message(uint16_t apid, uint8_t *data, size_t length)
 void uart_tx_task(void *params)
 {
     DEBUG_PRINTF("Starting UART TX Task");
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(10000/1024);
     uint16_t ret = 0;
     uint16_t crc = 0;
 
     queue_data_t temp_data;
+
+    TickType_t last_wake_time = xTaskGetTickCount();
 
     uint8_t buff[MAX_MSG_SIZE];
 
     while (pdTRUE)
     {
         memset(&temp_data, 0, sizeof(temp_data));
-        ret = xQueueReceive(gUartTxQueue, &temp_data, 100);
+        ret = xQueueReceive(gUartTxQueue, &temp_data, 99999);
         if (pdTRUE == ret)
         {
             ret = wrap_pkt(temp_data.apid, temp_data.data, buff, temp_data.length);
@@ -94,7 +96,6 @@ void uart_tx_task(void *params)
     
             Serial1.write(buff,ret);
         }
-
     }
 }
 
@@ -197,7 +198,7 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
 void uart_rx_task(void *parameters)
 {
     DEBUG_PRINTF("Starting UART RX Task");
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(10000/1024);
 
     int32_t ret = 0;
 
@@ -237,7 +238,7 @@ void uart_rx_task(void *parameters)
             {
             }
         }
-        vTaskDelay(5/portTICK_PERIOD_MS);
+        vTaskDelay(5000/1024);
     }
 }
 
