@@ -74,12 +74,14 @@ void uart_tx_task(void *params)
 
     queue_data_t temp_data;
 
+    TickType_t last_wake_time = xTaskGetTickCount();
+
     uint8_t buff[MAX_MSG_SIZE];
 
     while (pdTRUE)
     {
         memset(&temp_data, 0, sizeof(temp_data));
-        ret = xQueueReceive(gUartTxQueue, &temp_data, 100);
+        ret = xQueueReceive(gUartTxQueue, &temp_data, 99999);
         if (pdTRUE == ret)
         {
             ret = wrap_pkt(temp_data.apid, temp_data.data, buff, temp_data.length);
@@ -94,7 +96,6 @@ void uart_tx_task(void *params)
     
             Serial1.write(buff,ret);
         }
-
     }
 }
 

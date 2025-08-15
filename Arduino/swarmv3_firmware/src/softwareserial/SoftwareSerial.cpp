@@ -1,240 +1,371 @@
-/*
-  SoftwareSerial.cpp - library for Arduino Primo
-  Copyright (c) 2016 Arduino. All rights reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- 
- */
- 
 #include <Arduino.h>
-#include <softwareserial/SoftwareSerial.h>
-#include <variant.h>
-#include <WInterrupts.h>
+#include <softwareserial/SoftwareSerial.hpp>
+#include <nrf.h>
+#include <nrf_gpio.h>
+#include <nrf_gpiote.h>
+#include <nrf_timer.h>
 
-#include <Adafruit_TinyUSB.h> // for Serial
+// Assuming 64 MHz CPU clock, 57,600 baud
+// Bit time in microseconds:
+#define BIT_TIME_US (1000000UL / 57600) // ≈ 17.36 us
 
-SoftwareSerial *SoftwareSerial::active_object = 0;
-char SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF]; 
+// Extra delay to account for attachInterrupt() handler latency
+// This will vary slightly between boards, but ~1.5 us works well on nRF52840
+#define ATTACHINT_LATENCY_US 1.5
+
+volatile uint8_t rxByte;
+volatile bool rxReady = false;
+
+// === CONFIG ===
+// Pins — change these as needed
+#define RX_PIN 8
+#define TX_PIN 6
+#define CONTROL_PIN 10 // Output Enable for 74LVC2G241 TX buffer (active HIGH to drive TX line)
+
+// Baudrate max 1M for reliable timing
+#define MAX_BAUDRATE 1000000UL
+
+// TIMER config
+#define TIMER_PRESCALER 4 // 1 MHz (1 us ticks)
+
+// === BUFFER ===
+#define _SS_MAX_RX_BUFF 64
+char SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF];
 volatile uint8_t SoftwareSerial::_receive_buffer_tail = 0;
 volatile uint8_t SoftwareSerial::_receive_buffer_head = 0;
 
-SoftwareSerial::SoftwareSerial()
+SoftwareSerial *SoftwareSerial::active_object = nullptr;
+
+// === STATE ===
+static volatile bool _rxInProgress = false;
+static volatile bool _txInProgress = false;
+
+static volatile uint8_t _rxByte;
+static volatile uint8_t _rxBitCount;
+
+static volatile uint8_t _txByte;
+static volatile uint8_t _txBitCount;
+
+static uint32_t _baudRate = 57600;
+static uint32_t _bitTimeUs = 17; // default for 57600
+
+static uint32_t _rxMask;
+static NRF_GPIO_Type *_rxPort;
+
+static uint32_t _txMask;
+static uint32_t _txInvMask;
+static NRF_GPIO_Type *_txPort;
+
+static volatile uint32_t *_transmitPortRegister;
+static const volatile uint32_t *_receivePortRegister;
+static uint32_t _transmitBitMask;
+static uint32_t _receiveBitMask;
+
+uint8_t gReceivePin = 0;
+
+void setupOEPins()
 {
+  pinMode(CONTROL_PIN, OUTPUT);
 
+  // Start with RX enabled, TX disabled
+  digitalWrite(CONTROL_PIN, LOW);
 }
 
+void enableTXBuffer()
+{
+  digitalWrite(CONTROL_PIN, HIGH);
+}
 
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) :
-  _rx_delay_centering(0),
-  _rx_delay_intrabit(0),
-  _rx_delay_stopbit(0),
-  _tx_delay(0),
-  _buffer_overflow(false),
-  _inverse_logic(inverse_logic)
-{   
+void enableRXBuffer()
+{
+  digitalWrite(CONTROL_PIN, LOW);
+}
+
+// === ISR DECLARATIONS ===
+extern "C" void SoftwareSerial_GPIOTE_IRQHandler(void);
+extern "C" void SoftwareSerial_TIMER2_IRQHandler(void);
+
+// === SoftwareSerial methods ===
+
+SoftwareSerial::SoftwareSerial() {}
+
+SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /*= false*/)
+{
   _receivePin = receivePin;
   _transmitPin = transmitPin;
-}
-
-
-void SoftwareSerial::init(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */)
-{   
-  _rx_delay_centering = 0;
-  _rx_delay_intrabit = 0;
-  _rx_delay_stopbit = 0;
-  _tx_delay = 0;
-  _buffer_overflow = false;
   _inverse_logic = inverse_logic;
-  _receivePin = receivePin;
-  _transmitPin = transmitPin;
+  gReceivePin = 11;
 }
 
 SoftwareSerial::~SoftwareSerial()
 {
- end();
+  stopListening();
+}
+
+void SoftwareSerial::init(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic)
+{
+  _receivePin = receivePin;
+  _transmitPin = transmitPin;
+  _inverse_logic = inverse_logic;
+  gReceivePin = 11;
 }
 
 void SoftwareSerial::begin(long speed)
- {  
-    setTX(_transmitPin);
-    setRX(_receivePin);
-    // Precalculate the various delays
-    //Calculate the distance between bit in micro seconds
-    uint32_t bit_delay = (float(1)/speed)*1000000;
- 
-    _tx_delay = bit_delay;
-  
-    //Wait 1/2 bit - 2 micro seconds (time for interrupt to be served)
-    _rx_delay_centering = (bit_delay/2) - 2;
-    //Wait 1 bit - 2 micro seconds (time in each loop iteration)
-    _rx_delay_intrabit = bit_delay - 1;//2
-    //Wait 1 bit (the stop one) 
-    _rx_delay_stopbit = bit_delay; 
+{
+  if ((unsigned long)speed > MAX_BAUDRATE)
+    speed = MAX_BAUDRATE;
+  _baudRate = speed;
+  _bitTimeUs = 1000000UL / _baudRate;
 
-       
-      delayMicroseconds(_tx_delay);
+  setTX(_transmitPin);
+  setRX(_receivePin);
 
-      listen();
+  setupOEPins();
+
+  // Setup RX port/mask
+  _rxMask = digitalPinToBitMask(_receivePin);
+  _rxPort = digitalPinToPort(_receivePin);
+
+  // Setup TX port/mask
+  _txMask = digitalPinToBitMask(_transmitPin);
+  _txInvMask = ~_txMask;
+  _txPort = digitalPinToPort(_transmitPin);
+
+  attachInterrupt(digitalPinToInterrupt(gReceivePin), SoftwareSerial_GPIOTE_IRQHandler, FALLING);
+
+  // Setup TIMER2 for 1 MHz, 32 bit mode
+  NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer;
+  NRF_TIMER2->BITMODE = TIMER_BITMODE_BITMODE_32Bit;
+  NRF_TIMER2->PRESCALER = TIMER_PRESCALER;
+  NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE0_Msk;
+
+  NVIC_SetPriority(GPIOTE_IRQn, 0);
+  NVIC_SetPriority(TIMER2_IRQn, 0);
+  NVIC_EnableIRQ(TIMER2_IRQn);
+
+  listen();
 }
 
 bool SoftwareSerial::listen()
 {
-  if (!_rx_delay_stopbit)
-    return false;
-
   if (active_object != this)
   {
     if (active_object)
       active_object->stopListening();
-
-    _buffer_overflow = false;
     _receive_buffer_head = _receive_buffer_tail = 0;
     active_object = this;
-
-    if(_inverse_logic)
-        //Start bit high
-       _intMask = attachInterrupt(_receivePin, handle_interrupt, RISING);
-    else
-        //Start bit low
-        _intMask = attachInterrupt(_receivePin, handle_interrupt, FALLING);
-        
     return true;
   }
- return false;
+  return false;
 }
 
 bool SoftwareSerial::stopListening()
 {
-   if (active_object == this)
-   {
-     detachInterrupt(_receivePin);
-     active_object = NULL;
-     return true;
-   }
-  return false;
-}
-
-void SoftwareSerial::end()
-{
-  stopListening();
-}
-
-int SoftwareSerial::read()
-{
-  if (!isListening()){
-    return -1;}
-
-
-  // Empty buffer?
-  if (_receive_buffer_head == _receive_buffer_tail){
-    return -1;}
-
-  // Read from "head"
-  uint8_t d = _receive_buffer[_receive_buffer_head]; // grab next byte
-  _receive_buffer_head = (_receive_buffer_head + 1) % _SS_MAX_RX_BUFF;
-  return d;
-}  
-
-// add read bytes
-void SoftwareSerial::readBytes(uint8_t* buffer, size_t length)
-{
-  // need to set a time so we do not spin in the loop forever
-  size_t num_bytes = 0; 
-  while (num_bytes < length)
+  if (active_object == this)
   {
-    
-    buffer[num_bytes] += read();
-    
-    if (buffer[num_bytes] != -1)
-    {
-      num_bytes++;
-    }
+    active_object = nullptr;
+    return true;
   }
+  return false;
 }
 
 int SoftwareSerial::available()
 {
-  if (!isListening())
-    return 0;
-  
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
+int SoftwareSerial::read()
+{
+  if (_receive_buffer_head == _receive_buffer_tail)
+    return -1;
+  uint8_t d = _receive_buffer[_receive_buffer_head];
+  _receive_buffer_head = (_receive_buffer_head + 1) % _SS_MAX_RX_BUFF;
+  return d;
+}
+
+// Reads exactly 'length' bytes into buffer; blocks until all bytes received
+void SoftwareSerial::readBytes(uint8_t *buffer, size_t length)
+{
+  size_t bytes_read = 0;
+  while (bytes_read < length)
+  {
+    int c = read();
+    if (c >= 0)
+    {
+      buffer[bytes_read] = (uint8_t)c;
+      bytes_read++;
+    }
+    else
+    {
+      delayMicroseconds(100);
+    }
+  }
+}
+
+// Writes 'length' bytes from buffer; returns number of bytes written
+size_t SoftwareSerial::writeBuffer(const uint8_t *buffer, size_t length)
+{
+  size_t bytes_written = 0;
+  for (size_t i = 0; i < length; i++)
+  {
+    if (write(buffer[i]) == 1)
+    {
+      bytes_written++;
+    }
+    else
+    {
+      break; // error or busy
+    }
+  }
+  return bytes_written;
+}
+
+// === WRITE ===
+// TX with hardware-timed bits and direction control
 size_t SoftwareSerial::write(uint8_t b)
 {
-  if (_tx_delay == 0) {
-    setWriteError();
-    return 0;
-  }
-
-  // By declaring these as local variables, the compiler will put them
-  // in registers _before_ disabling interrupts and entering the
-  // critical timing sections below, which makes it a lot easier to
-  // verify the cycle timings
-  volatile uint32_t* reg = _transmitPortRegister;
-  uint32_t reg_mask = _transmitBitMask;
-  uint32_t inv_mask = ~_transmitBitMask;
-  bool inv = _inverse_logic;
-  uint16_t delay = _tx_delay;
-  
-  if (inv)
-    b = ~b;
-  // turn off interrupts for a clean txmit
-   NRF_GPIOTE->INTENCLR = _intMask;
-  // Write the start bit
-  if (inv)
-    *reg |= reg_mask;
-  else
-    *reg &= inv_mask;
-
-  delayMicroseconds(delay);
-
-
-  // Write each of the 8 bits
-  for (uint8_t i = 8; i > 0; --i)
+  // Wait if previous TX still in progress
+  while (_txInProgress)
   {
-    if (b & 1) // choose bit
-      *reg |= reg_mask; // send 1
-    else
-      *reg &= inv_mask; // send 0
-
-    delayMicroseconds(delay); 
-    b >>= 1;
   }
 
-  // restore pin to natural state
-  if (inv)
-    *reg &= inv_mask;
-  else
-    *reg |= reg_mask;
-  
-  NRF_GPIOTE->INTENSET = _intMask;
-  
-  delayMicroseconds(delay);  
-  
+  _txInProgress = true;
+  _txByte = b;
+  _txBitCount = 0;
+
+  // Disable RX while transmitting
+  _rxInProgress = false;
+
+  // Enable TX driver buffer, disable RX driver buffer
+  enableTXBuffer();
+
+  // Drive start bit (line low)
+  *((volatile uint32_t *)&_txPort->OUT) &= _txInvMask;
+
+  // Reset and start TIMER2 for TX bit timing
+  NRF_TIMER2->TASKS_STOP = 1;
+  NRF_TIMER2->TASKS_CLEAR = 1;
+  NRF_TIMER2->CC[0] = _bitTimeUs;
+  NRF_TIMER2->TASKS_START = 1;
+
+  // Wait until TX finishes (ISR clears _txInProgress)
+  while (_txInProgress)
+  {
+  }
+
   return 1;
 }
 
-size_t SoftwareSerial::write_buffer(uint8_t* buffer, size_t length)
+// === ISR implementations ===
+
+// GPIOTE ISR: Detect start bit on RX line
+extern "C" void SoftwareSerial_GPIOTE_IRQHandler() {
+    // Disable RX GPIOTE interrupt while receiving
+    NRF_GPIOTE->INTENCLR = GPIOTE_INTENCLR_IN0_Msk;
+
+    _rxInProgress = true;
+    _rxBitCount = 0;
+    _rxByte = 0;
+
+    // Stop Timer2 and clear it
+    NRF_TIMER2->TASKS_STOP = 1;
+    NRF_TIMER2->TASKS_CLEAR = 1;
+    NRF_TIMER2->EVENTS_COMPARE[0] = 0;
+
+    // Start Timer2 to sample first bit at 1.5 bit times
+    NRF_TIMER2->CC[0] = _bitTimeUs + (_bitTimeUs / 2);
+    NRF_TIMER2->TASKS_START = 1;
+}
+
+// TIMER2 ISR: Handle RX and TX bit timing
+extern "C" void SoftwareSerial_TIMER2_IRQHandler(void) {
+    // Clear the compare event immediately
+    NRF_TIMER2->EVENTS_COMPARE[0] = 0;
+    // ------------------- RX handling -------------------
+    if (_rxInProgress) {
+        _rxByte >>= 1;
+        if ((_rxPort->IN & _rxMask)) {
+            _rxByte |= 0x80;
+        }
+        _rxBitCount++;
+
+        if (_rxBitCount >= 8) {
+            // Store byte in buffer
+            uint8_t next = (SoftwareSerial::_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
+            if (next != SoftwareSerial::_receive_buffer_head) {
+                SoftwareSerial::_receive_buffer[SoftwareSerial::_receive_buffer_tail] = _rxByte;
+                SoftwareSerial::_receive_buffer_tail = next;
+            }
+
+            _rxInProgress = false;
+
+            // Stop Timer2 until next start bit
+            NRF_TIMER2->TASKS_STOP = 1;
+            NRF_TIMER2->TASKS_CLEAR = 1;
+
+            // Re-enable GPIOTE interrupt for next start bit
+            NRF_GPIOTE->EVENTS_IN[0] = 0;
+            NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+        } else {
+            // Schedule next bit sampling
+            NRF_TIMER2->CC[0] += _bitTimeUs;
+        }
+    }
+
+    // ------------------- TX handling -------------------
+    if (_txInProgress) {
+        _txBitCount++;
+
+        if (_txBitCount <= 8) {
+            if (_txByte & 0x01) {
+                _txPort->OUT |= _txMask;
+            } else {
+                _txPort->OUT &= _txInvMask;
+            }
+            _txByte >>= 1;
+            NRF_TIMER2->CC[0] += _bitTimeUs;
+        } else if (_txBitCount == 9) {
+            // Stop bit
+            _txPort->OUT |= _txMask;
+            NRF_TIMER2->CC[0] += _bitTimeUs;
+        } else {
+            _txInProgress = false;
+            NRF_TIMER2->TASKS_STOP = 1;
+
+            // Re-enable RX immediately
+            enableRXBuffer();
+            NRF_GPIOTE->EVENTS_IN[0] = 0;
+            NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+        }
+    }
+}
+
+
+// === Set TX pin function ===
+void SoftwareSerial::setTX(uint8_t tx)
 {
-  size_t bytes_sent = 0;
-  for (size_t num_bytes = 0; num_bytes < length; num_bytes++)
-  {
-    bytes_sent += write(buffer[num_bytes]);
-  }
-  return bytes_sent;
+  digitalWrite(tx, HIGH); // idle high line
+  pinMode(tx, OUTPUT);
+  _transmitBitMask = digitalPinToBitMask(tx);
+  NRF_GPIO_Type *port = digitalPinToPort(tx);
+  _transmitPortRegister = &(port->OUT);
+  _transmitBitMask = digitalPinToBitMask(tx);
+  _txMask = digitalPinToBitMask(tx);
+  _txInvMask = ~_txMask;
+  _txPort = port;
+  _transmitPin = tx;
+}
+
+// === Set RX pin function ===
+void SoftwareSerial::setRX(uint8_t rx)
+{
+  pinMode(rx, INPUT_PULLUP);
+  _receivePin = rx;
+  _receiveBitMask = digitalPinToBitMask(rx);
+  NRF_GPIO_Type *port = digitalPinToPort(rx);
+  _receivePortRegister = &(port->IN);
+  _rxMask = digitalPinToBitMask(rx);
+  _rxPort = port;
 }
 
 void SoftwareSerial::flush()
@@ -242,134 +373,9 @@ void SoftwareSerial::flush()
   if (!isListening())
     return;
 
-  NRF_GPIOTE->INTENCLR = _intMask;
-  
-  _receive_buffer_head = _receive_buffer_tail = 0;
+  NRF_GPIOTE->INTENCLR = _intMask; // Disable interrupt
 
-  NRF_GPIOTE->INTENSET = _intMask;
-}
+  _receive_buffer_head = _receive_buffer_tail = 0; // Clear buffer
 
-int SoftwareSerial::peek()
-{
-  if (!isListening())
-    return -1;
-
-  // Empty buffer?
-  if (_receive_buffer_head == _receive_buffer_tail)
-    return -1;
-
-  // Read from "head"
-  return _receive_buffer[_receive_buffer_head];
-}
-
-
-//private methods
-
-void SoftwareSerial::recv()
-{
-  uint8_t d = 0;
-   
-  // If RX line is high, then we don't see any start bit
-  // so interrupt is probably not for us
-  if (_inverse_logic ? rx_pin_read() : !rx_pin_read())
-  {
-
-    NRF_GPIOTE->INTENCLR = _intMask;
- 
-    // Wait approximately 1/2 of a bit width to "center" the sample
-       delayMicroseconds(_rx_delay_centering);
-   
-    // Read each of the 8 bits
-    for (uint8_t i=8; i > 0; --i)
-    {
-        
-     delayMicroseconds(_rx_delay_intrabit);
-	 // nRF52 needs another delay less than 1 uSec to be better synchronized
-	 // with the highest baud rates
-	 __ASM volatile (
-       " NOP\n\t"
-       " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	   " NOP\n"
-	 );
-
-      d >>= 1;
-
-      if (rx_pin_read()){
-        d |= 0x80;                  
-       }
-     
-    }
-    if (_inverse_logic){
-      d = ~d;
-    }
-    
-    // if buffer full, set the overflow flag and return
-    uint8_t next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
-    if (next != _receive_buffer_head)
-    {
-      // save new data in buffer: tail points to where byte goes
-      _receive_buffer[_receive_buffer_tail] = d; // save new byte
-      _receive_buffer_tail = next;
-    } 
-    else 
-    {
-      _buffer_overflow = true;
-    }
-
-    // skip the stop bit
-   delayMicroseconds(_rx_delay_stopbit); 
-
-   NRF_GPIOTE->INTENSET = _intMask;  
-  }
-}
-
-uint32_t SoftwareSerial::rx_pin_read()
-{ 
-  return *_receivePortRegister & digitalPinToBitMask(_receivePin);
-}
-
-/* static */
-inline void SoftwareSerial::handle_interrupt()
-{
-   if (active_object)
-   {
-     active_object->recv();
-   }
-}
-
-void SoftwareSerial::setTX(uint8_t tx)
-{
-  // First write, then set output. If we do this the other way around,
-  // the pin would be output low for a short while before switching to
-  // output high. Now, it is input with pullup for a short while, which
-  // is fine. With inverse logic, either order is fine.
-  digitalWrite(tx, _inverse_logic ? LOW : HIGH);
-  pinMode(tx, OUTPUT);
-  _transmitBitMask = digitalPinToBitMask(tx);
-  NRF_GPIO_Type * port = digitalPinToPort(tx);
-  _transmitPortRegister = portOutputRegister(port);
-}
-
-void SoftwareSerial::setRX(uint8_t rx)
-{
-  pinMode(rx, INPUT);
-  if (!_inverse_logic)
-    digitalWrite(rx, HIGH);  // pullup for normal logic!
-  _receivePin = rx;
-  _receiveBitMask = digitalPinToBitMask(rx);
-  NRF_GPIO_Type * port = digitalPinToPort(rx);
-  _receivePortRegister = portInputRegister(port);
+  NRF_GPIOTE->INTENSET = _intMask; // Enable interrupt
 }

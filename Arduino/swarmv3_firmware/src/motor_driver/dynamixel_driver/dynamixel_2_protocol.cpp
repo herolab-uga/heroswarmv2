@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "softwareserial/SoftwareSerial.h"
+#include "softwareserial/SoftwareSerial.hpp"
 
 #include "defines.h"
 #include "dynamixel_2_protocol.hpp"
@@ -18,7 +18,6 @@ typedef enum
 
 
 SoftwareSerial gDynamixelSerial;
-uint8_t gControlPin = 0;
 ram_struct_t gDynamixelRamStruct;
 eeprom_struct_t gDynamixelEepromStruct;
 
@@ -27,81 +26,83 @@ const uint8_t gPacketHeader[] = {0xFF, 0xFF, 0xFD, 0x00};
 
 void print_eeprom(dynamixel_t* motor)
 {
-    DEBUG_PRINTF("Model Number: %u", motor->eeprom_data.model_number);
-    DEBUG_PRINTF("Model Information: %lu", motor->eeprom_data.model_information);
-    DEBUG_PRINTF("Firmware Version: %u", motor->eeprom_data.firmware_version);
-    DEBUG_PRINTF("ID: %u", motor->eeprom_data.id);
-    DEBUG_PRINTF("Baud Rate: %u", motor->eeprom_data.baud_rate);
-    DEBUG_PRINTF("Return Delay Time: %u", motor->eeprom_data.return_delay_time);
-    DEBUG_PRINTF("Drive Mode: %u", motor->eeprom_data.drive_mode);
-    DEBUG_PRINTF("Operating Mode: %u", motor->eeprom_data.operating_mode);
-    DEBUG_PRINTF("Secondary(Shadow) ID: %u", motor->eeprom_data.secondary_shadow_id);
-    DEBUG_PRINTF("Protocol Type: %u", motor->eeprom_data.protocol_type);
-    DEBUG_PRINTF("Homing Offset: %lu", motor->eeprom_data.homing_offset);
-    DEBUG_PRINTF("Moving Threshold: %lu", motor->eeprom_data.moving_threshold);
-    DEBUG_PRINTF("Temperature Limit: %u", motor->eeprom_data.temperature_limit);
-    DEBUG_PRINTF("Max Voltage Limit: %u", motor->eeprom_data.max_voltage_limit);
-    DEBUG_PRINTF("Min Voltage Limit: %u", motor->eeprom_data.min_voltage_limit);
-    DEBUG_PRINTF("PWM Limit: %u", motor->eeprom_data.pwm_limit);
-    DEBUG_PRINTF("Current Limit: %u", motor->eeprom_data.current_limit);
-    DEBUG_PRINTF("Velocity Limit: %lu", motor->eeprom_data.velocity_limit);
-    DEBUG_PRINTF("Max Position Limit: %lu", motor->eeprom_data.max_position_limit);
-    DEBUG_PRINTF("Min Position Limit: %lu", motor->eeprom_data.min_position_limit);
-    DEBUG_PRINTF("Startup Configuration: %u", motor->eeprom_data.startup_configuration);
-    DEBUG_PRINTF("PWM Slope: %u", motor->eeprom_data.pwm_slope);
-    DEBUG_PRINTF("Shutdown: %u", motor->eeprom_data.shutdown);
+    DEBUG_PRINTF("Printing Motor %u EEPROM Table", motor->eeprom_data.id);
+    DEBUG_PRINTF("Model Number: %u\r\n", motor->eeprom_data.model_number);
+    DEBUG_PRINTF("Model Information: %lu\r\n", motor->eeprom_data.model_information);
+    DEBUG_PRINTF("Firmware Version: %u\r\n", motor->eeprom_data.firmware_version);
+    DEBUG_PRINTF("ID: %u\r\n", motor->eeprom_data.id);
+    DEBUG_PRINTF("Baud Rate: %u\r\n", motor->eeprom_data.baud_rate);
+    DEBUG_PRINTF("Return Delay Time: %u\r\n", motor->eeprom_data.return_delay_time);
+    DEBUG_PRINTF("Drive Mode: %u\r\n", motor->eeprom_data.drive_mode);
+    DEBUG_PRINTF("Operating Mode: %u\r\n", motor->eeprom_data.operating_mode);
+    DEBUG_PRINTF("Secondary(Shadow) ID: %u\r\n", motor->eeprom_data.secondary_shadow_id);
+    DEBUG_PRINTF("Protocol Type: %u\r\n", motor->eeprom_data.protocol_type);
+    DEBUG_PRINTF("Homing Offset: %lu\r\n", motor->eeprom_data.homing_offset);
+    DEBUG_PRINTF("Moving Threshold: %lu\r\n", motor->eeprom_data.moving_threshold);
+    DEBUG_PRINTF("Temperature Limit: %u\r\n", motor->eeprom_data.temperature_limit);
+    DEBUG_PRINTF("Max Voltage Limit: %u\r\n", motor->eeprom_data.max_voltage_limit);
+    DEBUG_PRINTF("Min Voltage Limit: %u\r\n", motor->eeprom_data.min_voltage_limit);
+    DEBUG_PRINTF("PWM Limit: %u\r\n", motor->eeprom_data.pwm_limit);
+    DEBUG_PRINTF("Current Limit: %u\r\n", motor->eeprom_data.current_limit);
+    DEBUG_PRINTF("Velocity Limit: %lu\r\n", motor->eeprom_data.velocity_limit);
+    DEBUG_PRINTF("Max Position Limit: %lu\r\n", motor->eeprom_data.max_position_limit);
+    DEBUG_PRINTF("Min Position Limit: %lu\r\n", motor->eeprom_data.min_position_limit);
+    DEBUG_PRINTF("Startup Configuration: %u\r\n", motor->eeprom_data.startup_configuration);
+    DEBUG_PRINTF("PWM Slope: %u\r\n", motor->eeprom_data.pwm_slope);
+    DEBUG_PRINTF("Shutdown: %u\r\n", motor->eeprom_data.shutdown);
 }
 
 void print_ram(dynamixel_t* motor)
 {
-    DEBUG_PRINTF("Torque Enable: %u", motor->ram_data.torque_enable);
-    DEBUG_PRINTF("LED: %u", motor->ram_data.led);
-    DEBUG_PRINTF("Status Return Level: %u", motor->ram_data.status_return_level);
-    DEBUG_PRINTF("Registered Instruction: %u", motor->ram_data.registered_instruction);
-    DEBUG_PRINTF("Hardware Error Status: %u", motor->ram_data.hardware_error_status);
-    DEBUG_PRINTF("Velocity I Gain: %u", motor->ram_data.velocity_i_gain);
-    DEBUG_PRINTF("Velocity P Gain: %u", motor->ram_data.velocity_p_gain);
-    DEBUG_PRINTF("Position D Gain: %u", motor->ram_data.position_d_gain);
-    DEBUG_PRINTF("Position I Gain: %u", motor->ram_data.position_i_gain);
-    DEBUG_PRINTF("Position P Gain: %u", motor->ram_data.position_p_gain);
-    DEBUG_PRINTF("Feedforward 2nd Gain: %u", motor->ram_data.feedforward_2nd_gain);
-    DEBUG_PRINTF("Feedforward 1st Gain: %u", motor->ram_data.feedforward_1st_gain);
-    DEBUG_PRINTF("Bus Watchdog: %u", motor->ram_data.bus_watchdog);
-    DEBUG_PRINTF("Goal PWM: %u", motor->ram_data.goal_pwm);
-    DEBUG_PRINTF("Goal Current: %u", motor->ram_data.goal_current);
-    DEBUG_PRINTF("Goal Velocity: %lu", motor->ram_data.goal_velocity);
-    DEBUG_PRINTF("Profile Acceleration: %lu", motor->ram_data.profile_acceleration);
-    DEBUG_PRINTF("Profile Velocity: %lu", motor->ram_data.profile_velocity);
-    DEBUG_PRINTF("Goal Position: %lu", motor->ram_data.goal_position);
-    DEBUG_PRINTF("Realtime Tick: %u", motor->ram_data.realtime_tick);
-    DEBUG_PRINTF("Moving: %u", motor->ram_data.moving);
-    DEBUG_PRINTF("Moving Status: %u", motor->ram_data.moving_status);
-    DEBUG_PRINTF("Present PWM: %u", motor->ram_data.present_pwm);
-    DEBUG_PRINTF("Present Current: %u", motor->ram_data.present_current);
-    DEBUG_PRINTF("Present Velocity: %lu", motor->ram_data.present_velocity);
-    DEBUG_PRINTF("Present Position: %lu", motor->ram_data.present_position);
-    DEBUG_PRINTF("Velocity Trajectory: %lu", motor->ram_data.velocity_trajectory);
-    DEBUG_PRINTF("Position Trajectory: %lu", motor->ram_data.position_trajectory);
-    DEBUG_PRINTF("Present Input Voltage: %u", motor->ram_data.present_input_voltage);
-    DEBUG_PRINTF("Present Temperature: %u", motor->ram_data.present_temperature);
-    DEBUG_PRINTF("Backup Ready: %u", motor->ram_data.backup_ready);
-    DEBUG_PRINTF("Indirect Address 1: %u", motor->ram_data.indirect_address_1);
-    DEBUG_PRINTF("Indirect Address 2: %u", motor->ram_data.indirect_address_2);
-    DEBUG_PRINTF("Indirect Address 3: %u", motor->ram_data.indirect_address_3);
-    DEBUG_PRINTF("Indirect Address 18: %u", motor->ram_data.indirect_address_18);
-    DEBUG_PRINTF("Indirect Address 19: %u", motor->ram_data.indirect_address_19);
-    DEBUG_PRINTF("Indirect Address 20: %u", motor->ram_data.indirect_address_20);
-    DEBUG_PRINTF("Indirect Data 1: %u", motor->ram_data.indirect_data_1);
-    DEBUG_PRINTF("Indirect Data 2: %u", motor->ram_data.indirect_data_2);
-    DEBUG_PRINTF("Indirect Data 3: %u", motor->ram_data.indirect_data_3);
-    DEBUG_PRINTF("Indirect Data 18: %u", motor->ram_data.indirect_data_18);
-    DEBUG_PRINTF("Indirect Data 19: %u", motor->ram_data.indirect_data_19);
-    DEBUG_PRINTF("Indirect Data 20: %u", motor->ram_data.indirect_data_20);
+    DEBUG_PRINTF("Printing Motor %u RAM Table", motor->eeprom_data.id);
+    DEBUG_PRINTF("Torque Enable: %u\r\n", motor->ram_data.torque_enable);
+    DEBUG_PRINTF("LED: %u\r\n", motor->ram_data.led);
+    DEBUG_PRINTF("Status Return Level: %u\r\n", motor->ram_data.status_return_level);
+    DEBUG_PRINTF("Registered Instruction: %u\r\n", motor->ram_data.registered_instruction);
+    DEBUG_PRINTF("Hardware Error Status: %u\r\n", motor->ram_data.hardware_error_status);
+    DEBUG_PRINTF("Velocity I Gain: %u\r\n", motor->ram_data.velocity_i_gain);
+    DEBUG_PRINTF("Velocity P Gain: %u\r\n", motor->ram_data.velocity_p_gain);
+    DEBUG_PRINTF("Position D Gain: %u\r\n", motor->ram_data.position_d_gain);
+    DEBUG_PRINTF("Position I Gain: %u\r\n", motor->ram_data.position_i_gain);
+    DEBUG_PRINTF("Position P Gain: %u\r\n", motor->ram_data.position_p_gain);
+    DEBUG_PRINTF("Feedforward 2nd Gain: %u\r\n", motor->ram_data.feedforward_2nd_gain);
+    DEBUG_PRINTF("Feedforward 1st Gain: %u\r\n", motor->ram_data.feedforward_1st_gain);
+    DEBUG_PRINTF("Bus Watchdog: %u\r\n", motor->ram_data.bus_watchdog);
+    DEBUG_PRINTF("Goal PWM: %u\r\n", motor->ram_data.goal_pwm);
+    DEBUG_PRINTF("Goal Current: %u\r\n", motor->ram_data.goal_current);
+    DEBUG_PRINTF("Goal Velocity: %lu\r\n", motor->ram_data.goal_velocity);
+    DEBUG_PRINTF("Profile Acceleration: %lu\r\n", motor->ram_data.profile_acceleration);
+    DEBUG_PRINTF("Profile Velocity: %lu\r\n", motor->ram_data.profile_velocity);
+    DEBUG_PRINTF("Goal Position: %lu\r\n", motor->ram_data.goal_position);
+    DEBUG_PRINTF("Realtime Tick: %u\r\n", motor->ram_data.realtime_tick);
+    DEBUG_PRINTF("Moving: %u\r\n", motor->ram_data.moving);
+    DEBUG_PRINTF("Moving Status: %u\r\n", motor->ram_data.moving_status);
+    DEBUG_PRINTF("Present PWM: %u\r\n", motor->ram_data.present_pwm);
+    DEBUG_PRINTF("Present Current: %u\r\n", motor->ram_data.present_current);
+    DEBUG_PRINTF("Present Velocity: %lu\r\n", motor->ram_data.present_velocity);
+    DEBUG_PRINTF("Present Position: %lu\r\n", motor->ram_data.present_position);
+    DEBUG_PRINTF("Velocity Trajectory: %lu\r\n", motor->ram_data.velocity_trajectory);
+    DEBUG_PRINTF("Position Trajectory: %lu\r\n", motor->ram_data.position_trajectory);
+    DEBUG_PRINTF("Present Input Voltage: %u\r\n", motor->ram_data.present_input_voltage);
+    DEBUG_PRINTF("Present Temperature: %u\r\n", motor->ram_data.present_temperature);
+    DEBUG_PRINTF("Backup Ready: %u\r\n", motor->ram_data.backup_ready);
+    DEBUG_PRINTF("Indirect Address 1: %u\r\n", motor->ram_data.indirect_address_1);
+    DEBUG_PRINTF("Indirect Address 2: %u\r\n", motor->ram_data.indirect_address_2);
+    DEBUG_PRINTF("Indirect Address 3: %u\r\n", motor->ram_data.indirect_address_3);
+    DEBUG_PRINTF("Indirect Address 18: %u\r\n", motor->ram_data.indirect_address_18);
+    DEBUG_PRINTF("Indirect Address 19: %u\r\n", motor->ram_data.indirect_address_19);
+    DEBUG_PRINTF("Indirect Address 20: %u\r\n", motor->ram_data.indirect_address_20);
+    DEBUG_PRINTF("Indirect Data 1: %u\r\n", motor->ram_data.indirect_data_1);
+    DEBUG_PRINTF("Indirect Data 2: %u\r\n", motor->ram_data.indirect_data_2);
+    DEBUG_PRINTF("Indirect Data 3: %u\r\n", motor->ram_data.indirect_data_3);
+    DEBUG_PRINTF("Indirect Data 18: %u\r\n", motor->ram_data.indirect_data_18);
+    DEBUG_PRINTF("Indirect Data 19: %u\r\n", motor->ram_data.indirect_data_19);
+    DEBUG_PRINTF("Indirect Data 20: %u\r\n", motor->ram_data.indirect_data_20);
 }
 
 static uint16_t update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size)
 {
-    DEBUG_PRINTF("Calculating CRC");
+    // DEBUG_PRINTF("Calculating CRC");
     unsigned short i, j;
     unsigned short crc_table[256] = {
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
@@ -149,7 +150,7 @@ static uint16_t update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr
 
 size_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_status_packet_t* status)
 {
-    DEBUG_PRINTF("Writing Command:");
+    // DEBUG_PRINTF("Writing Command:");
     ssize_t ret = 0;
     uint16_t crc = 0;
     size_t command_len = 0;
@@ -193,17 +194,17 @@ size_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_stat
 
     command_len += 2;
 
-    digitalWrite(gControlPin, HIGH);
+    delayMicroseconds(10);
 
-    DEBUG_PRINTF("Writing Command Length %u:", command_len);
-#if defined(DEBUG)
-    for (uint32_t i = 0; i < command_len; i++)
-    {
-        Serial.printf("%2X ", command[i]);
-    }
-    Serial.printf("\n");
-#endif
-    ret = gDynamixelSerial.write_buffer(command, command_len);
+// #if defined(DEBUG)
+//     DEBUG_PRINTF("Writing Command Length %u: ", command_len);
+//     for (uint32_t i = 0; i < command_len; i++)
+//     {
+//         Serial.printf("%2X ", command[i]);
+//     }
+//     Serial.printf("\n");
+// #endif
+    ret = gDynamixelSerial.writeBuffer(command, command_len);
 
     // This cast is fine, command_len will never be greater than 519
     if (ret != (ssize_t) command_len)
@@ -211,12 +212,19 @@ size_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_stat
         return -1;
     }
 
-    digitalWrite(gControlPin, LOW);
 
-    // return read_status(status);
-    delay(1000);
-    return 0;
+    if ((instruction->instruction != REBOOT) && (instruction->id != BROADCAST))
+    {
+        ret = read_status(status);
+        delay(100);
+    }
+    else
+    {
+        delay(1000);
+        ret = 0;
+    }
 
+    return ret;
 }
 
 int8_t read_status(dynamixel_2_status_packet_t* status)
@@ -230,32 +238,32 @@ int8_t read_status(dynamixel_2_status_packet_t* status)
 
     memset(buffer, 0 , sizeof(buffer));
 
+    while (gDynamixelSerial.available() < 4)
+    {
+        delayMicroseconds(10);
+    }
+
     switch (state)
     {
         case SYNC:
-            digitalWrite(gControlPin, LOW);
             gDynamixelSerial.readBytes(buffer, sizeof(gPacketHeader));
             while (0 != memcmp(buffer, gPacketHeader, sizeof(gPacketHeader)))
             {
                 memmove(buffer, buffer + 1, sizeof(gPacketHeader) - 1);
-                digitalWrite(gControlPin, LOW);
-                buffer[3] = gDynamixelSerial.read();
+                gDynamixelSerial.readBytes(&buffer[3], 1);
             }
             buffer_length = 4;
             state = HEADER;
         case HEADER:
             // Read the packet ID
-            digitalWrite(gControlPin, LOW);
-            buffer[buffer_length] = gDynamixelSerial.read();
+            gDynamixelSerial.readBytes(&buffer[buffer_length], 1);
             buffer_length++;
             // Read the pacekt length
-            digitalWrite(gControlPin, LOW);
             gDynamixelSerial.readBytes(&buffer[buffer_length], 2);
             memcpy(&param_length, &buffer[buffer_length], 2);
             buffer_length += 2;
             state = DATA;
         case DATA:
-            digitalWrite(gControlPin, LOW);
             gDynamixelSerial.readBytes(&buffer[buffer_length], param_length);
             buffer_length += param_length;
             break;
@@ -933,16 +941,13 @@ void read_ram(dynamixel_t* motor)
 }
 
 
-int init_dynamixel(uint8_t rx_pin, uint8_t tx_pin, uint8_t control_pin)
+int init_dynamixel(uint8_t rx_pin, uint8_t tx_pin)
 {
     DEBUG_PRINTF("Init Dynamixel");
-    gDynamixelSerial.init(rx_pin, tx_pin);
+    gDynamixelSerial.init(rx_pin, tx_pin, false);
     DEBUG_PRINTF("Begin");
     gDynamixelSerial.begin(57600);
-    DEBUG_PRINTF("Set Control");
-    gControlPin = control_pin;
-    DEBUG_PRINTF("Set Pin mode");
-    pinMode(gControlPin, OUTPUT);
+    delay(1000);
     DEBUG_PRINTF("Finished Dynamixel");
     return 0;
 }

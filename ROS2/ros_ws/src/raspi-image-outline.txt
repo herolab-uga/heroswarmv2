@@ -1,0 +1,7 @@
+require ${COREBASE}/meta-ros/meta-ros-common/recipes-core/ros-image-core.bb
+
+SUMMARY = "The base image for HeRoSwarm Robots."
+DESCRIPTION = "${SUMMARY}"
+
+CORE_IMAGE_EXTRA_INSTALL += "openssh \
+                             pkgconfig"

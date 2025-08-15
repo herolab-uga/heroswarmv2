@@ -12,7 +12,7 @@
 #include <FreeRTOS.h>
 #include "semphr.h"
 #include <task.h>
-#include "softwareserial/SoftwareSerial.h"
+#include "softwareserial/SoftwareSerial.hpp"
 
 // Motor Webpage: https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/
 
@@ -82,6 +82,7 @@ static void read_velocity(dynamixel_t* motor)
 
 static void update_odom(odom_t* robot_odom)
 {  
+    digitalWrite(A3, HIGH);
     // Read the current speed of each motor not the entire ram table
     read_velocity(&gMotor1);
     read_velocity(&gMotor2);
@@ -104,11 +105,11 @@ static void update_odom(odom_t* robot_odom)
     static int count = 0;
     if ((count % 1000) == 0)
     {
-        DEBUG_PRINTF("Motor 1 Ticks: %d | Motor 2 Ticks: %d | Delta: %f | X Vel: %f | Y Vel: %f | Omega: %f", 
-            gMotor1.delta_ticks, gMotor2.delta_ticks, robot_odom->delta_time, robot_odom->x_vel, robot_odom->y_vel,robot_odom->omega);
+        DEBUG_PRINTF("Motor 1 Speed: %d | Motor 2 Speed: %d | Delta: %f | X Vel: %f | Y Vel: %f | Omega: %f", 
+            gMotor1.ram_data.present_velocity, gMotor2.ram_data.present_velocity, robot_odom->delta_time, robot_odom->x_vel, robot_odom->y_vel,robot_odom->omega);
     }
 #endif
-
+    digitalWrite(A3, LOW);
 }
 
 // The vel input is in rpm
@@ -168,7 +169,7 @@ void set_velocity(float xVel, float yVel, float thetaVel)
     DEBUG_PRINTF("X Vel: %f | Y Vel: %f | Omega: %f",xVel,yVel,thetaVel);
     for (int i = 0; i < NUM_MOTORS; i++)
     {
-    	DEBUG_PRINTF("Motor %i: %f", i, gMotorList[i]->ram_data.goal_velocity * RPM_CONVERSION);
+    	DEBUG_PRINTF("Motor %i: %f", i, gMotorList[i]->ram_data.goal_velocity);
     }
 #endif 
 
@@ -200,25 +201,17 @@ void send_odom(odom_t* data)
 static void init_motor(dynamixel_t* motor)
 {
     uint8_t params[3] = {0};
-
-    dynamixel_2_instruction_packet_t init_reboot =
-    {
-        .id = motor->id,
-        .param_length = 0,
-        .instruction = REBOOT,
-        .param_list = NULL
-    };
-
-    write_cmd(&init_reboot);
     
     dynamixel_2_instruction_packet_t init_write =
     {
         .id = motor->id,
-        .param_length = 3,
-        .instruction = WRITE,
-        .param_list = params,
-
     };
+
+    write_cmd(&init_write);
+
+    init_write.instruction = WRITE;
+    init_write.param_list = params;
+    init_write.param_length = sizeof(params);
 
     // disable torque
     params[0] = 64;
@@ -234,9 +227,6 @@ static void init_motor(dynamixel_t* motor)
 
     write_cmd(&init_write);
 
-    // read_eeprom(motor);
-    // read_ram(motor);
-
     // Enable torque
     params[0] = 64;
     params[1] = 0;
@@ -251,10 +241,26 @@ void init_motor_control()
 {
     DEBUG_PRINTF("Init Motors");
     // Initialize the dynamixel
-    init_dynamixel(RX_PIN, TX_PIN, CONTROL_PIN);
+    init_dynamixel(RX_PIN, TX_PIN);
+
+    pinMode(A3, OUTPUT);
+    digitalWrite(A3, LOW);
 
     // Initialize the odom struct
     memset(&gRobotOdom, 0, sizeof(gRobotOdom));
+
+    dynamixel_2_instruction_packet_t reboot_write =
+    {
+        .id = BROADCAST,
+        .param_length = 0,
+        .instruction = REBOOT,
+        .param_list = NULL,
+
+    };
+
+    write_cmd(&reboot_write);
+
+    delay(3);
 
     // Initialize the dynamixel structs
     gMotor1 = 
@@ -279,17 +285,16 @@ void init_motor_control()
 
 void motor_task(void* parameters)
 {
-    DEBUG_PRINTF("Staring Motor Task");
+    DEBUG_PRINTF("Starting Motor Task");
 
     TickType_t last_wake_time = xTaskGetTickCount();
 
     while(pdTRUE)
     {
-        DEBUG_PRINTF("Motor Running %u", count);
         update_odom(&gRobotOdom);
 
         // why is the tick define 1000/1024? did the clock rate change
-        vTaskDelayUntil(&last_wake_time, (10 * 1000)/1024);
+        vTaskDelayUntil(&last_wake_time, 10);
     }
 
 }

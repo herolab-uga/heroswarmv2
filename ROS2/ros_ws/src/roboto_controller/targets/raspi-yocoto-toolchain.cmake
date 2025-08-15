@@ -10,13 +10,13 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 # --- [ Adjust these paths to your setup ] ---
 # Path to cross-compilers
 #TODO: cross-compilers 
-set(CMAKE_C_COMPILER   /path/to/toolchain/bin/aarch64-linux-gnu-gcc)
-set(CMAKE_CXX_COMPILER /path/to/toolchain/bin/aarch64-linux-gnu-g++)
-set(CMAKE_ASM_COMPILER /path/to/toolchain/bin/aarch64-linux-gnu-gcc)
+set(CMAKE_C_COMPILER   /usr/bin/aarch64-linux-gnu-gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
+set(CMAKE_ASM_COMPILER /usr/bin/aarch64-linux-gnu-gcc)
 
 # Path to target sysroot
 #TODO: sysroot path
-set(CMAKE_SYSROOT /path/to/sysroot)
+set(CMAKE_SYSROOT )
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
 
 # --- [ Compiler Flags for Pi Zero 2 W 64-bit ] ---

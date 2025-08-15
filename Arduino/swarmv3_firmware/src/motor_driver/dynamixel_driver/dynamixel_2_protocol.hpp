@@ -90,5 +90,5 @@ void read_eeprom(dynamixel_t* motor);
 void print_eeprom(dynamixel_t* motor);
 void read_ram(dynamixel_t* motor);
 void print_ram(dynamixel_t* motor);
-int init_dynamixel(uint8_t rx_pin, uint8_t tx_pin, uint8_t control_pin);
+int init_dynamixel(uint8_t rx_pin, uint8_t tx_pin);
 
