@@ -19,12 +19,12 @@ static SemaphoreHandle_t gTlmPeriodMutex;
 typedef struct
 {
     // Odom TLM
-    float xVel;
-    float yVel;
-    float omega;
-    float x;
-    float y;
-    float theta;
+    float x_vel; //0-3
+    float y_vel; //4-7
+    float omega; //8-11
+    float x; //12-15
+    float y; //16-19
+    float theta; //20-23
 
     // Battery TLM
     uint16_t battery_voltage; // battery voltage is in mV
@@ -60,11 +60,11 @@ void tlm_task(void* params)
     DEBUG_PRINTF("Starting Tlm Task");
     vTaskDelay(10000/1024);
     odom_t tmp_odom;
-    uint32_t sleep_time = 0;
+    uint32_t sleep_time = 16;
 
     tlm_t tlm_struct;
 
-    uint8_t tlm_array[sizeof(tlm_struct)];
+    float tlm_array[sizeof(tlm_struct)];
 
     TickType_t last_wake_time = xTaskGetTickCount();
 
@@ -76,16 +76,19 @@ void tlm_task(void* params)
         memset(&tlm_struct, 0, sizeof(tlm_struct));
 
         // Get Odom tlm
-        // send_odom(&tmp_odom);
+        send_odom(&tmp_odom);
 
-        // Only want to copy the contents of tmp_odom struct to tlm_stuct
-        memcpy(&tlm_struct, &tmp_odom, sizeof(tmp_odom) - (3 * sizeof(float))); 
+        // DEBUG_PRINTF("Sending TLM Data");
+        memcpy(&tlm_array[0], &tmp_odom.x_vel, 4);
+        memcpy(&tlm_array[1], &tmp_odom.y_vel, 4);
+        memcpy(&tlm_array[2], &tmp_odom.omega, 4);
+        memcpy(&tlm_array[3], &tmp_odom.x, 4);
+        memcpy(&tlm_array[4], &tmp_odom.y, 4);
+        memcpy(&tlm_array[5], &tmp_odom.theta, 4);
+        // memcpy(&tlm_array[6], &tmp_odom.battery_voltage, 4);
+        uart_send_message(0xFF,tlm_array, 26);
 
-
-        memcpy(tlm_array, &tlm_struct, sizeof(tlm_struct));
-        uart_send_message(0xFF,tlm_array, sizeof(tlm_array));
-
-        vTaskDelayUntil(&last_wake_time, (10*sleep_time)/1024);
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(sleep_time));
     }
 
 }

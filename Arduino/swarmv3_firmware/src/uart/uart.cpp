@@ -46,7 +46,7 @@ const uint8_t SYNC_PATTERN[] = {0xDE, 0xAD, 0xBE, 0xEF};
 
 QueueHandle_t gUartTxQueue;
 
-void uart_send_message(uint16_t apid, uint8_t *data, size_t length)
+void uart_send_message(uint16_t apid, void* data, size_t length)
 {
     queue_data_t temp_data;
     memset(&temp_data, 0, sizeof(temp_data));
@@ -74,8 +74,6 @@ void uart_tx_task(void *params)
 
     queue_data_t temp_data;
 
-    TickType_t last_wake_time = xTaskGetTickCount();
-
     uint8_t buff[MAX_MSG_SIZE];
 
     while (pdTRUE)
@@ -86,6 +84,8 @@ void uart_tx_task(void *params)
         {
             ret = wrap_pkt(temp_data.apid, temp_data.data, buff, temp_data.length);
 
+            // DEBUG_PRINTF("Temp Length %u", temp_data.length);
+            // DEBUG_PRINTF("Data + Header %u", ret);
             crc = calculate_crc(buff, ret);
     
             memcpy(&buff[ret], &crc, sizeof(crc));
@@ -93,8 +93,9 @@ void uart_tx_task(void *params)
             memmove(&buff[sizeof(SYNC_PATTERN)], buff, ret + CRC_SIZE);
     
             memcpy(buff, SYNC_PATTERN, sizeof(SYNC_PATTERN));
-    
-            Serial1.write(buff,ret);
+            
+            // DEBUG_PRINTF("Data sent on phy %u", ret);
+            Serial1.write(buff,ret + sizeof(SYNC_PATTERN) + CRC_SIZE);
         }
     }
 }
@@ -113,11 +114,11 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
         {
         case SYNC:
         {
-            DEBUG_PRINTF("Reading Sync");
+            // DEBUG_PRINTF("Reading Sync");
             for (; *length < sizeof(SYNC_PATTERN) && Serial1.available(); (*length)++)
             {
                 buff[*length] = Serial1.read();
-                DEBUG_PRINTF("%02X ", buff[*length]);
+                // DEBUG_PRINTF("%02X ", buff[*length]);
                 if (0 != memcmp(&buff[*length], &SYNC_PATTERN[*length], sizeof(buff[*length])))
                 {
                     error = SYNC_ERROR;
@@ -130,7 +131,7 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
             }
             else
             {
-                DEBUG_PRINTF("");
+                // DEBUG_PRINTF("");
                 state = HEADER;
                 *length = 0;
             }
@@ -138,11 +139,11 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
         }
         case HEADER:
         {
-            DEBUG_PRINTF("Reading Header");
+            // DEBUG_PRINTF("Reading Header");
             for (; *length < sizeof(stream_header_t) && Serial1.available(); (*length)++)
             {
                 buff[*length] = Serial1.read();
-                DEBUG_PRINTF("%02X ", buff[*length]);
+                // DEBUG_PRINTF("%02X ", buff[*length]);
             }
 
             if (STREAM_HEADER_SIZE != *length)
@@ -152,7 +153,7 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
             else
             {
                 state = DATA;
-                DEBUG_PRINTF("");
+                // DEBUG_PRINTF("");
                 // 4 is the start index of the data length in the header
                 memcpy(&read_len, &buff[4], sizeof(uint16_t));
                 if ( MAX_MSG_SIZE < read_len)
@@ -168,7 +169,7 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
             for (int32_t i = 0; i < read_len && Serial1.available(); i++)
             {
                 buff[*length] = Serial1.read();
-                DEBUG_PRINTF("%02X ", buff[*length]);
+                // DEBUG_PRINTF("%02X ", buff[*length]);
                 (*length)++;
             }
 
@@ -178,9 +179,9 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
             }
             else
             {
-                DEBUG_PRINTF("");
+                // DEBUG_PRINTF("");
             }
-            DEBUG_PRINTF("");
+            // DEBUG_PRINTF("");
             break;
         }
         }
@@ -214,7 +215,7 @@ void uart_rx_task(void *parameters)
     {
         if (Serial1.available())
         {
-            DEBUG_PRINTF("Data available");
+            // DEBUG_PRINTF("Data available");
             length = 0;
             memset(buff, 0, sizeof(buff));
 
@@ -238,7 +239,7 @@ void uart_rx_task(void *parameters)
             {
             }
         }
-        vTaskDelay(5000/1024);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

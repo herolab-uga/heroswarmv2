@@ -1,34 +1,35 @@
+// SoftwareSerial_nRF52_Freertos.cpp
+// Blocking API w/ cooperative yielding (Option 1)
+
 #include <Arduino.h>
 #include <softwareserial/SoftwareSerial.hpp>
 #include <nrf.h>
 #include <nrf_gpio.h>
-#include <nrf_gpiote.h>
 #include <nrf_timer.h>
 
-// Assuming 64 MHz CPU clock, 57,600 baud
-// Bit time in microseconds:
-#define BIT_TIME_US (1000000UL / 57600) // ≈ 17.36 us
+#include "FreeRTOS.h"
+#include "task.h"
 
-// Extra delay to account for attachInterrupt() handler latency
-// This will vary slightly between boards, but ~1.5 us works well on nRF52840
-#define ATTACHINT_LATENCY_US 1.5
+// ======= Timing / Limits =======
+#define MAX_BAUDRATE            1000000UL          // practical max for this sw impl
+#define TIMER_PRESCALER         4                  // 1 MHz timer (1 us tick) @ 64 MHz CPU
+#define TX_WAIT_TIMEOUT_MS      50                 // safety timeout for TX wait loops
+#define RX_WAIT_PAUSE_MS        1                  // small delay when polling reads
 
-volatile uint8_t rxByte;
-volatile bool rxReady = false;
+// Optional extra latency correction for the first RX sample (~1-2 us typical)
+#define ATTACHINT_LATENCY_US    1U                 // keep integer (used with us math)
 
-// === CONFIG ===
-// Pins — change these as needed
-#define RX_PIN 8
-#define TX_PIN 6
-#define CONTROL_PIN 10 // Output Enable for 74LVC2G241 TX buffer (active HIGH to drive TX line)
+// ======= External TX buffer OE (74LVC2G241) =======
+#define CONTROL_PIN             10                 // HIGH = drive TX line (enable buffer)
 
-// Baudrate max 1M for reliable timing
-#define MAX_BAUDRATE 1000000UL
+static inline void setupOEPins() {
+  pinMode(CONTROL_PIN, OUTPUT);
+  digitalWrite(CONTROL_PIN, LOW); // start in RX (TX buffer disabled)
+}
+static inline void enableTXBuffer() { digitalWrite(CONTROL_PIN, HIGH); }
+static inline void enableRXBuffer() { digitalWrite(CONTROL_PIN, LOW); }
 
-// TIMER config
-#define TIMER_PRESCALER 4 // 1 MHz (1 us ticks)
-
-// === BUFFER ===
+// ======= RX/TX shared state =======
 #define _SS_MAX_RX_BUFF 64
 char SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF];
 volatile uint8_t SoftwareSerial::_receive_buffer_tail = 0;
@@ -36,19 +37,23 @@ volatile uint8_t SoftwareSerial::_receive_buffer_head = 0;
 
 SoftwareSerial *SoftwareSerial::active_object = nullptr;
 
-// === STATE ===
+// RX/TX state flags
 static volatile bool _rxInProgress = false;
 static volatile bool _txInProgress = false;
 
-static volatile uint8_t _rxByte;
-static volatile uint8_t _rxBitCount;
+// RX state
+static volatile uint8_t _rxByte = 0;
+static volatile uint8_t _rxBitCount = 0;
 
-static volatile uint8_t _txByte;
-static volatile uint8_t _txBitCount;
+// TX state
+static volatile uint8_t _txByte = 0;
+static volatile uint8_t _txBitCount = 0;
 
+// Timing/cache
 static uint32_t _baudRate = 57600;
-static uint32_t _bitTimeUs = 17; // default for 57600
+static uint32_t _bitTimeUs = 17; // ≈ 1e6 / 57600
 
+// Cached GPIO addresses/masks for speed
 static uint32_t _rxMask;
 static NRF_GPIO_Type *_rxPort;
 
@@ -56,102 +61,86 @@ static uint32_t _txMask;
 static uint32_t _txInvMask;
 static NRF_GPIO_Type *_txPort;
 
+// Also keep Arduino-ish helpers in case they're used elsewhere
 static volatile uint32_t *_transmitPortRegister;
 static const volatile uint32_t *_receivePortRegister;
 static uint32_t _transmitBitMask;
 static uint32_t _receiveBitMask;
 
+// The RX pin we attached to
 uint8_t gReceivePin = 0;
 
-void setupOEPins()
-{
-  pinMode(CONTROL_PIN, OUTPUT);
-
-  // Start with RX enabled, TX disabled
-  digitalWrite(CONTROL_PIN, LOW);
-}
-
-void enableTXBuffer()
-{
-  digitalWrite(CONTROL_PIN, HIGH);
-}
-
-void enableRXBuffer()
-{
-  digitalWrite(CONTROL_PIN, LOW);
-}
-
-// === ISR DECLARATIONS ===
+// ======= Forward ISR declarations (called by vector wrappers) =======
 extern "C" void SoftwareSerial_GPIOTE_IRQHandler(void);
 extern "C" void SoftwareSerial_TIMER2_IRQHandler(void);
 
-// === SoftwareSerial methods ===
-
-SoftwareSerial::SoftwareSerial() {}
-
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /*= false*/)
-{
-  _receivePin = receivePin;
-  _transmitPin = transmitPin;
-  _inverse_logic = inverse_logic;
-  gReceivePin = 11;
+// ======= Vector binding for TIMER2 only =======
+// We keep GPIOTE under Arduino's attachInterrupt() dispatcher.
+extern "C" void TIMER2_IRQHandler(void) {
+  SoftwareSerial_TIMER2_IRQHandler();
 }
 
-SoftwareSerial::~SoftwareSerial()
-{
+// ======= Ctors / Dtor =======
+SoftwareSerial::SoftwareSerial() {}
+
+SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /*= false*/) {
+  init(receivePin, transmitPin, inverse_logic);
+}
+
+SoftwareSerial::~SoftwareSerial() {
   stopListening();
 }
 
-void SoftwareSerial::init(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic)
-{
-  _receivePin = receivePin;
-  _transmitPin = transmitPin;
+// ======= Core init =======
+void SoftwareSerial::init(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic) {
+  _receivePin   = receivePin;
+  _transmitPin  = transmitPin;
   _inverse_logic = inverse_logic;
-  gReceivePin = 11;
+  gReceivePin   = receivePin;     // IMPORTANT: match the actual RX pin
 }
 
-void SoftwareSerial::begin(long speed)
-{
-  if ((unsigned long)speed > MAX_BAUDRATE)
-    speed = MAX_BAUDRATE;
-  _baudRate = speed;
+// ======= Begin / hardware setup =======
+void SoftwareSerial::begin(long speed) {
+  if ((unsigned long)speed > MAX_BAUDRATE) speed = MAX_BAUDRATE;
+  _baudRate = (uint32_t)speed;
   _bitTimeUs = 1000000UL / _baudRate;
 
+  // Configure pins
   setTX(_transmitPin);
   setRX(_receivePin);
-
   setupOEPins();
 
-  // Setup RX port/mask
+  // Cache masks/ports
   _rxMask = digitalPinToBitMask(_receivePin);
   _rxPort = digitalPinToPort(_receivePin);
 
-  // Setup TX port/mask
   _txMask = digitalPinToBitMask(_transmitPin);
   _txInvMask = ~_txMask;
   _txPort = digitalPinToPort(_transmitPin);
 
+  // Attach start-bit detector on RX FALLING edge via Arduino
   attachInterrupt(digitalPinToInterrupt(gReceivePin), SoftwareSerial_GPIOTE_IRQHandler, FALLING);
 
-  // Setup TIMER2 for 1 MHz, 32 bit mode
-  NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer;
-  NRF_TIMER2->BITMODE = TIMER_BITMODE_BITMODE_32Bit;
-  NRF_TIMER2->PRESCALER = TIMER_PRESCALER;
+  // Setup TIMER2 for 1 MHz, 32-bit, compare[0] interrupts
+  NRF_TIMER2->MODE     = TIMER_MODE_MODE_Timer;
+  NRF_TIMER2->BITMODE  = TIMER_BITMODE_BITMODE_32Bit;
+  NRF_TIMER2->PRESCALER= TIMER_PRESCALER;
+  NRF_TIMER2->TASKS_STOP   = 1;
+  NRF_TIMER2->TASKS_CLEAR  = 1;
+  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
   NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE0_Msk;
 
-  NVIC_SetPriority(GPIOTE_IRQn, 0);
-  NVIC_SetPriority(TIMER2_IRQn, 0);
+  // Priorities — keep moderate so we don't starve other ISRs
+  NVIC_SetPriority(TIMER2_IRQn, 1);
   NVIC_EnableIRQ(TIMER2_IRQn);
 
   listen();
 }
 
-bool SoftwareSerial::listen()
-{
-  if (active_object != this)
-  {
-    if (active_object)
-      active_object->stopListening();
+// ======= Listener control =======
+bool SoftwareSerial::listen() {
+  if (active_object != this) {
+    if (active_object) active_object->stopListening();
     _receive_buffer_head = _receive_buffer_tail = 0;
     active_object = this;
     return true;
@@ -159,223 +148,220 @@ bool SoftwareSerial::listen()
   return false;
 }
 
-bool SoftwareSerial::stopListening()
-{
-  if (active_object == this)
-  {
+bool SoftwareSerial::stopListening() {
+  if (active_object == this) {
     active_object = nullptr;
     return true;
   }
   return false;
 }
 
-int SoftwareSerial::available()
-{
+// ======= Buffer API =======
+int SoftwareSerial::available() {
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
-int SoftwareSerial::read()
-{
-  if (_receive_buffer_head == _receive_buffer_tail)
-    return -1;
+int SoftwareSerial::read() {
+  if (_receive_buffer_head == _receive_buffer_tail) return -1;
   uint8_t d = _receive_buffer[_receive_buffer_head];
-  _receive_buffer_head = (_receive_buffer_head + 1) % _SS_MAX_RX_BUFF;
+  _receive_buffer_head = (uint8_t)((_receive_buffer_head + 1) % _SS_MAX_RX_BUFF);
   return d;
 }
 
-// Reads exactly 'length' bytes into buffer; blocks until all bytes received
-void SoftwareSerial::readBytes(uint8_t *buffer, size_t length)
-{
+void SoftwareSerial::readBytes(uint8_t *buffer, size_t length) {
   size_t bytes_read = 0;
-  while (bytes_read < length)
-  {
+  while (bytes_read < length) {
     int c = read();
-    if (c >= 0)
-    {
-      buffer[bytes_read] = (uint8_t)c;
-      bytes_read++;
-    }
-    else
-    {
-      delayMicroseconds(100);
+    if (c >= 0) {
+      buffer[bytes_read++] = (uint8_t)c;
+    } else {
+      // be polite to scheduler on a single core
+      vTaskDelay(pdMS_TO_TICKS(RX_WAIT_PAUSE_MS));
     }
   }
 }
 
-// Writes 'length' bytes from buffer; returns number of bytes written
-size_t SoftwareSerial::writeBuffer(const uint8_t *buffer, size_t length)
-{
+size_t SoftwareSerial::writeBuffer(const uint8_t *buffer, size_t length) {
   size_t bytes_written = 0;
-  for (size_t i = 0; i < length; i++)
-  {
-    if (write(buffer[i]) == 1)
-    {
-      bytes_written++;
-    }
-    else
-    {
-      break; // error or busy
-    }
+  for (size_t i = 0; i < length; i++) {
+    size_t w = write(buffer[i]);
+    if (w == 1) bytes_written++;
+    else break; // timeout/error
   }
   return bytes_written;
 }
 
-// === WRITE ===
-// TX with hardware-timed bits and direction control
-size_t SoftwareSerial::write(uint8_t b)
-{
-  // Wait if previous TX still in progress
-  while (_txInProgress)
-  {
+// ======= TX (blocking, but cooperative) =======
+size_t SoftwareSerial::write(uint8_t b) {
+  // Wait for any prior TX, but yield so other tasks run
+  TickType_t start = xTaskGetTickCount();
+  while (_txInProgress) {
+    if ((xTaskGetTickCount() - start) > pdMS_TO_TICKS(TX_WAIT_TIMEOUT_MS)) {
+      // Safety: give up and force-clear the stuck TX
+      _txInProgress = false;
+      break;
+    }
+    taskYIELD();
   }
 
   _txInProgress = true;
   _txByte = b;
   _txBitCount = 0;
 
-  // Disable RX while transmitting
+  // Disable RX during TX turnaround, drive via buffer OE
   _rxInProgress = false;
-
-  // Enable TX driver buffer, disable RX driver buffer
   enableTXBuffer();
 
-  // Drive start bit (line low)
+  // Start bit: line LOW
   *((volatile uint32_t *)&_txPort->OUT) &= _txInvMask;
 
-  // Reset and start TIMER2 for TX bit timing
+  // Start/arm TIMER2 fresh
   NRF_TIMER2->TASKS_STOP = 1;
   NRF_TIMER2->TASKS_CLEAR = 1;
+  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
   NRF_TIMER2->CC[0] = _bitTimeUs;
   NRF_TIMER2->TASKS_START = 1;
 
-  // Wait until TX finishes (ISR clears _txInProgress)
-  while (_txInProgress)
-  {
+  // Wait until TX finishes; yield cooperatively
+  start = xTaskGetTickCount();
+  while (_txInProgress) {
+    if ((xTaskGetTickCount() - start) > pdMS_TO_TICKS(TX_WAIT_TIMEOUT_MS)) {
+      // Timeout: stop timer and bail
+      _txInProgress = false;
+      NRF_TIMER2->TASKS_STOP = 1;
+      // Best-effort line idle and RX re-enable
+      _txPort->OUT |= _txMask; // idle HIGH
+      enableRXBuffer();
+      attachInterrupt(digitalPinToInterrupt(gReceivePin), SoftwareSerial_GPIOTE_IRQHandler, FALLING);
+      return 0; // indicate failure
+    }
+    taskYIELD();
   }
 
   return 1;
 }
 
-// === ISR implementations ===
-
-// GPIOTE ISR: Detect start bit on RX line
+// ======= ISR: start-bit detect via attachInterrupt() =======
 extern "C" void SoftwareSerial_GPIOTE_IRQHandler() {
-    // Disable RX GPIOTE interrupt while receiving
-    NRF_GPIOTE->INTENCLR = GPIOTE_INTENCLR_IN0_Msk;
+  // Temporarily detach to avoid retrigger while we’re sampling this frame
+  detachInterrupt(digitalPinToInterrupt(gReceivePin));
 
-    _rxInProgress = true;
-    _rxBitCount = 0;
-    _rxByte = 0;
+  _rxInProgress = true;
+  _rxBitCount = 0;
+  _rxByte = 0;
 
-    // Stop Timer2 and clear it
-    NRF_TIMER2->TASKS_STOP = 1;
-    NRF_TIMER2->TASKS_CLEAR = 1;
-    NRF_TIMER2->EVENTS_COMPARE[0] = 0;
+  // Prepare and schedule first mid-bit sample
+  NRF_TIMER2->TASKS_STOP = 1;
+  NRF_TIMER2->TASKS_CLEAR = 1;
+  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
 
-    // Start Timer2 to sample first bit at 1.5 bit times
-    NRF_TIMER2->CC[0] = _bitTimeUs + (_bitTimeUs / 2);
-    NRF_TIMER2->TASKS_START = 1;
+  // Sample at 1.5 bit-times minus a tiny latency correction
+  uint32_t first_delay = _bitTimeUs + (_bitTimeUs / 2);
+  if (first_delay > ATTACHINT_LATENCY_US) first_delay -= ATTACHINT_LATENCY_US;
+
+  NRF_TIMER2->CC[0] = first_delay;
+  NRF_TIMER2->TASKS_START = 1;
 }
 
-// TIMER2 ISR: Handle RX and TX bit timing
+// ======= ISR: TIMER2 bit timing for RX and TX =======
 extern "C" void SoftwareSerial_TIMER2_IRQHandler(void) {
-    // Clear the compare event immediately
-    NRF_TIMER2->EVENTS_COMPARE[0] = 0;
-    // ------------------- RX handling -------------------
-    if (_rxInProgress) {
-        _rxByte >>= 1;
-        if ((_rxPort->IN & _rxMask)) {
-            _rxByte |= 0x80;
-        }
-        _rxBitCount++;
+  // Clear compare event immediately
+  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
 
-        if (_rxBitCount >= 8) {
-            // Store byte in buffer
-            uint8_t next = (SoftwareSerial::_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
-            if (next != SoftwareSerial::_receive_buffer_head) {
-                SoftwareSerial::_receive_buffer[SoftwareSerial::_receive_buffer_tail] = _rxByte;
-                SoftwareSerial::_receive_buffer_tail = next;
-            }
-
-            _rxInProgress = false;
-
-            // Stop Timer2 until next start bit
-            NRF_TIMER2->TASKS_STOP = 1;
-            NRF_TIMER2->TASKS_CLEAR = 1;
-
-            // Re-enable GPIOTE interrupt for next start bit
-            NRF_GPIOTE->EVENTS_IN[0] = 0;
-            NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
-        } else {
-            // Schedule next bit sampling
-            NRF_TIMER2->CC[0] += _bitTimeUs;
-        }
+  // ---------- RX state machine ----------
+  if (_rxInProgress) {
+    // Shift in LSB-first by sampling RX line
+    _rxByte >>= 1;
+    if ((_rxPort->IN & _rxMask)) {
+      _rxByte |= 0x80;
     }
+    _rxBitCount++;
 
-    // ------------------- TX handling -------------------
-    if (_txInProgress) {
-        _txBitCount++;
+    if (_rxBitCount >= 8) {
+      // Push to buffer if space
+      uint8_t next = (uint8_t)((SoftwareSerial::_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF);
+      if (next != SoftwareSerial::_receive_buffer_head) {
+        SoftwareSerial::_receive_buffer[SoftwareSerial::_receive_buffer_tail] = _rxByte;
+        SoftwareSerial::_receive_buffer_tail = next;
+      }
 
-        if (_txBitCount <= 8) {
-            if (_txByte & 0x01) {
-                _txPort->OUT |= _txMask;
-            } else {
-                _txPort->OUT &= _txInvMask;
-            }
-            _txByte >>= 1;
-            NRF_TIMER2->CC[0] += _bitTimeUs;
-        } else if (_txBitCount == 9) {
-            // Stop bit
-            _txPort->OUT |= _txMask;
-            NRF_TIMER2->CC[0] += _bitTimeUs;
-        } else {
-            _txInProgress = false;
-            NRF_TIMER2->TASKS_STOP = 1;
+      _rxInProgress = false;
 
-            // Re-enable RX immediately
-            enableRXBuffer();
-            NRF_GPIOTE->EVENTS_IN[0] = 0;
-            NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
-        }
+      // Stop timer if TX not active; else TX continues owning it
+      if (!_txInProgress) {
+        NRF_TIMER2->TASKS_STOP = 1;
+        NRF_TIMER2->TASKS_CLEAR = 1;
+      }
+
+      // Re-arm start-bit detect
+      attachInterrupt(digitalPinToInterrupt(gReceivePin), SoftwareSerial_GPIOTE_IRQHandler, FALLING);
+    } else {
+      // Schedule next bit sample
+      NRF_TIMER2->CC[0] += _bitTimeUs;
     }
+  }
+
+  // ---------- TX state machine ----------
+  if (_txInProgress) {
+    _txBitCount++;
+
+    if (_txBitCount <= 8) {
+      // Send data bits LSB-first
+      if (_txByte & 0x01) {
+        _txPort->OUT |= _txMask;    // HIGH
+      } else {
+        _txPort->OUT &= _txInvMask; // LOW
+      }
+      _txByte >>= 1;
+      NRF_TIMER2->CC[0] += _bitTimeUs;
+    } else if (_txBitCount == 9) {
+      // Stop bit (HIGH)
+      _txPort->OUT |= _txMask;
+      NRF_TIMER2->CC[0] += _bitTimeUs;
+    } else {
+      // TX complete
+      _txInProgress = false;
+
+      // If RX not ongoing, we can stop timer. Otherwise RX keeps it running.
+      if (!_rxInProgress) {
+        NRF_TIMER2->TASKS_STOP = 1;
+      }
+
+      // Re-enable RX buffer immediately
+      enableRXBuffer();
+
+      // Re-arm start-bit detect (in case we had disabled it earlier)
+      attachInterrupt(digitalPinToInterrupt(gReceivePin), SoftwareSerial_GPIOTE_IRQHandler, FALLING);
+    }
+  }
 }
 
-
-// === Set TX pin function ===
-void SoftwareSerial::setTX(uint8_t tx)
-{
-  digitalWrite(tx, HIGH); // idle high line
+// ======= Pin helpers =======
+void SoftwareSerial::setTX(uint8_t tx) {
+  digitalWrite(tx, HIGH); // idle HIGH
   pinMode(tx, OUTPUT);
-  _transmitBitMask = digitalPinToBitMask(tx);
   NRF_GPIO_Type *port = digitalPinToPort(tx);
   _transmitPortRegister = &(port->OUT);
   _transmitBitMask = digitalPinToBitMask(tx);
-  _txMask = digitalPinToBitMask(tx);
+  _txMask = _transmitBitMask;
   _txInvMask = ~_txMask;
   _txPort = port;
   _transmitPin = tx;
 }
 
-// === Set RX pin function ===
-void SoftwareSerial::setRX(uint8_t rx)
-{
+void SoftwareSerial::setRX(uint8_t rx) {
   pinMode(rx, INPUT_PULLUP);
   _receivePin = rx;
   _receiveBitMask = digitalPinToBitMask(rx);
   NRF_GPIO_Type *port = digitalPinToPort(rx);
   _receivePortRegister = &(port->IN);
-  _rxMask = digitalPinToBitMask(rx);
+  _rxMask = _receiveBitMask;
   _rxPort = port;
 }
 
-void SoftwareSerial::flush()
-{
-  if (!isListening())
-    return;
-
-  NRF_GPIOTE->INTENCLR = _intMask; // Disable interrupt
-
-  _receive_buffer_head = _receive_buffer_tail = 0; // Clear buffer
-
-  NRF_GPIOTE->INTENSET = _intMask; // Enable interrupt
+// ======= Flush RX buffer =======
+void SoftwareSerial::flush() {
+  if (!isListening()) return;
+  // no direct GPIOTE fiddling — just clear buffer
+  _receive_buffer_head = _receive_buffer_tail = 0;
 }
