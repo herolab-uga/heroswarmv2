@@ -12,6 +12,7 @@
 // #include "charging.h"
 #include "motors.h"
 // #include "Adafruit_TinyUSB.h"
+#include "neopixel.hpp"
 
 #if defined(TIMESTATS)
 #if defined(DEBUG)
@@ -48,6 +49,7 @@ void setup() {
     init_uart();
     // init_battery_adc();
     init_motor_control();
+    init_neopixel();
 
     DEBUG_PRINTF("Finished Setup");
 
