@@ -38,6 +38,7 @@ void init_neopixel()
 
     gNeoPixelLED.setPixelColor(0,gNeoPixelLED.Color(0,0,0));
     gNeoPixelLED.setBrightness(0);
+    gNeoPixelLED.show();
 
     ROUTER_REGISTER(0x1, neopixel_set_color);
 }
