@@ -29,19 +29,32 @@ class Controller : public rclcpp::Node
 {
 
 private:
+
     std::string robotId;
     std::string robotName;
 
+    /**
+    * Odom message variables
+    **/
+    std::mutex odomMutex;
     // Position
     float linXPos;
     float linYPos;
     float angZPos;
+
+    float linXPosGlobal;
+    float linYPosGlobal;
+    float angZPosGlobal;
 
     // Velocity
     float linXVel;
     float linYVel;
     float angZVel;
 
+    /**
+     * Battery message variables
+    **/
+    std::mutex batteryMutex;
     float voltageBatt;
 
     // Charger
@@ -62,6 +75,11 @@ private:
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;			 /* Odometry publisher for odom data from feather senese */
     rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr batteryPublisher;			 /* Battery publisher for battery inforation */
 
+    rclcpp::TimerBase::SharedPtr odomTimer;
+    rclcpp::TimerBase::SharedPtr batteryTimer;
+
+    // Moving this here cause it needs to send a uart message
+    rclcpp::Subscription<std_msgs::msg::Int16MultiArray>::SharedPtr neopixel_sub;
 
     rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getChargerService;
     rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseChargerService;
@@ -70,6 +88,7 @@ private:
 public:
     Controller();
     ~Controller();
+    void setOdom(float linX, float linY, float angZ, float linVelX, float linVelY, float angVelZ);
 
 private:
     void getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg);
@@ -83,4 +102,5 @@ private:
     void batteryCallback(const std_msgs::msg::Float32::SharedPtr);
     void pubOdom();
     void pubBattery();
+    void neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg);
 };

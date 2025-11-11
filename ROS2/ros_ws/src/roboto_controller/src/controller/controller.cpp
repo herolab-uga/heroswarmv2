@@ -14,6 +14,10 @@
 #include <sys/syscall.h>
 #include <linux/reboot.h>
 #include "controller.hpp"
+#include "router.h"
+
+#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
+
 
 /* Linux headers */
 #include <errno.h> // Error integer and strerror() function
@@ -36,40 +40,20 @@
 #define ANGULAR_THRESHOLD 0.05f
 #define MAX_ANGULAR_SPEED 1.85f
 
+#define RED_INDEX           (0)
+#define GREEN_INDEX         (1)
+#define BLUE_INDEX          (2)
+#define BRIGHTNESS_INDEX    (3)
+#define NEOPIXEL_MSG_APID   (1)
+
 #define DEFAULT_PUB_RATE std::chrono::milliseconds(16) /* The default publishing rate for sensor data is 60 hz*/
 
 
 bool restart = false;
 
-/**
- * Odom message variables
- **/
-std::mutex odomMutex;
-float linX;
-float linY;
-float linZ;
-float angX;
-float angY;
-float angZ;
-
-float linVelX;
-float linVelY;
-float linVelZ;
-float angVelX;
-float angVelY;
-float angVelZ;
-
-/**
- * Battery message variables
- **/
-std::mutex batteryMutex;
-float bat;
 
 using std::placeholders::_1;
 using namespace std::chrono_literals;
-
-rclcpp::TimerBase::SharedPtr odomTimer;
-rclcpp::TimerBase::SharedPtr batteryTimer;
 
 float ODOM_COVARIANCE_MATRIX[36] = { 1e-2, 0.0, 0.0, 0.0, 0.0, 0.0,
                            			0.0, 1e-2, 0.0, 0.0, 0.0, 0.0,
@@ -83,10 +67,46 @@ float IMU_COVARIANCE_MATRIX[9] = {1e-2, 0.0, 0.0,
 									0.0, 0.0, 1e-2};
 
 
+std::shared_ptr<Controller> controller; 
+
+
+int update_odom(uint16_t length, void* args)
+{
+    // TODO: Fix this
+    if (length > 99)
+    {
+        return -1;
+    }
+
+    float linX = 0;
+    float linY = 0;
+    float angZ = 0;
+
+    float linVelX = 0;
+    float linVelY = 0;
+    float angVelZ = 0;
+
+    memcpy(&linVelX, &((float*)args)[0], sizeof(linVelX));
+    memcpy(&linVelY, &((float*)args)[1], sizeof(linVelY));
+    memcpy(&angVelZ, &((float*)args)[2], sizeof(angVelZ));
+
+    memcpy(&linX, &((float*)args)[3], sizeof(linX));
+    memcpy(&linY, &((float*)args)[4], sizeof(linY));
+    memcpy(&angZ, &((float*)args)[5], sizeof(angZ));
+
+
+    controller->setOdom(linX, linY, angZ, linVelX, linVelY, angVelZ);
+
+    return 0;
+}
+
 
 Controller::Controller():Node("controller")
 {
-    init_uart();
+
+    init_router();
+
+    ROUTER_REGISTER(0xFF, update_odom);
 
     linXPos = 0.0;
     linYPos = 0.0;
@@ -108,19 +128,24 @@ Controller::Controller():Node("controller")
     
     // Standard Nodes for any robot
     cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Controller::readTwist, this, _1));
-    battery = this->create_subscription<std_msgs::msg::Float32>("battery", 10, std::bind(&Controller::batteryCallback, this, _1));
+    // battery = this->create_subscription<std_msgs::msg::Float32>("battery", 10, std::bind(&Controller::batteryCallback, this, _1));
     shutdown = this->create_subscription<std_msgs::msg::String>("shutdown", 10, std::bind(&Controller::shutdownCallback, this, _1));
     pos = this->create_subscription<robot_msgs::msg::RobotPos>("/position", 10, std::bind(&Controller::getGlobalPos, this, _1));
     
-    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 5);
-	batteryPublisher = this->create_publisher<std_msgs::msg::Float32>("/battery", 5);
+    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("odom", 5);
+	batteryPublisher = this->create_publisher<std_msgs::msg::Float32>("battery", 5);
 
     odomTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&Controller::pubOdom, this));
-	batteryTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&Controller::pubOdom, this));
+	batteryTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&Controller::pubBattery, this));
+
+    // Moving this here cause it needs to send a uart message
+    neopixel_sub = this->create_subscription<std_msgs::msg::Int16MultiArray>("neopixel", 10, std::bind(&Controller::neopixelCallback, this, _1));
 
     // Charger Services
-    getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
-    releaseChargerService = this->create_client<robot_msgs::srv::ReleaseCharger>("releaseCharger");
+    // getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
+    // releaseChargerService = this->create_client<robot_msgs::srv::ReleaseCharger>("releaseCharger");
+
+    init_uart();
 
     std::cout << "Controller setup finished" << std::endl;
 }
@@ -129,6 +154,18 @@ Controller::Controller():Node("controller")
 Controller::~Controller()
 {
     this->stop();
+}
+
+// Moving this here cause it needs to send a uart message
+void Controller::neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg)
+{
+    uint8_t buff[4] = {0};
+    buff[RED_INDEX] = msg->data[RED_INDEX];
+    buff[BLUE_INDEX] = msg->data[BLUE_INDEX];
+    buff[GREEN_INDEX] = msg->data[GREEN_INDEX];
+    buff[BRIGHTNESS_INDEX] = msg->data[BRIGHTNESS_INDEX];
+
+    uart_send_message(NEOPIXEL_MSG_APID, buff, sizeof(buff));
 }
 
 void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
@@ -140,8 +177,8 @@ void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
         // if the robotid == id of msg
         if (this->robotId.compare(robot->child_frame_id) == EQUAL)
         {
-            this->linXPos = robot->pose.pose.position.x;
-            this->linYPos = robot->pose.pose.position.y;
+            this->linXPosGlobal = robot->pose.pose.position.x;
+            this->linYPosGlobal = robot->pose.pose.position.y;
 
             tf2::Quaternion q(
                 robot->pose.pose.orientation.x,
@@ -153,48 +190,47 @@ void Controller::getGlobalPos(const robot_msgs::msg::RobotPos::SharedPtr msg)
 
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
-            this->angZPos = -yaw;
+            this->angZPosGlobal = -yaw;
         }
     }
 }
 
-void Controller::getPos(const nav_msgs::msg::Odometry::SharedPtr msg)
+void Controller::setOdom(float linX, float linY, float angZ, float linVelX, float linVelY, float angVelZ)
 {
-    this->linXPos = msg->pose.pose.position.x;
-    this->linYPos = msg->pose.pose.position.y;
+    std::lock_guard<std::mutex> lock(this->odomMutex);
+    
+    this->linXPos = linX;
+    this->linYPos = linY;
+    this->angZPos = angZ;
 
-    tf2::Quaternion q(
-        msg->pose.pose.orientation.x,
-        msg->pose.pose.orientation.y,
-        msg->pose.pose.orientation.z,
-        msg->pose.pose.orientation.w);
+    this->linXVel = linVelX;
+    this->linYVel = linVelY;
+    this->angZVel = angVelZ;
 
-    tf2::Matrix3x3 m(q);
-
-    double roll, pitch, yaw;
-    m.getRPY(roll, pitch, yaw);
-    this->angZPos = -yaw;
 }
+
 
 void Controller::stop()
 {
-    uint8_t buff[9];
-    memset(buff, 0, 9);
+    uint8_t buff[12];
+    memset(buff, 0, sizeof(buff));
     uart_send_message(VELOCITY_APID, buff, 9);
 }
 
 void Controller::readTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    std::cout << "X: " << static_cast<float>(msg->linear.x) << " | Z: " <<  static_cast<float>(msg->angular.z) << std::endl; 
+    // std::cout << "X: " << static_cast<float>(msg->linear.x) << " | Z: " <<  static_cast<float>(msg->angular.z) << std::endl; 
     float x_velo = abs(msg->linear.x) > LINEAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->linear.x), -MAX_LINEAR_SPEED), MAX_LINEAR_SPEED) : 0.0;
     float ang_z_velo = abs(msg->angular.z) > ANGULAR_THRESHOLD ? std::min(std::max(static_cast<float>(msg->angular.z), -MAX_ANGULAR_SPEED), MAX_ANGULAR_SPEED) : 0.0;
 
-    uint8_t buff[9];
-    std::memset(buff, 0, 9);
-    std::memcpy(buff + 1, reinterpret_cast<uint8_t *>(&x_velo), sizeof(float));
-    std::memcpy(buff + 5, reinterpret_cast<uint8_t *>(&ang_z_velo), sizeof(float));
+    uint8_t buff[12];
+    std::memset(buff, 0, sizeof(buff));
+    std::memcpy(&((float*)buff)[0], &x_velo, sizeof(float));
+    std::memcpy(&((float*)buff)[2], &ang_z_velo, sizeof(float));
 
-    uart_send_message(VELOCITY_APID, buff, 9);
+    uart_send_message(VELOCITY_APID, buff, sizeof(buff));
+
+    // RCLCPP_INFO(this->get_logger(), "Setting volocity to X: %f | Angular: %f", x_velo, ang_z_velo);
 }
 
 void Controller::shutdownCallback(const std_msgs::msg::String::SharedPtr msg)
@@ -239,32 +275,17 @@ void Controller::batteryCallback(const std_msgs::msg::Float32::SharedPtr msg)
     // }
 }
 
-// def quaternion_from_rpy(self, roll, pitch, yaw):
-//         cy = math.cos(yaw * 0.5)
-//         sy = math.sin(yaw * 0.5)
-//         cp = math.cos(pitch * 0.5)
-//         sp = math.sin(pitch * 0.5)
-//         cr = math.cos(roll * 0.5)
-//         sr = math.sin(roll * 0.5)
-
-//         q = [0] * 4
-//         q[0] = sr * cp * cy - cr * sp * sy
-//         q[1] = cr * sp * cy + sr * cp * sy
-//         q[2] = cr * cp * sy - sr * sp * cy
-//         q[3] = cr * cp * cy + sr * sp * sy
-//         return q
-
 void Controller::pubOdom()
 {
 	auto odomMsg = nav_msgs::msg::Odometry();
-	odomMutex.lock();
+	std::lock_guard<std::mutex> lock(this->odomMutex);
 
-	odomMsg.pose.pose.position.x = linX;
-	odomMsg.pose.pose.position.y = linY;
+	odomMsg.pose.pose.position.x = this->linXPos;
+	odomMsg.pose.pose.position.y = this->linYPos;
 	odomMsg.pose.pose.position.z = 0;
 
 	tf2::Quaternion m;
-	m.setRPY(0,0,angZ);
+	m.setRPY(0,0,this->angZPos);
 
 	// I need to convert from rpy to quaternion
 	odomMsg.pose.pose.orientation.x = m.getX();
@@ -272,43 +293,47 @@ void Controller::pubOdom()
 	odomMsg.pose.pose.orientation.z = m.getZ();
 	odomMsg.pose.pose.orientation.w = m.getW();
 
-	odomMsg.twist.twist.linear.x = linVelX;
-	odomMsg.twist.twist.linear.y = linVelY;
+	odomMsg.twist.twist.linear.x = this->linXVel;
+	odomMsg.twist.twist.linear.y = this->linYVel;
 	odomMsg.twist.twist.linear.z = 0;
 
 	odomMsg.twist.twist.angular.x = 0;
 	odomMsg.twist.twist.angular.y = 0;
-	odomMsg.twist.twist.angular.z = angVelZ;
-	odomMutex.unlock();
+	odomMsg.twist.twist.angular.z = this->angZVel;
 
-	odomPublisher->publish(odomMsg);
+	this->odomPublisher->publish(odomMsg);
 }
 
 void Controller::pubBattery()
 {
 	auto battMsg = std_msgs::msg::Float32();
-	batteryMutex.lock();
-	battMsg.data = bat;
-	batteryMutex.unlock();
-	batteryPublisher->publish(battMsg);
+	std::lock_guard<std::mutex> lock(this->batteryMutex);
+	battMsg.data = this->voltageBatt;
+	this->batteryMutex.unlock();
+	this->batteryPublisher->publish(battMsg);
 }
 
 
 int main(int argc, char *argv[])
 {
+    // Set real-time priority
+    struct sched_param param;
+    param.sched_priority = 60; // moderate RT priority
+    if(pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
+        // ROS_WARN("Failed to set thread priority");
+    }
+
 	std::cout << "Starting" << std::endl;
 
-	std::cout << "Spinning ROS Node" << std::endl;
+	std::cout << "Spinning ROS Node TESTING" << std::endl;
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Controller>());
-	rclcpp::shutdown();
-    // if (restart == true)
-    // {
+    controller = std::make_shared<Controller>();    
+    rclcpp::experimental::executors::EventsExecutor exec;
 
-    // } 
-    // else
-    // {
+    exec.add_node(controller);
+    exec.spin();
 
-    // }
-	return 0;
+    rclcpp::shutdown();
+	
+    return 0;
 }

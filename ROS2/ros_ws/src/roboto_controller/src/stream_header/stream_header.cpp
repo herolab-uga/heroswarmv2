@@ -1,20 +1,19 @@
+#include "crc.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "crc.hpp"
-#include "stream_header.h"
 #include "defines.hpp"
+#include "stream_header.h"
 
 #define PKT_PROTOCOL_VERSION (0)
 
-
-uint16_t wrap_pkt(const uint16_t apid, uint8_t* src_buff, uint8_t* dest_buff, size_t len)
+uint16_t wrap_pkt(const uint16_t apid, uint8_t *src_buff, uint8_t *dest_buff, size_t len)
 {
 	stream_header_t header;
 
 	if ((MAX_MSG_SIZE - sizeof(stream_header_t) - CRC_SIZE) < len)
 	{
-		// Serial.println("Packet too large");
+		printf("Packet too large\rn");
 	}
 
 	header.version = PKT_PROTOCOL_VERSION;
@@ -28,14 +27,24 @@ uint16_t wrap_pkt(const uint16_t apid, uint8_t* src_buff, uint8_t* dest_buff, si
 
 	memcpy(dest_buff, &header, sizeof(stream_header_t));
 	memcpy(dest_buff + sizeof(stream_header_t), src_buff, len);
-	
 
 	return header.length + STREAM_HEADER_SIZE - CRC_SIZE;
 }
 
-uint16_t read_stream_pkt(uint8_t* buff, size_t len, stream_pkt_t* stream_pkt)
+uint16_t read_stream_pkt(uint8_t *buff, size_t len, stream_pkt_t *stream_pkt)
 {
-	memcpy(&stream_pkt, buff, len);
-	stream_pkt->header.length -= CRC_SIZE;
-	return stream_pkt->header.length + STREAM_HEADER_SIZE + CRC_SIZE;
+	if (len > 261 || len < 9)
+	{
+		return 0;
+	}
+	else
+	{
+		memcpy(&stream_pkt->header, buff, sizeof(stream_header_t));
+		stream_pkt->header.length -= CRC_SIZE;
+		// Will reevaluate this later if we are running into buffer overflow problems
+		// could potentially be tying up the buffer for too long
+		memcpy(&stream_pkt->payload, &buff[sizeof(stream_header_t)], stream_pkt->header.length);
+		memcpy(&stream_pkt->crc, &buff[sizeof(stream_header_t) + (stream_pkt->header.length)], CRC_SIZE);
+		return stream_pkt->header.length + STREAM_HEADER_SIZE + CRC_SIZE;
+	}
 }

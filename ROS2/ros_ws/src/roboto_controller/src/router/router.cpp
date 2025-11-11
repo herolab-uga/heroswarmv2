@@ -15,13 +15,13 @@ int router_dispatch(uint16_t apid, uint16_t legnth, void* args)
     }
     else
     {
-        if (NULL != gRouterDispatchFunctions[apid])
+        if (0 != gRouterDispatchFunctions[apid])
         {
             return gRouterDispatchFunctions[apid](legnth, args);
         }
         else
         {
-            // Serial.println("No function registered for this APID");
+            // printf("No function registered for this APID\n");
             return -1;
         }
         

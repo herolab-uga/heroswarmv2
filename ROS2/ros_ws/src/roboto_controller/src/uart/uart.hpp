@@ -1,7 +1,7 @@
 #pragma once
 #ifndef UARTHEADER
 #define UARTHEADER
-
+#include <cstdint>
 #include <sys/types.h>
 
 // error enumeration?
