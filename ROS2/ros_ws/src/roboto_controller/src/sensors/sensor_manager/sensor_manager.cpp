@@ -1,39 +1,43 @@
 /* C Library Headers */
 #include <stdio.h>
-#include <string.h>
 #include <thread>
 #include <chrono>
+#include <string.h>
 #include <iostream>
-#include <fcntl.h>
-#include <sys/ioctl.h> 
-#include <mutex>
-#include "sensor_manager/sensor_manager.hpp"
-
-/* Linux headers */
-#include <errno.h> // Error integer and strerror() function
+#include "rclcpp/rclcpp.hpp"
 
 
-/**
- * I2C Mutex
- **/
- std::mutex gI2cMutex;
-int gI2cFd;
-char i2cFileName[20];
+#include "BMP280/BMP280.hpp"
+#include "APDS9960/APDS9960.hpp"
 
-init_sensor()
+int main(int argc, char *argv[])
 {
-    gI2cFd = 
-}
+    rclcpp::init(argc, argv);
+    std::shared_ptr<APDS9960Publisher> apds9960Publisher; 
+    std::shared_ptr<BMP280Publisher> bmp280Publisher; 
+    
 
-int get_i2c_fd()
-{
-    gI2cMutex.lock();
-    return gI2cFd;
-}
+    // Set real-time priority
+    struct sched_param param;
+    param.sched_priority = 55; // moderate RT priority
+    if(pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
+        // ROS_WARN("Failed to set thread priority");
+    }
 
-int release_i2c_fd()
-{
-    gI2cMutex.unlock();
-    return -1;
-}
+	// RCLCPP_INFO(this->get_logger(), "Starting APDS9960 Node");
+    apds9960Publisher = std::make_shared<APDS9960Publisher>();
 
+    // RCLCPP_INFO(this->get_logger(), "Starting BMP280 Node");
+    bmp280Publisher = std::make_shared<BMP280Publisher>();
+
+
+
+    rclcpp::experimental::executors::EventsExecutor exec;
+    exec.add_node(apds9960Publisher);
+    exec.add_node(bmp280Publisher);
+    exec.spin();
+	
+    rclcpp::shutdown();
+	
+    return 0;
+}

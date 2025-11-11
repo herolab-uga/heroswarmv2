@@ -16,14 +16,24 @@
 
 // Motor Webpage: https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/
 
-#define NUM_MOTORS              (2)
+#define NUM_MOTORS                      (2)
 
-#define TX_PIN                  (12)
-#define RX_PIN                  (11)
-#define CONTROL_PIN             (10)
+#define TX_PIN                          (12)
+#define RX_PIN                          (11)
+#define CONTROL_PIN                     (10)
 
-#define RPM_CONVERSION          (9.55)
-#define MPS_TO_RPM              (597.0f)
+#define RPM_TO_RADS                     ((2.0*3.14)/60.0)
+#define RPM_CONVERSION                  (9.55f)
+
+#define MAX_RPM                         (103.0f)
+#define MAX_PWM                         (445.0f)
+#define PRESENT_VELOCITY_TO_RAD_SEC     (0.023981f)
+
+typedef struct
+{
+    dynamixel_t dynamixel;
+    float set_velocity;
+} motor_t;
 
 uint8_t left_sum = 0;
 uint8_t left_encoder = 0;
@@ -35,36 +45,41 @@ uint32_t start = 0;
 
 odom_t gRobotOdom;
 
-dynamixel_t gMotor1;
-dynamixel_t gMotor2;
+motor_t gMotor1;
+motor_t gMotor2;
 
-dynamixel_t* gMotorList[] = {&gMotor1, &gMotor2};
+motor_t* gMotorList[] = {&gMotor1, &gMotor2};
 
 void set_velocity(float xVel, float yVel, float thetaVel);
 
 static void calculate_forward_kinematics(float delta1, float delta2, odom_t* odom)
 {
-
-    odom->x_vel = (-0.008125 * delta1) + (-0.008125 * delta2);
+    delta1 = delta1 * PRESENT_VELOCITY_TO_RAD_SEC;
+    delta2 = delta2 * PRESENT_VELOCITY_TO_RAD_SEC;
+    odom->x_vel = (0.008125 * (delta1)) - (0.008125 * delta2);
     odom->y_vel = 0;
-    odom->omega = (0.44521 * delta1) + (-0.44521 * delta2);
+    odom->omega = (-0.44521 * delta1) - (0.44521 * delta2);
 
 }
 
 // The numbers here are in radians/sec then converted to rpm
 static void get_wheel_vel(float xVel, float yVel, float thetaVel)
 {
-    LOCK_SEMAPHORE(gMotor1.mutex);
-    gMotor1.ram_data.goal_velocity = ((61.53846 * xVel) + (-2.2462 * thetaVel)) * RPM_CONVERSION;
-    UNLOCK_SEMAPHORE(gMotor1.mutex);
 
-    LOCK_SEMAPHORE(gMotor2.mutex);
-    gMotor2.ram_data.goal_velocity = ((61.53846 * xVel) + (2.2462 * thetaVel)) * RPM_CONVERSION;
-    UNLOCK_SEMAPHORE(gMotor2.mutex);
+    LOCK_SEMAPHORE(gMotor1.dynamixel.mutex);
+    gMotor1.set_velocity = (((61.53846 * xVel) + (-2.2462 * thetaVel)));
+    gMotor1.set_velocity = MAX(-MAX_RPM,MIN((gMotor1.set_velocity * RPM_CONVERSION),MAX_RPM));
+    UNLOCK_SEMAPHORE(gMotor1.dynamixel.mutex);
+
+    LOCK_SEMAPHORE(gMotor2.dynamixel.mutex);
+    gMotor2.set_velocity = (((61.53846 * xVel) + (2.2462 * thetaVel))); 
+    gMotor2.set_velocity = MAX(-MAX_RPM,MIN((gMotor2.set_velocity * RPM_CONVERSION),MAX_RPM));
+    UNLOCK_SEMAPHORE(gMotor2.dynamixel.mutex);
 }
 
 static void read_velocity(dynamixel_t* motor)
 {
+    int32_t ret = 0;
     dynamixel_2_status_packet_t ret_status;
 
     dynamixel_2_instruction_packet_t ram_read_packet = 
@@ -76,30 +91,43 @@ static void read_velocity(dynamixel_t* motor)
 
     uint8_t param_list[] = {0x80,0x0,0x04,0x00};
     ram_read_packet.param_list = param_list;
-    write_cmd(&ram_read_packet, &ret_status);
-    memcpy(&motor->ram_data.present_velocity, ret_status.param_list,sizeof(motor->ram_data.present_velocity));
+    TickType_t start_time = xTaskGetTickCount();
+    do
+    {
+        ret = write_cmd(&ram_read_packet, &ret_status);
+    } while((-1 == ret ) && 
+        (xTaskGetTickCount() - start_time) < pdMS_TO_TICKS(READ_TIMEOUT_MSEC * 4));
+
+    if (-1 != ret)
+    {
+        memcpy(&motor->ram_data.present_velocity, ret_status.param_list,sizeof(motor->ram_data.present_velocity));
+    }
+    else
+    {
+        motor->ram_data.present_velocity = 0;
+    }
 }
 
 static void update_odom(odom_t* robot_odom)
 {  
     digitalWrite(A3, HIGH);
     // Read the current speed of each motor not the entire ram table
-    read_velocity(&gMotor1);
-    read_velocity(&gMotor2);
+    read_velocity(&gMotor1.dynamixel);
+    read_velocity(&gMotor2.dynamixel);
     
     // Get the time
-    robot_odom->time = pdMS_TO_TICKS(xTaskGetTickCount()) / 1000.0;
+    robot_odom->time = xTaskGetTickCount() / 1000.0;
     robot_odom->delta_time = robot_odom->time - robot_odom->last_time;
     robot_odom->last_time = robot_odom->time;
 
     // Convert radian change to x,y,omega velocity in meters per second
-    calculate_forward_kinematics(gMotor1.ram_data.present_velocity * RPM_CONVERSION, 
-        gMotor2.ram_data.present_velocity * RPM_CONVERSION, &gRobotOdom);
+    calculate_forward_kinematics((gMotor1.dynamixel.ram_data.present_velocity), 
+        (gMotor2.dynamixel.ram_data.present_velocity), &gRobotOdom);
 
     // Calculate X, Y, Omega position
-    robot_odom->x = robot_odom->x_vel * robot_odom->delta_time;
-    robot_odom->y = robot_odom->y_vel * robot_odom->delta_time;
-    robot_odom->theta = fmod((robot_odom->omega * robot_odom->delta_time), (2.0 * PI));
+    robot_odom->x += robot_odom->x_vel * robot_odom->delta_time;
+    robot_odom->y += robot_odom->y_vel * robot_odom->delta_time;
+    robot_odom->theta += fmod((robot_odom->omega * robot_odom->delta_time), (2.0 * 3.14));
 
 #if defined(DEBUGODOM)
     static int count = 0;
@@ -115,7 +143,7 @@ static void update_odom(odom_t* robot_odom)
 // The vel input is in rpm
 static void motor_set_velocity(dynamixel_t* motor, float vel, bool immediate=false)
 {
-
+    DEBUG_PRINTF("Setting motor velocity");
     // int32_t ret = vel;
     uint8_t param_list[6] = {0};
 
@@ -131,7 +159,9 @@ static void motor_set_velocity(dynamixel_t* motor, float vel, bool immediate=fal
     param_list[0] = 104;
     param_list[1] = 0x0;
 
-    int32_t vel_conv = (int) (((vel) * 445)/101);
+    vel = MAX(-MAX_RPM,MIN((vel * RPM_CONVERSION),MAX_RPM));
+    int32_t vel_conv = (int32_t) (((vel) * MAX_PWM)/MAX_RPM);
+    
 
     memcpy(&param_list[2], &vel_conv, sizeof(vel_conv));
 
@@ -169,12 +199,12 @@ void set_velocity(float xVel, float yVel, float thetaVel)
     DEBUG_PRINTF("X Vel: %f | Y Vel: %f | Omega: %f",xVel,yVel,thetaVel);
     for (int i = 0; i < NUM_MOTORS; i++)
     {
-    	DEBUG_PRINTF("Motor %i: %f", i, gMotorList[i]->ram_data.goal_velocity);
+    	DEBUG_PRINTF("Motor %i: %f", i, gMotorList[i]->set_velocity);
     }
 #endif 
 
-    motor_set_velocity(&gMotor1, gMotor1.ram_data.goal_velocity);
-    motor_set_velocity(&gMotor2, gMotor2.ram_data.goal_velocity);
+    motor_set_velocity(&gMotor1.dynamixel, gMotor1.set_velocity);
+    motor_set_velocity(&gMotor2.dynamixel, gMotor2.set_velocity);
 
     dynamixel_2_instruction_packet_t sync_action_instruction =
     {
@@ -183,6 +213,8 @@ void set_velocity(float xVel, float yVel, float thetaVel)
         .instruction = ACTION,
         .param_list = NULL,
     };
+
+    DEBUG_PRINTF("Triggering Action");
 
     write_cmd(&sync_action_instruction, NULL);
 
@@ -202,13 +234,8 @@ static void init_motor(dynamixel_t* motor)
 {
     uint8_t params[3] = {0};
     
-    dynamixel_2_instruction_packet_t init_write =
-    {
-        .id = motor->id,
-    };
-
-    write_cmd(&init_write);
-
+    dynamixel_2_instruction_packet_t init_write;
+    init_write.id = motor->id;
     init_write.instruction = WRITE;
     init_write.param_list = params;
     init_write.param_length = sizeof(params);
@@ -240,6 +267,8 @@ static void init_motor(dynamixel_t* motor)
 void init_motor_control()
 {
     DEBUG_PRINTF("Init Motors");
+    memset(&gRobotOdom, 0, sizeof(gRobotOdom));
+
     // Initialize the dynamixel
     init_dynamixel(RX_PIN, TX_PIN);
 
@@ -263,22 +292,16 @@ void init_motor_control()
     delay(3);
 
     // Initialize the dynamixel structs
-    gMotor1 = 
-    {
-        .id = 1,
-    };
+    gMotor1.dynamixel.id = 1;
 
-    gMotor1.mutex = xSemaphoreCreateMutex();
+    gMotor1.dynamixel.mutex = xSemaphoreCreateMutex();
 
-    gMotor2 =
-    {
-        .id = 2,
-    };
+    gMotor2.dynamixel.id = 2;
 
-    gMotor2.mutex = xSemaphoreCreateMutex();
+    gMotor2.dynamixel.mutex = xSemaphoreCreateMutex();
 
-    init_motor(&gMotor1);
-    init_motor(&gMotor2);
+    init_motor(&gMotor1.dynamixel);
+    init_motor(&gMotor2.dynamixel);
 
     ROUTER_REGISTER(0x0, _set_velocity);
 }
@@ -294,7 +317,7 @@ void motor_task(void* parameters)
         update_odom(&gRobotOdom);
 
         // why is the tick define 1000/1024? did the clock rate change
-        vTaskDelayUntil(&last_wake_time, 10);
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(10));
     }
 
 }

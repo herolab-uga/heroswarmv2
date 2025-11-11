@@ -8,6 +8,8 @@
 #define SEMAPHORE_WAIT_TIME (100)
 #define MUTEX_WAIT_TIME     (SEMAPHORE_WAIT_TIME)
 
+#define READ_TIMEOUT_MSEC   500 
+
 #define LOCK_SEMAPHORE(x)      (xSemaphoreTake(x, MUTEX_WAIT_TIME))
 #define UNLOCK_SEMAPHORE(x)    (xSemaphoreGive(x))
 

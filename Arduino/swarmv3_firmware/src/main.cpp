@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <FreeRTOS.h>
 #include <task.h>
+
 #include <stdio.h>
 #include "router.h"
 #include "defines.h"
@@ -11,13 +12,7 @@
 // #include "charging.h"
 #include "motors.h"
 // #include "Adafruit_TinyUSB.h"
-
-extern "C" void SoftwareSerial_TIMER2_IRQHandler(void);
-
-extern "C" void TIMER2_IRQHandler(void) {
-    SoftwareSerial_TIMER2_IRQHandler();
-    // Other timer2 handling...
-}
+#include "neopixel.hpp"
 
 #if defined(TIMESTATS)
 #if defined(DEBUG)
@@ -54,20 +49,21 @@ void setup() {
     init_uart();
     // init_battery_adc();
     init_motor_control();
+    init_neopixel();
 
     DEBUG_PRINTF("Finished Setup");
 
 
     // Start the UART Task
-    xTaskCreate(uart_rx_task, "UART RX Task",3072,NULL,tskIDLE_PRIORITY + 1,NULL);
-    xTaskCreate(uart_tx_task, "UART TX Task",3072,NULL,tskIDLE_PRIORITY + 1,NULL);
+    xTaskCreate(uart_rx_task, "UART RX Task",1024,NULL,tskIDLE_PRIORITY + 2,NULL);
+    xTaskCreate(uart_tx_task, "UART TX Task",1024,NULL,tskIDLE_PRIORITY + 1,NULL);
 
-    xTaskCreate(tlm_task, "TLM Task",3072,NULL,tskIDLE_PRIORITY + 1,NULL);
+    xTaskCreate(tlm_task, "TLM Task",1024,NULL,tskIDLE_PRIORITY + 1,NULL);
     
-    xTaskCreate(motor_task, "Motor Control Task",2048,NULL,tskIDLE_PRIORITY + 1,NULL);
+    xTaskCreate(motor_task, "Motor Control Task",1024,NULL,tskIDLE_PRIORITY + 1,NULL);
 #if defined(TIMESTATS)
 #if defined(DEBUG)
-    xTaskCreate(motor_task, "Time Stats",2048,NULL,tskIDLE_PRIORITY + 1,NULL);
+    xTaskCreate(motor_task, "Time Stats",1024,NULL,tskIDLE_PRIORITY + 1,NULL);
 #endif
 #endif
     

@@ -148,7 +148,7 @@ static uint16_t update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr
     return crc_accum;
 }
 
-size_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_status_packet_t* status)
+int32_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_status_packet_t* status)
 {
     // DEBUG_PRINTF("Writing Command:");
     ssize_t ret = 0;
@@ -238,9 +238,13 @@ int8_t read_status(dynamixel_2_status_packet_t* status)
 
     memset(buffer, 0 , sizeof(buffer));
 
-    while (gDynamixelSerial.available() < 4)
+    TickType_t start_time = xTaskGetTickCount();
+
+    while (gDynamixelSerial.available() < 4 && 
+        (xTaskGetTickCount() - start_time) < pdMS_TO_TICKS(READ_TIMEOUT_MSEC))
     {
         delayMicroseconds(10);
+        return -1;
     }
 
     switch (state)
@@ -264,6 +268,12 @@ int8_t read_status(dynamixel_2_status_packet_t* status)
             buffer_length += 2;
             state = DATA;
         case DATA:
+            
+            if (param_length > 255)
+            {
+                return -1;
+            }
+
             gDynamixelSerial.readBytes(&buffer[buffer_length], param_length);
             buffer_length += param_length;
             break;

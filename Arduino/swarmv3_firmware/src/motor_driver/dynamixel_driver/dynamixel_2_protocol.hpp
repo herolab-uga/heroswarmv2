@@ -84,7 +84,7 @@ typedef struct
 } dynamixel_t;
 
 
-size_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_status_packet_t* status = NULL);
+int32_t write_cmd(dynamixel_2_instruction_packet_t* instruction, dynamixel_2_status_packet_t* status = NULL);
 int8_t read_status(dynamixel_2_status_packet_t* status);
 void read_eeprom(dynamixel_t* motor);
 void print_eeprom(dynamixel_t* motor);
