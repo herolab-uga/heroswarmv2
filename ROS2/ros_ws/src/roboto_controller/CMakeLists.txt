@@ -77,4 +77,12 @@ ament_target_dependencies(sensor_manager rclcpp tf2 tf2_ros sensor_msgs std_msgs
 
 install(TARGETS sensor_manager DESTINATION lib/${PROJECT_NAME})
 
+# --------------------------- Python Node Installation ------------------------------- #
+install(
+  PROGRAMS
+    scripts/motor_test.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
 ament_package()

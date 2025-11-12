@@ -3,12 +3,14 @@
 <package format="3">
   <name>roboto_controller</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Robot controller package with both C++ and Python nodes.</description>
   <maintainer email="starksmichael224@gmail.com">michael</maintainer>
   <license>TODO: License declaration</license>
 
+  <!-- Build system -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <!-- Core C++ dependencies -->
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>nav_msgs</depend>
@@ -18,10 +20,15 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
 
+  <!-- Python runtime dependencies for the rclpy node -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>python3</exec_depend>
+
+  <!-- Testing -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
   <export>
-	  <build_type>ament_cmake</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
