@@ -83,6 +83,10 @@ private:
 
     rclcpp::Client<robot_msgs::srv::GetCharger>::SharedPtr getChargerService;
     rclcpp::Client<robot_msgs::srv::ReleaseCharger>::SharedPtr releaseChargerService;
+
+    // Moving this here cause the mic needs to Tx/Rx uart
+    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr micPublisher;				 /* Mic publisher for volume picked up by mic */
+    rclcpp::TimerBase::SharedPtr micTimer;
     
 
 public:
@@ -103,4 +107,6 @@ private:
     void pubOdom();
     void pubBattery();
     void neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg);
+    int mic_publish();
+    void get_mic_reading();
 };

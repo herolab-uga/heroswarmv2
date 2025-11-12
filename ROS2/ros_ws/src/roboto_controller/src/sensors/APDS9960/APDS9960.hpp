@@ -1,20 +1,6 @@
-#include <fcntl.h>           /* For O_* constants */
-#include <sys/stat.h>        /* For mode constants */
+
 #include <semaphore.h>
-#include <sys/ioctl.h>
-
-extern "C"
-{
-#include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
-}
-
 #include "rclcpp/rclcpp.hpp"
-#include "robot_msgs/msg/light.hpp"
-#include "std_msgs/msg/int16.hpp"
-#include "std_msgs/msg/int16_multi_array.hpp"
-#include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/string.hpp"
 
 class APDS9960Publisher : public rclcpp::Node
 {

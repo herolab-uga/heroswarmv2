@@ -15,7 +15,6 @@
 #include <linux/reboot.h>
 #include "controller.hpp"
 #include "router.h"
-
 #include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
 
 
@@ -140,6 +139,11 @@ Controller::Controller():Node("controller")
 
     // Moving this here cause it needs to send a uart message
     neopixel_sub = this->create_subscription<std_msgs::msg::Int16MultiArray>("neopixel", 10, std::bind(&Controller::neopixelCallback, this, _1));
+
+    micPublisher = this->create_publisher<std_msgs::msg::Int32>("mic", 5);	
+	micTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&Controller::get_mic_reading, this));
+
+    ROUTER_REGISTER(0x3, mic_pub);
 
     // Charger Services
     // getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
@@ -311,6 +315,21 @@ void Controller::pubBattery()
 	battMsg.data = this->voltageBatt;
 	this->batteryMutex.unlock();
 	this->batteryPublisher->publish(battMsg);
+}
+
+void Controller::get_mic_reading()
+{
+	uart_send_message(0x2,NULL,NULL);
+}
+
+int Controller::mic_pub(uint16_t length, void* args)
+{
+	if (1 == length)
+	{
+		auto mic_msg = std_msgs::msg::Int32();
+		memcpy(&mic_msg.data, args, sizeof(int32_t));
+		micPublisher->publish(mic_msg);
+	}
 }
 
 

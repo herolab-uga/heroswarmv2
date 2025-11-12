@@ -26,7 +26,11 @@ uint16_t wrap_pkt(const uint16_t apid, uint8_t *src_buff, uint8_t *dest_buff, si
 	header.length = len + CRC_SIZE;
 
 	memcpy(dest_buff, &header, sizeof(stream_header_t));
-	memcpy(dest_buff + sizeof(stream_header_t), src_buff, len);
+	
+	if (NULL != src_buff)
+	{
+		memcpy(dest_buff + sizeof(stream_header_t), src_buff, len);
+	}
 
 	return header.length + STREAM_HEADER_SIZE - CRC_SIZE;
 }
