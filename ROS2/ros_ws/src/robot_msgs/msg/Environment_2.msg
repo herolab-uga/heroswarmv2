@@ -1,2 +1,0 @@
-float64 temp
-float64 humidity
