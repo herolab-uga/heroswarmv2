@@ -1,1 +1,0 @@
-nav_msgs/Odometry[] robot_pos

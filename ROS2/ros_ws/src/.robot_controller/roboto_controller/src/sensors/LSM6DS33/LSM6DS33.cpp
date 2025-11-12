@@ -1,0 +1,19 @@
+#include "sensor_manager/sensor_manager.hpp"
+
+#define LSM6DS33 0x69
+
+bool SensorPublisher::setupLSM6DS33()
+{
+    std::cout << "Starting LSM6DS33 Setup" << std::endl;
+    if (ioctl(i2cFd, I2C_SLAVE, LSM6DS33) < 0)
+    {
+        std::cout << "Faild to set SHT31D I2C Slave" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool readLSM6DS33()
+{
+    return false;
+}
