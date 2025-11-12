@@ -8,6 +8,7 @@
 // #include "includes/CAN.h"
 #include "tlm.h"
 #include "uart.h"
+#include "pdm.hpp"
 // #include "battery.h"
 // #include "charging.h"
 #include "motors.h"
@@ -47,6 +48,7 @@ void setup() {
 
     init_tlm();
     init_uart();
+    init_pdm();
     // init_battery_adc();
     init_motor_control();
     init_neopixel();

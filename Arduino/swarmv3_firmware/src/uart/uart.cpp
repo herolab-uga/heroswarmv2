@@ -15,7 +15,8 @@
 #include <FreeRTOS.h>
 #include "semphr.h"
 
-#define BAUDRATE (921600)
+#define RETRY_COUNT     (255)
+#define BAUDRATE        (921600)
 
 typedef enum
 {
@@ -102,14 +103,16 @@ void uart_tx_task(void *params)
 
 uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
 {
+    uint8_t count = 0;
     uart_errors_t error = NO_ERROR;
     uint16_t read_len = 0;
     uart_state_t state = SYNC;
 
+    error = NO_ERROR;
+
     do
     {
-        error = NO_ERROR;
-
+        count++;
         switch (state)
         {
         case SYNC:
@@ -166,6 +169,12 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
         }
         case DATA:
         {
+            if (0 == read_len)
+            {
+                error = NO_MORE_BITS;
+                break;
+            }
+
             for (int32_t i = 0; i < read_len && Serial1.available(); i++)
             {
                 buff[*length] = Serial1.read();
@@ -186,7 +195,7 @@ uart_errors_t read_incoming_data(uint8_t *buff, size_t *length)
         }
         }
 
-    } while (Serial1.available() && (NO_ERROR == error));
+    } while (Serial1.available() && (NO_ERROR == error) && (RETRY_COUNT > count));
 
     while (Serial1.available())
     {
