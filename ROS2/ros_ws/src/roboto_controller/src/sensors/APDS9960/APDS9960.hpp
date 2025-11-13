@@ -2,6 +2,12 @@
 #include <semaphore.h>
 #include "rclcpp/rclcpp.hpp"
 
+#include "robot_msgs/msg/light.hpp"
+#include "std_msgs/msg/int16.hpp"
+#include "std_msgs/msg/int16_multi_array.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/string.hpp"
+
 class APDS9960Publisher : public rclcpp::Node
 {
     private:

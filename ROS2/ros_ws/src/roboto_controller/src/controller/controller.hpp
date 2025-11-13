@@ -12,6 +12,7 @@
 #include "std_msgs/msg/int16_multi_array.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "robot_msgs/srv/get_charger.hpp"
 #include "robot_msgs/srv/release_charger.hpp"
 #include "geometry_msgs/msg/twist.hpp"
@@ -107,6 +108,6 @@ private:
     void pubOdom();
     void pubBattery();
     void neopixelCallback(const std_msgs::msg::Int16MultiArray::SharedPtr msg);
-    int mic_publish();
+    int mic_pub(uint16_t length, void* args);
     void get_mic_reading();
 };

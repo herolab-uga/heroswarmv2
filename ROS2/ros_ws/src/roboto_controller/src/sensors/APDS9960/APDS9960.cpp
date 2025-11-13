@@ -8,12 +8,6 @@ extern "C"
 #include <i2c/smbus.h>
 }
 
-#include "robot_msgs/msg/light.hpp"
-#include "std_msgs/msg/int16.hpp"
-#include "std_msgs/msg/int16_multi_array.hpp"
-#include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/string.hpp"
-
 #include "APDS9960/APDS9960.hpp"
 
 
