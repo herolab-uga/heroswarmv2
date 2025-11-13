@@ -64,6 +64,12 @@ add_executable(
   src/sensors/sensor_manager/sensor_manager.cpp 
   src/sensors/APDS9960/APDS9960.cpp 
   src/sensors/BMP280/BMP280.cpp 
+  src/sensors/LSM6DS3/lsm6ds3.cpp
+  src/sensors/LSM6DS3/LSM6DS3Sensor.cpp
+  src/sensors/LIS3MDL/lis3mdl.cpp
+  src/sensors/LIS3MDL/lis3mdl_node.cpp
+  src/sensors/SHT31D/sht31d.cpp
+  src/sensors/SHT31D/sht31d_node.cpp
 )
 
 target_include_directories(sensor_manager PRIVATE 

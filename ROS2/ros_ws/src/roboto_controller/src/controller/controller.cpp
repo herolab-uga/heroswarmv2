@@ -143,7 +143,7 @@ Controller::Controller():Node("controller")
     micPublisher = this->create_publisher<std_msgs::msg::Int32>("mic", 5);	
 	micTimer = this->create_wall_timer(DEFAULT_PUB_RATE, std::bind(&Controller::get_mic_reading, this));
 
-    ROUTER_REGISTER(0x3, mic_pub);
+    // ROUTER_REGISTER(0x3, Controller::mic_pub);
 
     // Charger Services
     // getChargerService = this->create_client<robot_msgs::srv::GetCharger>("getCharger");
@@ -319,18 +319,20 @@ void Controller::pubBattery()
 
 void Controller::get_mic_reading()
 {
-	uart_send_message(0x2,NULL,NULL);
+	uart_send_message(0x2,NULL,0);
 }
 
-int Controller::mic_pub(uint16_t length, void* args)
-{
-	if (1 == length)
-	{
-		auto mic_msg = std_msgs::msg::Int32();
-		memcpy(&mic_msg.data, args, sizeof(int32_t));
-		micPublisher->publish(mic_msg);
-	}
-}
+// int Controller::mic_pub(uint16_t length, void* args)
+// {
+// 	if (0 == length)
+// 	{
+// 		auto mic_msg = std_msgs::msg::Int32();
+// 		memcpy(&mic_msg.data, args, sizeof(int32_t));
+// 		micPublisher->publish(mic_msg);
+//         return 0;
+// 	}
+//     return 1;
+// }
 
 
 int main(int argc, char *argv[])
